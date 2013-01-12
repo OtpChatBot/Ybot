@@ -73,6 +73,7 @@ Current plugins
   * Ping - simple ping/pong
   * Math - calculate math expressions
   * Date - Date/time
+  * Pugme - pugme service plugin
 
 
 Contribute
