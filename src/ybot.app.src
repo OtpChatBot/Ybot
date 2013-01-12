@@ -1,0 +1,12 @@
+{application, ybot,
+ [
+  {description, "Ybot - Github hubot inspired bot with different plugins and adapters."},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { ybot_app, []}},
+  {env, [{config, "ybot.config"}]}
+ ]}.
