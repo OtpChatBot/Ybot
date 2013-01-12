@@ -65,7 +65,14 @@ Example of treatment to Ybot:
 Ybot math 3^2
 ```
 
-When Ybot received some chat message for example: `Ybot math 3^2` 
+When Ybot received some chat message for example: `Ybot math 3^2`
+
+Current plugins
+================
+
+  * Ping - simple ping/pong
+  * Math - calculate math expressions
+  * Date - Date/time
 
 
 Contribute
