@@ -1,0 +1,7 @@
+.eunit
+deps
+*.o
+*.beam
+*.plt
+
+*.pyc
