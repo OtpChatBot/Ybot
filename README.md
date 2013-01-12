@@ -3,6 +3,8 @@ Ybot
 
 Ybot - is erlang bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language.
 
+[![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
+
 Features
 =========
 
@@ -23,21 +25,6 @@ Adapters
 Ybot - is chat bot and all time of his life he spends chatting. Add that moment hubot supports:
 
   * Irc
-
-Usage
-==========
-
-First of all we must compile Ybot:
-
-```erlang
-./rebar compile
-```
-
-Now we can started it:
-
-```
-start.sh
-```
 
 Plugins
 ==========
