@@ -63,7 +63,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                                         {plugin, "ruby", filename:basename(Plugin, ".rb"), Plugin};
                                     ".sh" ->
                                         % shell plugin
-                                        {plugin, "shell", filename:basename(Plugin, ".sh"), Plugin};
+                                        {plugin, "sh", filename:basename(Plugin, ".sh"), Plugin};
                                     _ ->
                                         % this is wrong plugin
                                         []

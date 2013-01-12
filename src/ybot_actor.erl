@@ -35,7 +35,7 @@ handle_cast({execute, TransportPid, Command, Args}, State) ->
             % plugin not finded
             pass;
         {plugin, Lang, _PluginName, PluginPath} ->
-            % find plugin
+            % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
             % send result to chat
             irc_lib_client:send_message(TransportPid, Result)
