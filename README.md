@@ -74,6 +74,7 @@ Current plugins
   * Math - calculate math expressions
   * Date - Date/time
   * Pugme - pugme service plugin
+  * Erl   - computation of erlang expression with tryerlang.org.
 
 
 Contribute
