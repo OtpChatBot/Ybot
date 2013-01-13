@@ -33,7 +33,6 @@ Ybot can execute different commands. Command - is simple chat message. For examp
 
 ```
 you: Ybot math 1 + 5
-
 Ybot: Answer: 6
 ```
 
