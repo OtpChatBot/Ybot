@@ -54,7 +54,7 @@ handle_call(_Request, _From, State) ->
 %% @doc Try to connect to irc server and join to channel
 handle_cast({connect, Host}, State) ->
 	% Try to connect to irc server
-	case gen_tcp:connect(binary_to_list(Host), ?PORT, []) of
+	case gen_tcp:connect(binary_to_list(Host), ?PORT, [{delay_send, false}, {nodelay, true}]) of
 		{ok, Socket} ->
 			gen_tcp:send(Socket, "NICK " ++ binary_to_list(State#state.login) ++ "\r\n"),
 			% Send user data
@@ -85,7 +85,7 @@ handle_info({tcp, Socket, Data}, State) ->
 	case string:tokens(Data, " ") of
 		["PING" | _] ->
 			% Send pong
-			gen_tcp:send(Socket, "PONG " ++ State#state.host);
+			gen_tcp:send(Socket, "PONG :" ++ binary_to_list(State#state.host) ++ "\r\n");
 		[_User, "PRIVMSG", _Channel | Message] ->
 			% Get incoming message
 			[_ | IncomingMessage] = string:join(Message, " "),
@@ -100,6 +100,11 @@ handle_info({tcp, Socket, Data}, State) ->
 handle_info({tcp_closed, _}, State) ->
     % stop and return state
     {stop, normal, State};
+
+handle_info({tcp_error, _Socket, Reason}, State) ->
+	io:format("tcp_error: ~p~n", [Reason]),
+	% stop and return state
+	{stop, normal, State};
 
 handle_info(_Info, State) ->
     {noreply, State}.
