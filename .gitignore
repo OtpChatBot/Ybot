@@ -3,5 +3,8 @@ deps
 *.o
 *.beam
 *.plt
-
+*.swp
 *.pyc
+ebin/
+erl_crash.dump
+
