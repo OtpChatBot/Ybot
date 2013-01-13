@@ -13,7 +13,8 @@ clean:
 distclean: clean
 	@./rebar delete-deps
 
-run: erl -boot start_sasl +P 2000000 -config ybot.config -s ybot
+run:
+	erl -pa $(CURDIR)/ebin -pa $(CURDIR)/deps/*/ebin -config ybot.config -boot start_sasl +P 2000000 -s ybot
 
 test: test-eunit 
 
