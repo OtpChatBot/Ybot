@@ -1,3 +1,9 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_actor.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot actor. Process started when Ybot receive message.
+%%%           Main command executer.
+%%%----------------------------------------------------------------------
 -module(ybot_actor).
 
 -behaviour(gen_server).
@@ -26,14 +32,16 @@ init([TransportPid, Command, Args]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
+%% @doc Execute plugin
 handle_cast({execute, TransportPid, Command, Args}, State) ->
     % Get plugin metadata
     TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
     % Check plugin
     case TryToFindPlugin of
+        % plugin not found
         wrong_plugin ->
-            % plugin not finded
-            pass;
+            % Send error message
+            irc_lib_client:send_message(TransportPid, "Sorry, i don't know anything about " ++ Command);
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),

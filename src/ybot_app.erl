@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_app.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot application.
+%%%----------------------------------------------------------------------
 -module(ybot_app).
 
 -behaviour(application).

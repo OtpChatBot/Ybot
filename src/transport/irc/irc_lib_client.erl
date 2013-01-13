@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : irc_lib_client.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Irc transport client.
+%%%----------------------------------------------------------------------
 -module(irc_lib_client).
 
 -behaviour(gen_server).
@@ -33,7 +38,7 @@
 start_link(CallbackModule, Host, Channel, Nick) ->
     gen_server:start_link(?MODULE, [CallbackModule, Host, Channel, Nick], []).
 
-%% @doc IRC client with `Pid` send message to chat
+%% @doc IRC client with Pid send message to chat
 send_message(Pid, Message) ->
 	gen_server:cast(Pid, {send_message, Message}).
  

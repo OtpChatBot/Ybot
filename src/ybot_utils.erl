@@ -1,3 +1,9 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_utils.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot utils functions
+%%%----------------------------------------------------------------------
+
 -module(ybot_utils).
 
 -export([get_all_files/1,
@@ -9,9 +15,9 @@ get_all_files(Dir) ->
     FindFiles = fun(F, Acc) -> [F | Acc] end,
     filelib:fold_files(Dir, ".*", true, FindFiles, []).
 
-%% @doc Take 2 string. Find `SplitSnippet` in `String` 
-%%      and return all string content which after `SplitSnippet` in string.
-%% @example:
+%% @doc Take 2 string. Find SplitSnippet in String 
+%%      and return all string content which after SplitSnippet in string.
+%% example:
 %%
 %% > estring:splitAtEnd("Hello, my name is 0xAX", "name").
 %%   >> " is 0xAX"

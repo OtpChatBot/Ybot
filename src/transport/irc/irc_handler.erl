@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : transport/irc/irc_handler.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Handler of irc messages.
+%%%----------------------------------------------------------------------
 -module(irc_handler).
 
 -behavior(gen_server).

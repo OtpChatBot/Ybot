@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_manager.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot manager. Init all transports and plugin storage.
+%%%----------------------------------------------------------------------
 -module(ybot_manager).
 
 -behaviour(gen_server).

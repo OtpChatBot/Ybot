@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_sup.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot root supervisor
+%%%----------------------------------------------------------------------
 -module(ybot_sup).
 
 -behaviour(supervisor).
@@ -41,5 +46,5 @@ init([]) ->
     	}
     ],
 
-    % start
+    % init
     {ok, { {one_for_one, 5, 10}, Childrens} }.
