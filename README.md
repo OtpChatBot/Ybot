@@ -1,7 +1,7 @@
 Ybot
 ===============
 
-Ybot - is erlang bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language.
+Ybot - is a customizable bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language like python, ruby or shell. 
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
@@ -19,12 +19,13 @@ Features
   * Very easily extensible
   * Irc adapter
 
-Adapters
+Transport
 ==========
 
-Ybot - is chat bot and all time of his life he spends chatting. Add that moment hubot supports:
+Ybot transport - is network interface which Ybot supported. Ybot is chat bot and all time of his life he spends chatting. Ybot receives chat messages and execute some commands depending on received message. Add that moment hubot supports:
 
-  * Irc
+  * Irc chat.
+  * xmpp (In developing. See xmpp-transport-experemental branch).
 
 Plugins
 ==========
@@ -36,17 +37,17 @@ you: Ybot math 1 + 5
 Ybot: Answer: 6
 ```
 
-Here are a few simple rules, of structure Ybot plugins.
+Here are a few simple rules, of structure of the all Ybot plugins.
 
-1. Every message to Ybot must started from `Ybot` label.
+1. Every message to Ybot must started from `Ybot` chat login.
 
-2. After `Ybot` is command for example `math` or `ping`.
+2. After `Ybot` login is command for example `math` or `ping`. Every command consists from one word.
 
-3. After `Ybot` label and command are command arguments.
+3. After `Ybot` login and command are command arguments.
 
-4. We must have plugin in our plugin directory. 
+4. One command = One plugin. We must have plugins in our plugin directory.
 
-5. Plugin is file with extension of:
+5. Plugin is file necessarily with extension of:
 
   * .py
   * .rb
@@ -63,8 +64,6 @@ Example of treatment to Ybot:
 ```
 Ybot math 3^2
 ```
-
-When Ybot received some chat message for example: `Ybot math 3^2`
 
 Current plugins
 ================
