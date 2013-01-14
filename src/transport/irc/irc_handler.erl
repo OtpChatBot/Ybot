@@ -19,6 +19,8 @@
  
 % state
 -record(state, {
+        % irc bot nick
+        nick = <<>> :: binary(),
         % irc client pid
         irc_client_pid :: pid()
     }).
@@ -32,17 +34,18 @@ init([]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast({irc_client, ClientPid}, State) ->
+handle_cast({irc_client, ClientPid, BotNick}, State) ->
     % save irc client pid
-    {noreply, State#state{irc_client_pid = ClientPid}};
+    {noreply, State#state{irc_client_pid = ClientPid, nick = BotNick}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
+    Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
-        ["Ybot", Command | _] ->
+        [Nick, Command | _] ->
             ArgsString = ybot_utils:splitAtEnd(IncomingMessage, Command),
             % Get command argumets
             {Args, _} = lists:split(length(ArgsString) - 2, ArgsString),

@@ -93,7 +93,7 @@ handle_cast({start_transports, Transports}, State) ->
                                   % Run new irc client
                                   {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Channel, Nick),
                                   % send client pid to handler
-                                  ok = gen_server:cast(HandlerPid, {irc_client, ClientPid}),
+                                  ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
                                   % return correct transport
                                   {irc, ClientPid, HandlerPid, Nick, Channel, Host};
                               _ ->
