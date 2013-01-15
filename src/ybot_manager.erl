@@ -46,6 +46,10 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             {reply, Plugin, State}
     end;
 
+handle_call(get_all_plugins, _From, State) ->
+  % return plugins
+  {reply, State#state.plugins, State};
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
