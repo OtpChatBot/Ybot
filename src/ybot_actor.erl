@@ -40,13 +40,13 @@ handle_cast({execute, TransportPid, Command, Args}, State) ->
     case TryToFindPlugin of
         % plugin not found
         wrong_plugin ->
-            % Send error message
-            irc_lib_client:send_message(TransportPid, "Sorry, i don't know anything about " ++ Command);
+            % Send message to transport
+            gen_server:cast(TransportPid, {send_message, "Sorry, i don't know anything about " ++ Command});
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
             % send result to chat
-            irc_lib_client:send_message(TransportPid, Result)
+            gen_server:cast(TransportPid, {send_message, Result})
     end,
     % stop actor
     stop(),

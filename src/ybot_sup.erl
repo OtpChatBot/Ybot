@@ -38,6 +38,12 @@ init([]) ->
             {irc_lib_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
         },
+
+        % run xmpp root supervisor
+        {xmpp_sup,
+            {xmpp_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
         
     	% start manager with transports list
     	{ybot_manager, 
