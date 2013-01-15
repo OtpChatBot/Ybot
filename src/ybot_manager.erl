@@ -40,7 +40,8 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             % return plugin with metadata
             {reply, Plugin, State}
     end;
-
+handle_call(get_plugins, _From, State) ->
+    {reply, State#state.plugins, State};
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
@@ -50,26 +51,32 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
     Plugins = ybot_utils:get_all_files(PluginsDirectory),
     % Parse plugins
     PluginsList = lists:flatten(
-                    lists:map(fun(Plugin) -> 
+                    lists:map(fun(Plugin) ->
                                 % Get plugin extension
                                 Ext = filename:extension(Plugin),
+                                Name = filename:basename(Plugin, Ext),
                                 % Match extension
                                 case Ext of
                                     ".py" ->
                                         % python plugin
-                                        {plugin, "python", filename:basename(Plugin, ".py"), Plugin};
+                                        lager:info("Loading plugin(Python): ~s", [Name]),
+                                        {plugin, "python", Name, Plugin};
                                     ".rb" ->
                                         % ruby plugin
-                                        {plugin, "ruby", filename:basename(Plugin, ".rb"), Plugin};
+                                        lager:info("Loading plugin(Ruby): ~s", [Name]),
+                                        {plugin, "ruby", Name, Plugin};
                                     ".sh" ->
                                         % shell plugin
-                                        {plugin, "sh", filename:basename(Plugin, ".sh"), Plugin};
+                                        lager:info("Loading plugin(Shell): ~s", [Name]),
+                                        {plugin, "sh", Name, Plugin};
                                     _ ->
+                                        lager:info("Unsupported plugin type: ~s", [Ext]),
                                         % this is wrong plugin
                                         []
                                 end
-                            end, 
+                            end,
                             Plugins)),
+
     % init plugins
     {noreply, State#state{plugins = PluginsList}};
 
@@ -78,7 +85,7 @@ handle_cast({start_transports, Transports}, State) ->
     % Review supported mode of transportation
     TransportList 
         = lists:flatten(
-            lists:map(fun(Trans) -> 
+            lists:map(fun(Trans) ->
                           case element(1, Trans) of
                               irc ->
                                   % Get irc params
@@ -87,14 +94,17 @@ handle_cast({start_transports, Transports}, State) ->
                                   {ok, HandlerPid} = irc_handler:start_link(),
                                   % Run new irc client
                                   {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Channel, Nick),
+
+                                  lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
+
                                   % send client pid to handler
                                   ok = gen_server:cast(HandlerPid, {irc_client, ClientPid}),
                                   % return correct transport
                                   {irc, ClientPid, HandlerPid, Nick, Channel, Host};
                               _ ->
                                   []
-                          end  
-                      end, 
+                          end
+                      end,
                       Transports)),
     % return
     {noreply, State#state{transports = TransportList}};

@@ -16,7 +16,10 @@
  
 start_link(TransportPid, Command, Args) ->
     gen_server:start_link(?MODULE, [TransportPid, Command, Args], []).
- 
+
+stop() ->
+    gen_server:cast(?MODULE, stop).
+
 init([TransportPid, Command, Args]) ->
     % execute plugin
     gen_server:cast(self(), {execute, TransportPid, Command, Args}),
@@ -27,18 +30,24 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast({execute, TransportPid, Command, Args}, State) ->
-    % Get plugin metadata
-    TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
-    % Check plugin
-    case TryToFindPlugin of
-        wrong_plugin ->
-            % plugin not finded
-            pass;
-        {plugin, Lang, _PluginName, PluginPath} ->
-            % execute plugin
-            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
-            % send result to chat
-            irc_lib_client:send_message(TransportPid, Result)
+    lager:info("Command: ~s, ~p", [Command, Args]),
+
+    case Command of
+        "help" -> command_help(TransportPid);
+        _      ->
+            % Get plugin metadata
+            TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
+            % Check plugin
+            case TryToFindPlugin of
+                wrong_plugin ->
+                    % plugin not found
+                    pass;
+                {plugin, Lang, _PluginName, PluginPath} ->
+                    % execute plugin
+                    Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
+                    % send result to chat
+                    irc_lib_client:send_message(TransportPid, Result)
+            end
     end,
     % stop actor
     stop(),
@@ -61,5 +70,11 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
-stop() ->
-    gen_server:cast(?MODULE, stop).
+command_help(TransportPid) ->
+    Plugins = gen_server:call(ybot_manager, get_plugins),
+    PluginNames = get_plugin_names(Plugins),
+    Result = io_lib:format("Help - available plugins: ~s", [string:join(PluginNames, ", ")]),
+    irc_lib_client:send_message(TransportPid, Result).
+
+get_plugin_names(Plugins) ->
+    lists:map(fun({plugin,_,Name,_}) -> Name end, Plugins).
