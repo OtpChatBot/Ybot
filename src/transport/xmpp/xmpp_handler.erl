@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : transport/xmpp/xmpp_handler.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Xmpp messages handler
+%%%----------------------------------------------------------------------
 -module(xmpp_handler).
 
 -behavior(gen_server).
@@ -48,7 +53,7 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             pass
     end,
     % return
-	{noreply, State};
+    {noreply, State};
 
 handle_info(_Info, State) ->
     {noreply, State}.

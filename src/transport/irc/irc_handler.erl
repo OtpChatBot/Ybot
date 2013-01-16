@@ -45,7 +45,10 @@ handle_info({incoming_message, IncomingMessage}, State) ->
     Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
-        [Nick, Command | Args] ->
+        [Nick, Command | _] ->
+            ArgsString = ybot_utils:splitAtEnd(IncomingMessage, Command),
+            % Get command argumets
+            {Args, _} = lists:split(length(ArgsString) - 2, ArgsString),
             % Start process with supervisor which will be execute plugin and send to pid
             ybot_actor:start_link(State#state.irc_client_pid, Command, Args);
         _ ->
@@ -53,7 +56,7 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             pass
     end,
     % return
-	{noreply, State};
+    {noreply, State};
 
 handle_info(_Info, State) ->
     {noreply, State}.

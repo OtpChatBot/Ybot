@@ -24,22 +24,22 @@ start_link() ->
 %% @doc Start new irc client
 %% @end
 -spec start_irc_client(CallbackModule :: atom() | pid(), 
-	                   Host :: binary(), 
-	                   Channel :: binary(), 
-	                   Nick :: binary()) 
+                       Host :: binary(), 
+                       Channel :: binary(), 
+                       Nick :: binary()) 
                        -> {ok, Pid :: pid()} | {error, Reason :: term()}.
 start_irc_client(CallbackModule, Host, Channel, Nick) ->
     % run new irc client
     supervisor:start_child(?MODULE, [CallbackModule, Host, Channel, Nick]).
 
 init([]) ->
-	% irc client
+    % irc client
     ChildSpec = [
         % start irc client
-    	{irc_lib_client, 
-   			{irc_lib_client, start_link, []},
-    	 	 temporary, 2000, worker, []
-    	}
+        {irc_lib_client, 
+            {irc_lib_client, start_link, []},
+             temporary, 2000, worker, []
+        }
     ],
 
     % init
