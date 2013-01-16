@@ -31,7 +31,7 @@ handle_call(_Request, _From, State) ->
 
 handle_cast({execute, TransportPid, Command, Args}, State) ->
     lager:info("Command: ~s, ~p", [Command, Args]),
-    handle_command(list_to_atom(Command), Args, TransportPid),
+    handle_command(Command, Args, TransportPid),
     % stop actor
     stop(),
     % return
@@ -53,7 +53,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
-handle_command(help, _Args, TransportPid) ->
+handle_command("help", _Args, TransportPid) ->
     Plugins = gen_server:call(ybot_manager, get_plugins),
     PluginNames = get_plugin_names(Plugins),
     Result = io_lib:format("Help - available plugins: ~s",
