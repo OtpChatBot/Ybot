@@ -88,4 +88,4 @@ Ybot - is open source project under Erlang public license (see LICENSE file). Is
 Author
 ========
 
-[@0xAX](https://twitter.com/anotherworldofw)
+[@0xAX](https://twitter.com/0xAX)
