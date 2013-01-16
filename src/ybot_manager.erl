@@ -50,32 +50,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
     % Get all plugins
     Plugins = ybot_utils:get_all_files(PluginsDirectory),
     % Parse plugins
-    PluginsList = lists:flatten(
-                    lists:map(fun(Plugin) ->
-                                % Get plugin extension
-                                Ext = filename:extension(Plugin),
-                                Name = filename:basename(Plugin, Ext),
-                                % Match extension
-                                case Ext of
-                                    ".py" ->
-                                        % python plugin
-                                        lager:info("Loading plugin(Python): ~s", [Name]),
-                                        {plugin, "python", Name, Plugin};
-                                    ".rb" ->
-                                        % ruby plugin
-                                        lager:info("Loading plugin(Ruby): ~s", [Name]),
-                                        {plugin, "ruby", Name, Plugin};
-                                    ".sh" ->
-                                        % shell plugin
-                                        lager:info("Loading plugin(Shell): ~s", [Name]),
-                                        {plugin, "sh", Name, Plugin};
-                                    _ ->
-                                        lager:info("Unsupported plugin type: ~s", [Ext]),
-                                        % this is wrong plugin
-                                        []
-                                end
-                            end,
-                            Plugins)),
+    PluginsList = lists:flatten(lists:map(fun load_plugin/1, Plugins)),
 
     % init plugins
     {noreply, State#state{plugins = PluginsList}};
@@ -120,5 +95,28 @@ terminate(_Reason, _State) ->
  
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
- 
+
 %% Internal functions
+load_plugin(Plugin) ->
+    % Get plugin extension
+    Ext = filename:extension(Plugin),
+    Name = filename:basename(Plugin, Ext),
+    % Match extension
+    case Ext of
+        ".py" ->
+            % python plugin
+            lager:info("Loading plugin(Python): ~s", [Name]),
+            {plugin, "python", Name, Plugin};
+        ".rb" ->
+            % ruby plugin
+            lager:info("Loading plugin(Ruby): ~s", [Name]),
+            {plugin, "ruby", Name, Plugin};
+        ".sh" ->
+            % shell plugin
+            lager:info("Loading plugin(Shell): ~s", [Name]),
+            {plugin, "sh", Name, Plugin};
+        _ ->
+            % this is wrong plugin
+            lager:info("Unsupported plugin type: ~s", [Ext]),
+            []
+    end.

@@ -31,24 +31,7 @@ handle_call(_Request, _From, State) ->
 
 handle_cast({execute, TransportPid, Command, Args}, State) ->
     lager:info("Command: ~s, ~p", [Command, Args]),
-
-    case Command of
-        "help" -> command_help(TransportPid);
-        _      ->
-            % Get plugin metadata
-            TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
-            % Check plugin
-            case TryToFindPlugin of
-                wrong_plugin ->
-                    % plugin not found
-                    pass;
-                {plugin, Lang, _PluginName, PluginPath} ->
-                    % execute plugin
-                    Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
-                    % send result to chat
-                    irc_lib_client:send_message(TransportPid, Result)
-            end
-    end,
+    handle_command(list_to_atom(Command), Args, TransportPid),
     % stop actor
     stop(),
     % return
@@ -70,11 +53,26 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
-command_help(TransportPid) ->
+handle_command(help, _Args, TransportPid) ->
     Plugins = gen_server:call(ybot_manager, get_plugins),
     PluginNames = get_plugin_names(Plugins),
-    Result = io_lib:format("Help - available plugins: ~s", [string:join(PluginNames, ", ")]),
-    irc_lib_client:send_message(TransportPid, Result).
+    Result = io_lib:format("Help - available plugins: ~s",
+                           [string:join(PluginNames, ", ")]),
+    irc_lib_client:send_message(TransportPid, Result);
+handle_command(Command, Args, TransportPid) ->
+    % Get plugin metadata
+    TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
+    % Check plugin
+    case TryToFindPlugin of
+        wrong_plugin ->
+            % plugin not found
+            pass;
+        {plugin, Lang, _PluginName, PluginPath} ->
+            % execute plugin
+            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
+            % send result to chat
+            irc_lib_client:send_message(TransportPid, Result)
+    end.
 
 get_plugin_names(Plugins) ->
     lists:map(fun({plugin,_,Name,_}) -> Name end, Plugins).
