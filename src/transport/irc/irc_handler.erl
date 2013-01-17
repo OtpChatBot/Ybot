@@ -41,6 +41,7 @@ handle_cast({irc_client, ClientPid, BotNick}, State) ->
 handle_cast(_Msg, State) ->
 	{noreply, State}.
 
+%% @doc Receive incoming message from irc chat
 handle_info({incoming_message, IncomingMessage}, State) ->
 	Nick = binary_to_list(State#state.nick),
 	% Check this is message for Ybot or not

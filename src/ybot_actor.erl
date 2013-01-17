@@ -29,8 +29,11 @@ init([TransportPid, Command, Args]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
+%% @doc Try to execute command
 handle_cast({execute, TransportPid, Command, Args}, State) ->
+    % Log
     lager:info("Command: ~s, ~p", [Command, Args]),
+    % Handle received command
     handle_command(Command, Args, TransportPid),
     % stop actor
     stop(),
@@ -53,12 +56,9 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
-handle_command("help", _Args, TransportPid) ->
-    Plugins = gen_server:call(ybot_manager, get_plugins),
-    PluginNames = get_plugin_names(Plugins),
-    Result = io_lib:format("Help - available plugins: ~s",
-                           [string:join(PluginNames, ", ")]),
-    irc_lib_client:send_message(TransportPid, Result);
+
+%% @doc Try to find plugin and execute it
+-spec handle_command(Command :: string(), Args :: [string()], TransportPid :: pid()) -> ok | pass.
 handle_command(Command, Args, TransportPid) ->
     % Get plugin metadata
     TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
@@ -73,6 +73,3 @@ handle_command(Command, Args, TransportPid) ->
             % send result to chat
             irc_lib_client:send_message(TransportPid, Result)
     end.
-
-get_plugin_names(Plugins) ->
-    lists:map(fun({plugin,_,Name,_}) -> Name end, Plugins).

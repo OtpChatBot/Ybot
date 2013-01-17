@@ -31,6 +31,7 @@ init([PluginsDirectory, Transports]) ->
     % init
     {ok, #state{}}.
 
+%% @doc Get plugin metadata by plugin name
 handle_call({get_plugin, PluginName}, _From, State) ->
     case lists:keyfind(PluginName, 3, State#state.plugins) of
         false ->
@@ -40,8 +41,11 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             % return plugin with metadata
             {reply, Plugin, State}
     end;
+
+%% @doc Return all plugins
 handle_call(get_plugins, _From, State) ->
     {reply, State#state.plugins, State};
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
@@ -49,9 +53,8 @@ handle_call(_Request, _From, State) ->
 handle_cast({init_plugins, PluginsDirectory}, State) ->
     % Get all plugins
     Plugins = ybot_utils:get_all_files(PluginsDirectory),
-    % Parse plugins
+    % Parse plugins and load to state
     PluginsList = lists:flatten(lists:map(fun load_plugin/1, Plugins)),
-
     % init plugins
     {noreply, State#state{plugins = PluginsList}};
 
@@ -69,11 +72,10 @@ handle_cast({start_transports, Transports}, State) ->
                                   {ok, HandlerPid} = irc_handler:start_link(),
                                   % Run new irc client
                                   {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Channel, Nick),
-
+                                  % Log
                                   lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
-
                                   % send client pid to handler
-                                  ok = gen_server:cast(HandlerPid, {irc_client, ClientPid}),
+                                  ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
                                   % return correct transport
                                   {irc, ClientPid, HandlerPid, Nick, Channel, Host};
                               _ ->
