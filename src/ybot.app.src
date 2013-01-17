@@ -5,7 +5,11 @@
   {registered, []},
   {applications, [
                   kernel,
-                  stdlib
+                  stdlib,
+                  syntax_tools,
+                  compiler,
+                  lager,
+                  reloader
                  ]},
   {mod, { ybot_app, []}},
   {env, [{config, "ybot.config"}]}

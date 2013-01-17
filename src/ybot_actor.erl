@@ -1,9 +1,3 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_actor.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot actor. Process started when Ybot receive message.
-%%%           Main command executer.
-%%%----------------------------------------------------------------------
 -module(ybot_actor).
 
 -behaviour(gen_server).
@@ -22,7 +16,10 @@
  
 start_link(TransportPid, Command, Args) ->
     gen_server:start_link(?MODULE, [TransportPid, Command, Args], []).
- 
+
+stop() ->
+    gen_server:cast(?MODULE, stop).
+
 init([TransportPid, Command, Args]) ->
     % execute plugin
     gen_server:cast(self(), {execute, TransportPid, Command, Args}),
@@ -32,26 +29,9 @@ init([TransportPid, Command, Args]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-%% @doc Execute plugin
 handle_cast({execute, TransportPid, Command, Args}, State) ->
-    % Get plugin metadata
-    TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
-    % Check plugin
-    case TryToFindPlugin of
-        % plugin not found
-        wrong_plugin ->
-            % Send error message
-            gen_server:cast(TransportPid, {send_message, "Sorry, i don't know anything about " ++ Command});
-        {plugin, Lang, _PluginName, PluginPath} ->
-            % execute plugin
-            Result = string:tokens(os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args), "\r\n"),
-            % Send command result
-            lists:foreach(fun(Res) ->
-                              % Send command result
-                              gen_server:cast(TransportPid, {send_message, Res})
-                          end, 
-                          Result)
-    end,
+    lager:info("Command: ~s, ~p", [Command, Args]),
+    handle_command(Command, Args, TransportPid),
     % stop actor
     stop(),
     % return
@@ -73,5 +53,26 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
-stop() ->
-    gen_server:cast(?MODULE, stop).
+handle_command("help", _Args, TransportPid) ->
+    Plugins = gen_server:call(ybot_manager, get_plugins),
+    PluginNames = get_plugin_names(Plugins),
+    Result = io_lib:format("Help - available plugins: ~s",
+                           [string:join(PluginNames, ", ")]),
+    irc_lib_client:send_message(TransportPid, Result);
+handle_command(Command, Args, TransportPid) ->
+    % Get plugin metadata
+    TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
+    % Check plugin
+    case TryToFindPlugin of
+        wrong_plugin ->
+            % plugin not found
+            pass;
+        {plugin, Lang, _PluginName, PluginPath} ->
+            % execute plugin
+            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
+            % send result to chat
+            irc_lib_client:send_message(TransportPid, Result)
+    end.
+
+get_plugin_names(Plugins) ->
+    lists:map(fun({plugin,_,Name,_}) -> Name end, Plugins).
