@@ -7,7 +7,7 @@
 -module(ybot_utils).
 
 -export([get_all_files/1,
-		 splitAtEnd/2]).
+         splitAtEnd/2]).
 
 %% @doc get all files from directory
 -spec get_all_files(Dir :: string()) -> [string()].
@@ -24,6 +24,6 @@ get_all_files(Dir) ->
 %%
 -spec splitAtEnd(String :: string(), SplitSnippet :: string()) -> string().
 splitAtEnd(String, SplitSnippet) ->
-	StartPosition = string:str(String, SplitSnippet),
+    StartPosition = string:str(String, SplitSnippet),
     SplitSnippetLength = length(SplitSnippet),
     string:substr(String, StartPosition + SplitSnippetLength).

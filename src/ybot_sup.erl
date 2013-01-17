@@ -26,13 +26,13 @@ start_link() ->
 
 init([]) ->
     % Get plugins directory
-	{ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
-	% Get transports
+    {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
+    % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
     % Root supervisor childrens
     Childrens = [
-    	
+        
         % run irc root supervisor
         {irc_lib_sup,
             {irc_lib_sup, start_link, []},
@@ -45,11 +45,11 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
         
-    	% start manager with transports list
-    	{ybot_manager, 
-    		{ybot_manager, start_link, [PluginsDirectory, Transports]},
-    		 permanent, brutal_kill, worker, []
-    	}
+        % start manager with transports list
+        {ybot_manager, 
+            {ybot_manager, start_link, [PluginsDirectory, Transports]},
+             permanent, brutal_kill, worker, []
+        }
     ],
 
     % init

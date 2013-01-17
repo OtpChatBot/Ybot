@@ -1,7 +1,8 @@
 .eunit
 deps
 *.o
-*.beam
+ebin/
+log/*
 *.plt
 *.swp
 *.pyc
