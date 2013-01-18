@@ -9,7 +9,6 @@ Features
 =========
 
   * Fully written with erlang.
-  * Dependency free (but probably until :))
   * Supporting plugins in different technology. 
   * Now supporting:
     * Python plugins
@@ -17,7 +16,8 @@ Features
     * Shell plugins
   * To write a plugin does not need to know erlang
   * Very easily extensible
-  * Irc adapter
+  * Irc supporting
+  * XMPP supporting
 
 Transport
 ==========
