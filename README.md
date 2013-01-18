@@ -18,6 +18,7 @@ Features
   * Very easily extensible
   * Irc supporting
   * XMPP supporting
+  * Campfire supporting
 
 Transport
 ==========
