@@ -25,6 +25,15 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
+    % start inets
+    application:start(inets),
+    % start public key
+    application:start(public_key),
+    % start ssl
+    ssl:start(),
+    % start ibrowse
+    application:start(ibrowse),
+
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
     % Get transports
@@ -44,7 +53,13 @@ init([]) ->
             {xmpp_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
         },
-        
+
+        % run campfire root supervisor
+        {campfire_sup,
+            {campfire_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start manager with transports list
         {ybot_manager, 
             {ybot_manager, start_link, [PluginsDirectory, Transports]},

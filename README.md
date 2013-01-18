@@ -24,8 +24,9 @@ Transport
 
 Ybot transport - is network interface which Ybot supported. Ybot is chat bot and all time of his life he spends chatting. Ybot receives chat messages and execute some commands depending on received message. Add that moment hubot supports:
 
-  * Irc chat.
-  * Xmpp multi user chat 
+  * Irc supporting.
+  * Xmpp muc supporting. 
+  * Campfire supporting.
 
 Plugins
 ==========
