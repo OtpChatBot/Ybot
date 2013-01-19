@@ -20,6 +20,37 @@ Features
   * XMPP supporting
   * Campfire supporting
 
+Building and Running
+=====================
+
+First of all you must get your own Ybot:
+
+```
+git clone https://github.com/0xAX/Ybot.git
+```
+
+Or download archive with source: [.tar.gz](https://github.com/0xAX/Ybot/tarball/master) or [.zip](https://github.com/0xAX/Ybot/zipball/master)
+
+After getting source you must download dependencies and build sources:
+
+```
+./rebar get-deps && ./rebar compile
+```
+
+After that configure with ybot.config and you can run your Ybot copy:
+
+```
+./start.sh
+```
+
+Dependencies
+=============
+
+  * [lager](https://github.com/basho/lager) - A logging framework for Erlang/OTP.
+  * [reloader](https://github.com/bjnortier/reloader) - Mochiweb's reloader.
+  * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
+  * [mochijson2](https://github.com/bjnortier/mochijson2) - Erlang json encoder/decoder.
+
 Transport
 ==========
 
@@ -81,6 +112,8 @@ Contribute
 ============
 
 Ybot - is open source project under Erlang public license (see LICENSE file). Issues, questions and patches are welcome.
+
+If you're hacking Ybot core, please, before pull request, pull and merge Ybot master, for avoiding further conflicts.
 
   * Fork main ybot repository (https://github.com/0xAX/Ybot).
   * Make your changes in your clone of ybot.
