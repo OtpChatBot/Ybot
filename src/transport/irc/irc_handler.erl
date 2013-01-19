@@ -65,8 +65,21 @@ handle_info({incoming_message, IncomingMessage}, State) ->
                           Plugins),
             gen_server:cast(State#state.irc_client_pid, {send_message, "That's all :)"});
         [Nick, Command | Args] ->
-            % Start process with supervisor which will be execute plugin and send to pid
-            ybot_actor:start_link(State#state.irc_client_pid, Command, Args);
+            % Check args
+            case Args of
+                [] ->
+                    % Start process with supervisor which will be execute plugin and send to pid
+                    ybot_actor:start_link(State#state.irc_client_pid, Command, Args);
+                _ ->
+                    % Check that args not consist wrong symbols
+                    case re:run(Args, "^[-+*/%()A_Za-z0-9\s]+$") of
+                        nomatch ->
+                            gen_server:cast(State#state.irc_client_pid, {send_message, "Hey, there is wrong symbols in your request"});
+                        _ ->    
+                            % Start process with supervisor which will be execute plugin and send to pid
+                            ybot_actor:start_link(State#state.irc_client_pid, Command, Args)
+                    end
+            end;
         _ ->
             % this is not our command
             pass
