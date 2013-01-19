@@ -10,16 +10,18 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Ybot by 0xAX</title>
+    <title>Ybot is github hubot inspired chat bot with erlang.</title>
   </head>
 
   <body>
     <div id="container">
       <div class="inner">
 
+<a href="https://github.com/0xAX/Ybot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+
         <header>
           <h1>Ybot</h1>
-          <h2>Ybot - is pretty erlang bot software which inspired with Github hubot</h2>
+          <h2>Ybot - is pretty erlang bot software which inspired with Github hubot.</h2>
         </header>
 
         <section id="downloads" class="clearfix">
@@ -31,39 +33,83 @@
         <hr>
 
         <section id="main_content">
-          <h3>Welcome to GitHub Pages.</h3>
+          <h3>Ybot - yet another helper</h3>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Ybot - is a customizable bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language like python, ruby or shell.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
+<h3>Ybot features</h3>
+
+<ul>
+  <li>Fully written with erlang.</li>
+  <li>Supporting plugins in different technology.</li>
+  <li>Python plugins</li>
+  <li>Ruby plugins</li>
+  <li>Shell plugins</li>
+  <li>To write a plugin does not need to know erlang</li>
+  <li>Very easily extensible</li>
+  <li>Irc supporting</li>
+  <li>XMPP supporting</li>
+  <li>Campfire supporting</li>
+</ul>
+
+<h3>Transport</h3>
+
+<p>Ybot transport - is network interface which Ybot supported. Ybot is chat bot and all time of his life he spends chatting. Ybot receives chat messages and execute some commands depending on received message. Add that moment hubot supports:</p>
+
+<ul>
+  <li>Irc supporting</li>
+  <li>XMPP supporting</li>
+  <li>Campfire supporting</li>
+</ul>
+
+<h3>Plugins</h3>
+
+<p>Ybot can execute different commands. Command - is simple chat message. For example chat session:</p>
+
+<pre><code>
+you: Ybot math 1 + 5
+Ybot: Answer: 6
 </code></pre>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Here are a few simple rules, of structure of the all Ybot plugins.</p>
 
-<h3>Designer Templates</h3>
+<ol>
+<li>Every message to Ybot must started from `Ybot` chat login.</li>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<li>After `Ybot` login is command for example `math` or `ping`. Every command consists from one word.</li>
 
-<h3>Rather Drive Stick?</h3>
+<li>After `Ybot` login and command are command arguments.</li>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<li>One command = One plugin. We must have plugins in our plugin directory.</li>
 
-<h3>Authors and Contributors</h3>
+<li>Plugin is file necessarily with extension of .py, .rb and .sh with python, ruby or shell code.</li>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<li>Name of this file must be same as command. For example if we got `Ybot ping` command, we must have plugin ping.py or ping.rb or ping.shell</li>
 
-<h3>Support or Contact</h3>
+<li>Plugin can consist any code and write result to stdout in the end.</li>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
+</ol>
 
-        <footer>
+<h2>Contribute</h2>
+
+<p>Ybot - is young project, and it's open source. Ybot distributes under Erlang public license. Ybot need in you. </p>
+
+<ul>
+ <li>Fork main ybot repository (https://github.com/0xAX/Ybot).</li>
+ <li>Make your changes in your clone of ybot.</li>
+ <li>Test it.</li>
+ <li>Send pull request.</li>
+</ul>
+
+<p>Tell about Ybot to your friends:</p>
+<br/>
+<a href="https://twitter.com/share" class="twitter-share-button" data-url="http://0xax.github.com/Ybot/" data-text="Ybot erlang chat bot" data-via="0xAX" data-hashtags="erlang,Ybot">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+
+       <footer>
           Ybot is maintained by <a href="https://github.com/0xAX">0xAX</a><br>
           This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
         </footer>
-
         
       </div>
     </div>
