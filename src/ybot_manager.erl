@@ -144,6 +144,14 @@ load_plugin(Plugin) ->
             % shell plugin
             lager:info("Loading plugin(Shell): ~s", [Name]),
             {plugin, "sh", Name, Plugin};
+        ".pl" ->
+            % perl plugin
+            lager:info("Loading plugin(Perl) ~s", [Name]),
+            {plugins, "perl", Name, Plugin};
+        ".ex" ->
+            % elixir plugin
+            lager:info("Loading plugin(Elixir) ~s", [Name]),
+            {plugins, "elixir", Name, Plugin};
         _ ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),
