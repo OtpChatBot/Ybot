@@ -72,25 +72,25 @@ Ybot: Answer: 6
 
 Here are a few simple rules, of structure of the all Ybot plugins.
 
-1. Every message to Ybot must started from `Ybot` chat login.
+  * Every message to Ybot must started from `Ybot` chat login.
 
-2. After `Ybot` login is command for example `math` or `ping` or something else supporting command. Every command consists from one word.
+  * After `Ybot` login is command for example `math` or `ping` or something else supporting command. Every command consists from one word.
 
-3. After `Ybot` login and command are command arguments. Ybot send all arguments in '', it turns one argument. 
+  * After `Ybot` login and command are command arguments. Ybot send all arguments in '', it turns one argument. 
 
-4. One command = One plugin. We must have plugins in our plugin directory.
+  * One command = One plugin. We must have plugins in our plugin directory.
 
-5. Plugin is file necessarily with extension of:
+  * Plugin is file necessarily with extension of:
 
-  * .py
-  * .rb
-  * .shell
+    ** .py
+    ** .rb
+    ** .shell
 
 with python, ruby or shell code.
 
-6. Name of this file must be same as command. For example if we got `Ybot ping` command, we must have plugin ping.py or ping.rb or ping.shell
+  * Name of this file must be same as command. For example if we got `Ybot ping` command, we must have plugin ping.py or ping.rb or ping.shell
 
-7. Plugin can consist any code and write result to stdout in the end.
+  * Plugin can consist any code and write result to stdout in the end.
 
 Example of treatment to Ybot:
 
