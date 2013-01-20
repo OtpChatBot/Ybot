@@ -25,14 +25,8 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % start inets
-    application:start(inets),
-    % start public key
-    application:start(public_key),
     % start ssl
     ssl:start(),
-    % start ibrowse
-    application:start(ibrowse),
 
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),

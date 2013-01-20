@@ -68,8 +68,9 @@ handle_command(Command, Args, TransportPid) ->
             % plugin not found
             pass;
         {plugin, Lang, _PluginName, PluginPath} ->
+            Args1 = string:join(Args, " "),
             % execute plugin
-            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
+            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args1 ++ "\'"),
             % send result to chat
             irc_lib_client:send_message(TransportPid, Result)
     end.

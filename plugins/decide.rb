@@ -5,4 +5,5 @@
 # Usage: Ybot decice foo bar
 #
 
-puts 'Definitely: ' + ARGV[rand(ARGV.length)]
+options = ARGV[0].split
+puts 'Definitely: ' + options[rand(options.length)]
