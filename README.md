@@ -82,9 +82,9 @@ Here are a few simple rules, of structure of the all Ybot plugins.
 
   * Plugin is file necessarily with extension of:
 
-    ** .py
-    ** .rb
-    ** .shell
+    * .py
+    * .rb
+    * .shell
 
 with python, ruby or shell code.
 
