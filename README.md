@@ -63,7 +63,7 @@ Ybot transport - is network interface which Ybot supported. Ybot is chat bot and
 Plugins
 ==========
 
-Ybot can execute different commands. Command - is simple chat message. For example chat session:
+Ybot chat bot and it can execute different commands. Command - is simple chat message. For example chat session:
 
 ```
 you: Ybot math 1 + 5
@@ -74,9 +74,9 @@ Here are a few simple rules, of structure of the all Ybot plugins.
 
 1. Every message to Ybot must started from `Ybot` chat login.
 
-2. After `Ybot` login is command for example `math` or `ping`. Every command consists from one word.
+2. After `Ybot` login is command for example `math` or `ping` or something else supporting command. Every command consists from one word.
 
-3. After `Ybot` login and command are command arguments.
+3. After `Ybot` login and command are command arguments. Ybot send all arguments in '', it turns one argument. 
 
 4. One command = One plugin. We must have plugins in our plugin directory.
 
@@ -95,17 +95,22 @@ with python, ruby or shell code.
 Example of treatment to Ybot:
 
 ```
-Ybot math 3^2
+Ybot math 3 ^ 2
 ```
+
+Here ybot call plugin with math.some_ext with argument: '3 ^ 2'
 
 Current plugins
 ================
 
-  * Ping - simple ping/pong
-  * Math - calculate math expressions
-  * Date - Date/time
-  * Pugme - pugme service plugin
-  * Erl   - computation of erlang expression with tryerlang.org.
+  * help - Ybot help
+  * ping - Ybot simple ping/pong
+  * math - Ybot calculate math expressions
+  * date - Ybot show date/time
+  * pugme - Ybot pugme service plugin
+  * erl   - Ybot computation of erlang expression with tryerlang.org.
+  * today? - Ybot return current day
+  * shorten_url - Ybot url shortener with goo.gl
 
 
 Contribute
