@@ -25,14 +25,8 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % start inets
-    application:start(inets),
-    % start public key
-    application:start(public_key),
     % start ssl
     ssl:start(),
-    % start ibrowse
-    application:start(ibrowse),
 
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
@@ -41,7 +35,7 @@ init([]) ->
 
     % Root supervisor childrens
     Childrens = [
-        
+
         % run irc root supervisor
         {irc_lib_sup,
             {irc_lib_sup, start_link, []},
@@ -61,7 +55,7 @@ init([]) ->
         },
 
         % start manager with transports list
-        {ybot_manager, 
+        {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports]},
              permanent, brutal_kill, worker, []
         }

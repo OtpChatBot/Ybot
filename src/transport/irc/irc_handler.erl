@@ -50,19 +50,14 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             gen_server:cast(State#state.irc_client_pid, {send_message, "What?"});
         [Nick, "hi"] ->
             gen_server:cast(State#state.irc_client_pid, {send_message, "Hello :)"});
-        [Nick, "bye"] ->    
+        [Nick, "bye"] ->
             gen_server:cast(State#state.irc_client_pid, {send_message, "Good bue"});
         [Nick, "plugins?"] ->
             % Get plugins
-            Plugins = gen_server:call(ybot_manager, get_all_plugins),
+            Plugins = gen_server:call(ybot_manager, get_plugins),
+            PluginNames = lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins),
             % Send plugins label
-            gen_server:cast(State#state.irc_client_pid, {send_message, "Plugins:"}),
-            % Make plugins list
-            lists:foreach(fun(Plugin) ->
-                              {_, _, Pl, _} = Plugin,
-                              gen_server:cast(State#state.irc_client_pid, {send_message, "Plugin:" ++ Pl ++ "\r\n"})
-                          end, 
-                          Plugins),
+            gen_server:cast(State#state.irc_client_pid, {send_message, "Plugins: " ++ string:join(PluginNames, ", ")}),
             gen_server:cast(State#state.irc_client_pid, {send_message, "That's all :)"});
         [Nick, Command | Args] ->
                 % Start process with supervisor which will be execute plugin and send to pid
@@ -82,5 +77,5 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
- 
+
 %% Internal functions
