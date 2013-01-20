@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
  
--export([start_link/4, send_message/2]).
+-export([start_link/4]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -37,10 +37,6 @@
 
 start_link(CallbackModule, Host, Channel, Nick) ->
     gen_server:start_link(?MODULE, [CallbackModule, Host, Channel, Nick], []).
-
-%% @doc IRC client with Pid send message to chat
-send_message(Pid, Message) ->
-    gen_server:cast(Pid, {send_message, Message}).
  
 init([CallbackModule, Host, Channel, Nick]) ->
     % try to connect
@@ -71,8 +67,13 @@ handle_cast({connect, Host}, State) ->
 
 %% Send message to irc
 handle_cast({send_message, Message}, State) ->
-    % Send message to irc
-    gen_tcp:send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Message ++ "\r\n"),
+    % Split messages by \r\n
+    MessagesList = string:tokens(Message, "\r\n"),
+    lists:foreach(fun(Mes) -> 
+                      % Send message to irc
+                      gen_tcp:send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")
+                  end, 
+                  MessagesList),
     % return
     {noreply, State};
 

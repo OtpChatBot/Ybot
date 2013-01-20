@@ -69,7 +69,7 @@ handle_command(Command, Args, TransportPid) ->
             pass;
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
-            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " " ++ Args),
+            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
             % send result to chat
-            irc_lib_client:send_message(TransportPid, Result)
+            gen_server:cast(TransportPid, {send_message, Result})
     end.

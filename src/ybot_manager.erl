@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_manager.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot main manager. Run transport, load plugins.
+%%%----------------------------------------------------------------------
 -module(ybot_manager).
 
 -behaviour(gen_server).
@@ -89,6 +94,17 @@ handle_cast({start_transports, Transports}, State) ->
                                   ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
                                   % return correct transport
                                   {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+                              campfire ->
+                                  % Get campfire params
+                                  {campfire, Login, Token, RoomId, CampfireSubDomain} = Trans,
+                                  % Start campfire handler
+                                  {ok, HandlerPid} = campfire_handler:start_link(),
+                                  % Run new campfire client
+                                  {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain),
+                                  % Send client pid to handler
+                                  ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, Login}),
+                                  % return correct transport
+                                  {campfire, ClientPid, HandlerPid};
                               _ ->
                                   []
                           end

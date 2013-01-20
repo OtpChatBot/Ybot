@@ -45,9 +45,27 @@ handle_info({incoming_message, IncomingMessage}, State) ->
     Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
+        [Nick] ->
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, "What?"});
+        [Nick, "hi"] ->
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, "Hello :)"});
+        [Nick, "bye"] ->    
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, "Good bue"});
+        [Nick, "plugins?"] ->
+            % Get plugins
+            Plugins = gen_server:call(ybot_manager, get_all_plugins),
+            % Send plugins label
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, "Plugins:"}),
+            % Make plugins list
+            lists:foreach(fun(Plugin) ->
+                              {_, _, Pl, _} = Plugin,
+                              gen_server:cast(State#state.xmpp_client_pid, {send_message, "Plugin:" ++ Pl ++ "\r\n"})
+                          end, 
+                          Plugins),
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, "That's all :)"});
         [Nick, Command | Args] ->
-            % Start process with supervisor which will be execute plugin and send to pid
-            ybot_actor:start_link(State#state.xmpp_client_pid, Command, Args);
+                % Start process with supervisor which will be execute plugin and send to pid
+                ybot_actor:start_link(State#state.xmpp_client_pid, Command, Args);
         _ ->
             % this is not our command
             pass
