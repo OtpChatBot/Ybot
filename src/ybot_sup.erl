@@ -41,7 +41,7 @@ init([]) ->
 
     % Root supervisor childrens
     Childrens = [
-        
+
         % run irc root supervisor
         {irc_lib_sup,
             {irc_lib_sup, start_link, []},
@@ -61,7 +61,7 @@ init([]) ->
         },
 
         % start manager with transports list
-        {ybot_manager, 
+        {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports]},
              permanent, brutal_kill, worker, []
         }
