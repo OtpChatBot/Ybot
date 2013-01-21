@@ -117,6 +117,7 @@ Current plugins
   * erl   - Ybot computation of erlang expression with tryerlang.org.
   * today? - Ybot return current day.
   * shorten_url - Ybot url shortener with goo.gl.
+  * hacker_news - Ybot download news from https://news.ycombinator.com/
 
 Contribute
 ============

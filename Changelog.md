@@ -14,6 +14,7 @@
   * Command args must be string, not list of strings --> #12
   * Added supporting for perl plugins.
   * Added supporting for elixir plugins.
+  * Added hacker_news plugin
 
 ## Ybot-0.1 --> released
 
