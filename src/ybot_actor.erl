@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ybot_actor.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot main plugin executor.
+%%%----------------------------------------------------------------------
 -module(ybot_actor).
 
 -behaviour(gen_server).

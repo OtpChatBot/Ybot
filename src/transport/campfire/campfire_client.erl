@@ -1,3 +1,8 @@
+%%%----------------------------------------------------------------------
+%%% File    : ../transport/campfire/capfire_client.erl
+%%% Author  : 0xAX <anotherworldofworld@gmail.com>
+%%% Purpose : Ybot campfire client.
+%%%----------------------------------------------------------------------
 -module(campfire_client).
 
 -behaviour(gen_server).
