@@ -12,6 +12,8 @@
   * Code cleaned & documentation improved
   * Help plugin fixed --> #9
   * Command args must be string, not list of strings --> #12
+  * Added supporting for perl plugins.
+  * Added supporting for elixir plugins.
 
 ## Ybot-0.1 --> released
 

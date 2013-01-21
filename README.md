@@ -15,6 +15,8 @@ Features
     * Python plugins
     * Ruby plugins
     * Shell plugins
+    * Perl plugins
+    * Elixir plugins
   * To write a plugin does not need to know erlang
   * Very easily extensible
   * Irc supporting
