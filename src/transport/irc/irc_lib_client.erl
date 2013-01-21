@@ -69,6 +69,7 @@ handle_cast({connect, Host}, State) ->
 handle_cast({send_message, Message}, State) ->
     % Split messages by \r\n
     MessagesList = string:tokens(Message, "\r\n"),
+    io:format("MessageList ~p~n", [length(MessagesList)]),
     lists:foreach(fun(Mes) -> 
                       % Send message to irc
                       gen_tcp:send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")

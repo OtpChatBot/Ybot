@@ -2,8 +2,9 @@
 
 #
 # Ybot decision helper plugin
-# Usage: Ybot decice foo bar
+# Usage: Ybot decide foo bar
 #
 
-options = ARGV[0].split
+options = ARGV[0].split(' ')
+
 puts 'Definitely: ' + options[rand(options.length)]

@@ -42,7 +42,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
-    Nick = binary_to_list(State#state.nick),
+    [Nick | _] = string:tokens(binary_to_list(State#state.nick), "@"),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->
@@ -63,7 +63,9 @@ handle_info({incoming_message, IncomingMessage}, State) ->
                           end, 
                           Plugins),
             gen_server:cast(State#state.xmpp_client_pid, {send_message, "That's all :)"});
-        [Nick, Command | Args] ->
+        [Nick, Command | _] ->
+                % Get command arguments
+                Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
                 % Start process with supervisor which will be execute plugin and send to pid
                 ybot_actor:start_link(State#state.xmpp_client_pid, Command, Args);
         _ ->

@@ -9,11 +9,14 @@ Features
 =========
 
   * Fully written with erlang.
+  * Simultaneously run any number of bots on different transports.
   * Supporting plugins in different technology. 
   * Now supporting:
     * Python plugins
     * Ruby plugins
     * Shell plugins
+    * Perl plugins
+    * Elixir plugins
   * To write a plugin does not need to know erlang
   * Very easily extensible
   * Irc supporting
@@ -103,15 +106,18 @@ Here ybot call plugin with math.some_ext with argument: '3 ^ 2'
 Current plugins
 ================
 
-  * help - Ybot help
-  * ping - Ybot simple ping/pong
-  * math - Ybot calculate math expressions
-  * date - Ybot show date/time
-  * pugme - Ybot pugme service plugin
+  * chuck - Chuch qutes :)
+  * decide - Ybot try to help decide you.
+  * github_status - Github status state.
+  * help - Ybot help.
+  * ping - Ybot simple ping/pong.
+  * math - Ybot calculate math expressions.
+  * date - Ybot show date/time.
+  * pugme - Ybot pugme service plugin.
   * erl   - Ybot computation of erlang expression with tryerlang.org.
-  * today? - Ybot return current day
-  * shorten_url - Ybot url shortener with goo.gl
-
+  * today? - Ybot return current day.
+  * shorten_url - Ybot url shortener with goo.gl.
+  * hacker_news - Ybot download news from https://news.ycombinator.com/
 
 Contribute
 ============
