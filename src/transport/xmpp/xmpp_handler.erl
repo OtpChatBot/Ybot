@@ -42,7 +42,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
-    Nick = binary_to_list(State#state.nick),
+    [Nick | _] = string:tokens(binary_to_list(State#state.nick), "@"),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->
