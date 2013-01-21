@@ -103,15 +103,17 @@ Here ybot call plugin with math.some_ext with argument: '3 ^ 2'
 Current plugins
 ================
 
-  * help - Ybot help
-  * ping - Ybot simple ping/pong
-  * math - Ybot calculate math expressions
-  * date - Ybot show date/time
-  * pugme - Ybot pugme service plugin
+  * chuck - Chuch qutes :)
+  * decide - Ybot try to help decide you.
+  * github_status - Github status state.
+  * help - Ybot help.
+  * ping - Ybot simple ping/pong.
+  * math - Ybot calculate math expressions.
+  * date - Ybot show date/time.
+  * pugme - Ybot pugme service plugin.
   * erl   - Ybot computation of erlang expression with tryerlang.org.
-  * today? - Ybot return current day
-  * shorten_url - Ybot url shortener with goo.gl
-
+  * today? - Ybot return current day.
+  * shorten_url - Ybot url shortener with goo.gl.
 
 Contribute
 ============
