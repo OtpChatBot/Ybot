@@ -11,6 +11,7 @@
   * Mochijson2 added to dependencies
   * Code cleaned & documentation improved
   * Help plugin fixed --> #9
+  * Command args must be string, not list of strings --> #12
 
 ## Ybot-0.1 --> released
 

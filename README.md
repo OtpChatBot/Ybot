@@ -9,6 +9,7 @@ Features
 =========
 
   * Fully written with erlang.
+  * Simultaneously run any number of bots on different transports.
   * Supporting plugins in different technology. 
   * Now supporting:
     * Python plugins

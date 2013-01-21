@@ -59,7 +59,9 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             % Send plugins label
             gen_server:cast(State#state.irc_client_pid, {send_message, "Plugins: " ++ string:join(PluginNames, ", ")}),
             gen_server:cast(State#state.irc_client_pid, {send_message, "That's all :)"});
-        [Nick, Command | Args] ->
+        [Nick, Command | _] ->
+                % Get command arguments
+                Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
                 % Start process with supervisor which will be execute plugin and send to pid
                 ybot_actor:start_link(State#state.irc_client_pid, Command, Args);
         _ ->

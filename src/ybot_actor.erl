@@ -68,9 +68,8 @@ handle_command(Command, Args, TransportPid) ->
             % plugin not found
             pass;
         {plugin, Lang, _PluginName, PluginPath} ->
-            Args1 = string:join(Args, " "),
             % execute plugin
-            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args1 ++ "\'"),
+            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
             % send result to chat
             gen_server:cast(TransportPid, {send_message, Result})
     end.
