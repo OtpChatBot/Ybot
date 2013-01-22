@@ -6,6 +6,7 @@
   * Irc ssl supporting --> #16
   * New irc configuration options: {use_ssl, true | false}
   * New irc configuration options: {port, PortNumber :: integer()}
+  * New check-site plugin added
 
 ## Ybot-0.2 --> released
 

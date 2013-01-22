@@ -119,6 +119,7 @@ Current plugins
   * shorten_url - Ybot url shortener with goo.gl.
   * hacker_news - Ybot download news from https://news.ycombinator.com/
   * wat - Ybot random WAT image
+  * check-site - Ybot check site up/down state
 
 Contribute
 ============
@@ -136,3 +137,4 @@ Author
 ========
 
 [@0xAX](https://twitter.com/0xAX)
+
