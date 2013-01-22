@@ -89,31 +89,64 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% Internal functions
-load_transport({irc, Nick, Channel, Host}) ->
+
+%% @doc Start irc clients
+load_transport({irc, Nick, Channel, Host, Options}) ->
+    % Get irc server port
+    {port, Port} = lists:keyfind(port, 1, Options),
     % Start irc handler
     {ok, HandlerPid} = irc_handler:start_link(),
-    % Run new irc client
-    {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Channel, Nick),
-    lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
-    % send client pid to handler
-    ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
-    % return correct transport
-    {irc, ClientPid, HandlerPid, Nick, Channel, Host};
+    % Check use irc with ssl or not
+    case lists:keyfind(use_ssl, 1, Options) of
+        % Start without ssl
+        {use_ssl, false} ->
+            % Run new irc client
+            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, false),
+            % Log
+            lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
+            % send client pid to handler
+            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
+            % return correct transport
+            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+        % Start ssl
+        {use_ssl, true} ->
+            io:format("Start with SSL ~n"),
+            % Start irc client with ssl
+            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, true),
+            % Log
+            lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
+            % send client pid to handler
+            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
+            % return correct transport
+            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+        % Wrong options
+        _ ->
+            % Stop handler
+            gen_server:cast(HandlerPid, stop),
+            % Log error
+            lager:error("Wrong irc options ~p~n", [Options])
+    end;
+
+%% @doc start xmpp clients
 load_transport({xmpp, Login, Password, Room, Host, Resource}) ->
     % Start xmpp handler
     {ok, HandlerPid} = xmpp_handler:start_link(),
     % Run new xmpp client
     {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Room, Resource),
+    % Log
     lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
     % return correct transport
     {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+
+%% @doc start campfire clients
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain}) ->
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
     {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain),
+    % Log
     lager:info("Starting Campfire transport: ~p, ~s", [RoomId, CampfireSubDomain]),
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, Login}),

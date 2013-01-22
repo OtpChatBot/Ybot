@@ -1,6 +1,13 @@
 # Ybot news & changelog
 
-## Ybot-0.2 --> preparing to release
+## Ybot-0.3 --> In development
+
+  * New wat plugin
+  * Irc ssl supporting --> #16
+  * New irc configuration options: {use_ssl, true | false}
+  * New irc configuration options: {port, PortNumber :: integer()}
+
+## Ybot-0.2 --> released
 
   * Xmpp transport supporting added
   * Campfire transport supporting added

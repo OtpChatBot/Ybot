@@ -38,6 +38,9 @@ handle_cast({irc_client, ClientPid, BotNick}, State) ->
     % save irc client pid
     {noreply, State#state{irc_client_pid = ClientPid, nick = BotNick}};
 
+handle_cast(stop, State) ->
+    {stop, normal, State};
+
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

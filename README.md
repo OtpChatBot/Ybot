@@ -8,20 +8,20 @@ Ybot - is a customizable bot software which inspired with Github hubot. Github h
 Features
 =========
 
-  * Fully written with erlang.
-  * Simultaneously run any number of bots on different transports.
-  * Supporting plugins in different technology. 
+  * Fully written with erlang;
+  * Simultaneously run any number of bots on different transports;
+  * Supporting plugins in different technology;
   * Now supporting:
-    * Python plugins
-    * Ruby plugins
-    * Shell plugins
-    * Perl plugins
-    * Elixir plugins
-  * To write a plugin does not need to know erlang
-  * Very easily extensible
-  * Irc supporting
-  * XMPP supporting
-  * Campfire supporting
+    * Python plugins;
+    * Ruby plugins;
+    * Shell plugins;
+    * Perl plugins;
+    * Elixir plugins;
+  * To write a plugin does not need to know erlang;
+  * Very easily extensible;
+  * Irc supporting, also irc ssl supporting;
+  * XMPP supporting;
+  * Campfire supporting;
 
 Building and Running
 =====================

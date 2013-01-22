@@ -25,8 +25,12 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % start ssl
-    ssl:start(),
+    % Start crypto        
+    ok = application:start(crypto),
+    % Start public key
+    ok = application:start(public_key),
+    % Start ssl
+    ok = application:start(ssl),
 
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
