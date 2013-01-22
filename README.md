@@ -5,8 +5,6 @@ Ybot - is a customizable bot software which inspired with Github hubot. Github h
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
-[![endorse](http://api.coderwall.com/0xax/endorsecount.png)](http://coderwall.com/0xax)
-
 Features
 =========
 
