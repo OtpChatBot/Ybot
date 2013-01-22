@@ -35,10 +35,6 @@ try:
 		front += str(i) + '. ' + item['title'] + '--> ' + item['url'] + '\n'
 		i += 1
 	# response
-<<<<<<< HEAD
 	print front.encode('utf-8')
-=======
-	print front
->>>>>>> 570327e2d341c1da5b4f8ee91d045b2b6c377cde
 except urllib2.HTTPError:
 	print "Sorry, but server not response now, please try later."
