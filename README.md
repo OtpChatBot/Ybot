@@ -4,7 +4,7 @@ Ybot
 Ybot - is a customizable bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language like python, ruby or shell. 
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/0xAX/Ybot/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
 
 Features
 =========
