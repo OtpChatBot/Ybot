@@ -106,7 +106,7 @@ Here ybot call plugin with math.some_ext with argument: '3 ^ 2'
 Current plugins
 ================
 
-  * chuck - Chuch qutes :)
+  * chuck - Chuck Norris quotes :)
   * decide - Ybot try to help decide you.
   * github_status - Github status state.
   * help - Ybot help.
@@ -118,6 +118,7 @@ Current plugins
   * today? - Ybot return current day.
   * shorten_url - Ybot url shortener with goo.gl.
   * hacker_news - Ybot download news from https://news.ycombinator.com/
+  * wat - Ybot random WAT image
 
 Contribute
 ============

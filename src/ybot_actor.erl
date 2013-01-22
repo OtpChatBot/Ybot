@@ -15,7 +15,12 @@
          handle_cast/2,
          handle_info/2,
          terminate/2,
-         code_change/3]).
+         code_change/3
+        ]).
+
+-type cmd() :: string().
+-type cmd_args() :: [string()].
+-type transport() :: pid().
 
 -record(state, {}).
 
@@ -60,10 +65,11 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+
 %% Internal functions
 
 %% @doc Try to find plugin and execute it
--spec handle_command(Command :: string(), Args :: [string()], TransportPid :: pid()) -> ok | pass.
+-spec handle_command(cmd(), cmd_args(), transport()) -> ok | pass.
 handle_command(Command, Args, TransportPid) ->
     % Get plugin metadata
     TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
