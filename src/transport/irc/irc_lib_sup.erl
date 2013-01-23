@@ -26,7 +26,7 @@ start_link() ->
 -spec start_irc_client(CallbackModule :: atom() | pid(), 
                        Host :: binary(),
                        Port :: integer(),
-                       Channel :: binary(), 
+                       Channel :: {binary(), binary()}, 
                        Nick :: binary(),
                        UseSsl :: boolean()) 
                        -> {ok, Pid :: pid()} | {error, Reason :: term()}.

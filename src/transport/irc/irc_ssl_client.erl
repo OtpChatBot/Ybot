@@ -25,6 +25,8 @@
     host = <<>> :: binary(),
     % irc channel
     irc_channel = <<>> :: binary(),
+    % channel key
+    irc_channel_key = <<>> :: binary(),
     % irc connection socket
     socket = null,
     % auth or not
@@ -39,8 +41,10 @@ start_link(CallbackModule, Host, Port, Channel, Nick) ->
 init([CallbackModule, Host, Port, Channel, Nick]) ->
     % try to connect
     gen_server:cast(self(), {connect, Host, Port}),
+    % Get channel and key
+    {Chan, Key} = Channel,
     % init process internal state
-    {ok, #state{login = Nick, host = Host, irc_channel = Channel, callback = CallbackModule}}.
+    {ok, #state{login = Nick, host = Host, irc_channel = Chan, irc_channel_key = Key, callback = CallbackModule}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -54,8 +58,8 @@ handle_cast({connect, Host, Port}, State) ->
             % Send user data
             ssl:send(Socket, "USER " ++ binary_to_list(State#state.login) ++ " some fake info\r\n"),
             % Join to channel
-            erlang:send_after(15000, self(), {join, Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) ++ "\r\n"}),
-            %ssl:send(Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) ++ "\r\n"),
+            erlang:send_after(15000, self(), {join, Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) 
+                                                             ++ " " ++ binary_to_list(State#state.irc_channel_key) ++ "\r\n"}),
             % return
             {noreply, State#state{socket = Socket, is_auth = false}};
         {error, Reason} ->

@@ -8,6 +8,7 @@
   * New irc configuration options: {port, PortNumber :: integer()}
   * New check-site plugin added
   * hacker_news plugin improved. Added two modes.
+  * Join to channels with key to irc transport added.
 
 ## Ybot-0.2 --> released
 
