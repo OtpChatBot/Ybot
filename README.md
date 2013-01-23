@@ -122,6 +122,7 @@ Current plugins
   * hacker_news - Ybot download news from https://news.ycombinator.com/
   * wat - Ybot random WAT image
   * check-site - Ybot check site up/down state
+  * ruby - Ybot eval simple ruby expression
 
 Contribute
 ============
