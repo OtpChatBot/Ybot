@@ -48,15 +48,16 @@ handle_call(_Request, _From, State) ->
 %% @doc Try to connect to irc server and join to channel
 handle_cast({connect, Host, Port}, State) ->
     % Try to connect to irc server
-    case ssl:connect(binary_to_list(Host), Port, [{delay_send, false}, {nodelay, true}]) of
+    case ssl:connect(binary_to_list(Host), Port, [{delay_send, false}, {verify, 0}, {nodelay, true}]) of
         {ok, Socket} ->
             ssl:send(Socket, "NICK " ++ binary_to_list(State#state.login) ++ "\r\n"),
             % Send user data
             ssl:send(Socket, "USER " ++ binary_to_list(State#state.login) ++ " some fake info\r\n"),
             % Join to channel
-            ssl:send(Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) ++ "\r\n"),
+            erlang:send_after(15000, self(), {join, Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) ++ "\r\n"}),
+            %ssl:send(Socket, "JOIN " ++ binary_to_list(State#state.irc_channel) ++ "\r\n"),
             % return
-            {noreply, State#state{socket = Socket, is_auth = true}};
+            {noreply, State#state{socket = Socket, is_auth = false}};
         {error, Reason} ->
             % Some log
             io:format("ERROR: ~p~n", [Reason]),
@@ -69,7 +70,8 @@ handle_cast({send_message, Message}, State) ->
     % Split messages by \r\n
     MessagesList = string:tokens(Message, "\r\n"),
     % Send messages
-    lists:foreach(fun(Mes) -> 
+    lists:foreach(fun(Mes) ->
+                      timer:sleep(200),
                       % Send message to irc
                       ssl:send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")
                   end, 
@@ -80,13 +82,18 @@ handle_cast({send_message, Message}, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+%% @doc Join to channel
+handle_info({join, Socket, Message}, State) ->
+    ssl:send(Socket, Message),
+    {noreply, State};
+
 %% @doc Incoming message
 handle_info({ssl, Socket, Data}, State) ->
     % Parse incoming data
     case string:tokens(Data, " ") of
-        ["PING" | _] ->
+        ["PING" | PongHost] ->
             % Send pong
-            ssl:send(Socket, "PONG :" ++ binary_to_list(State#state.host) ++ "\r\n");
+            ssl:send(Socket, "PONG " ++ PongHost ++ "\r\n");    
         [_User, "PRIVMSG", _Channel | Message] ->
             % Get incoming message
             [_ | IncomingMessage] = string:join(Message, " "),
@@ -99,17 +106,19 @@ handle_info({ssl, Socket, Data}, State) ->
     {noreply, State#state{socket = Socket}};
 
 
-handle_info({tcp_closed, _}, State) ->
+handle_info({ssl_closed, Reason}, State) ->
+    % Some log
+    io:format("ssl_closed with reason: ~p~n", [Reason]),
     % stop and return state
     {stop, normal, State};
 
-handle_info({tcp_error, _Socket, Reason}, State) ->
+handle_info({ssl_error, _Socket, Reason}, State) ->
+    % Some log
     io:format("tcp_error: ~p~n", [Reason]),
     % stop and return state
     {stop, normal, State};
 
-handle_info(Info, State) ->
-    io:format("Info ~p~n", [Info]),
+handle_info(_Info, State) ->
     {noreply, State}.
  
 terminate(_Reason, State) ->
@@ -122,7 +131,7 @@ terminate(_Reason, State) ->
                 false ->
                     ok;
                 _ ->
-                    gen_tcp:send(State#state.socket, "QUIT :Session off \r\n")
+                    ssl:send(State#state.socket, "QUIT :Session off \r\n")
             end
     end,
     % terminate
