@@ -20,6 +20,7 @@ Features
     * Perl plugins;
     * Elixir plugins;
   * To write a plugin does not need to know erlang;
+  * Dynamic observing and loading plugins;
   * Very easily extensible;
   * Irc supporting, also irc ssl supporting;
   * XMPP supporting;

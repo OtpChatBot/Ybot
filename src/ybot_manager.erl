@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/2]).
+-export([start_link/2, load_plugin/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -63,10 +63,25 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
             PluginsPaths = ybot_utils:get_all_files(PluginsDirectory),
             % Parse plugins and load to state
             Plugins = lists:flatten(lists:map(fun load_plugin/1, PluginsPaths)),
+            % Get checking_new_plugins parameter from config
+            {ok, UseNewPlugins} = application:get_env(ybot, checking_new_plugins),
+            % Check checking_new_plugins
+            case UseNewPlugins of
+                true ->
+                    % Get new plugins checking timeout
+                    {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
+                    % Start new plugins observer
+                    ybot_plugins_observer:start_link(PluginsDirectory, Plugins, NewPluginsCheckingTimeout);
+                _ ->
+                    % don't use new plugins
+                    pass
+            end,
+            % return plugins
             {noreply, State#state{plugins = Plugins}};
         false ->
-            lager:error("Unable to load plugins. Invalid directory ~s",
-                        [PluginsDirectory]),
+            % some log
+            lager:error("Unable to load plugins. Invalid directory ~s", [PluginsDirectory]),
+            % return empty plugins list
             {noreply, State#state{plugins = []}}
     end;
 
