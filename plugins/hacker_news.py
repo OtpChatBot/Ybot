@@ -64,7 +64,7 @@ if len(sys.argv) > 1:
 			# print news
 			for x in news:
 				front += x
-			print front
+			print front.encode('utf-8')
 	except ValueError:
 		print "hacker_news argument must be a number"
 else:
@@ -73,4 +73,4 @@ else:
 	# print news
 	for x in all_news:
 		front += x
-	print front
+	print front.encode('utf-8')

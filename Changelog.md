@@ -11,6 +11,7 @@
   * Join to channels with key to irc transport added.
   * ruby.rb plugin added. Eval simple ruby expression.
   * ip.py plugin added. Return Ybot external ip address.
+  * stackoverflow search plugin added.
 
 ## Ybot-0.2 --> released
 
@@ -40,6 +41,3 @@
   * Ybot stales after some time of inactivity -> #2 fixed
   * Documentation improved
   * Code layout fixed
-
-
-

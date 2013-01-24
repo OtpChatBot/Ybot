@@ -124,6 +124,7 @@ Current plugins
   * check-site - Ybot check site up/down state
   * ruby - Ybot eval simple ruby expression
   * ip - Ybot external ip
+  * hacker_help - Ybot search in stackoverflow.
 
 Contribute
 ============
@@ -141,4 +142,3 @@ Author
 ========
 
 [@0xAX](https://twitter.com/0xAX)
-
