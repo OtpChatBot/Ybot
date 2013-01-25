@@ -34,6 +34,8 @@ init([PluginsDirectory, Transports]) ->
     ok = gen_server:cast(?MODULE, {init_plugins, PluginsDirectory}),
     % Start transports
     ok = gen_server:cast(?MODULE, {start_transports, Transports}),
+    % init command history process
+    ok = gen_server:cast(?MODULE, init_history),
     % init
     {ok, #state{}}.
 
@@ -54,6 +56,24 @@ handle_call(get_plugins, _From, State) ->
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
+
+%% @doc Init command history process
+handle_cast(init_history, State) ->
+    % Get 
+    {ok, NeedCommandHistory} = application:get_env(ybot, commands_history),
+    % Check need command history or not
+    case NeedCommandHistory of
+        true ->
+            % Get history limit
+            {ok, HistoryLimit} = application:get_env(ybot, history_command_limit_count),
+            % start history process
+            ybot_history:start_link(HistoryLimit);
+        _ ->
+            % do nothing
+            ok
+    end,
+    % return
+    {noreply, State};
 
 %% @doc Init active plugins
 handle_cast({init_plugins, PluginsDirectory}, State) ->

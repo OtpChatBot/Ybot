@@ -81,6 +81,8 @@ handle_command(Command, Args, TransportPid) ->
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
+            % Save command to history
+            ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ Command ++ " " ++ Args ++ "\n"}),
             % send result to chat
             gen_server:cast(TransportPid, {send_message, Result})
     end.

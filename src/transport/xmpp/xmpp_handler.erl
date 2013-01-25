@@ -51,6 +51,11 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             gen_server:cast(State#state.xmpp_client_pid, {send_message, "Hello :)"});
         [Nick, "bye"] ->    
             gen_server:cast(State#state.xmpp_client_pid, {send_message, "Good bue"});
+        [Nick, "history"] ->
+            % Get history
+            History = gen_server:call(ybot_history, {get_history, State#state.xmpp_client_pid}),
+            % Send history
+            gen_server:cast(State#state.xmpp_client_pid, {send_message, History});
         [Nick, "plugins?"] ->
             % Get plugins
             Plugins = gen_server:call(ybot_manager, get_all_plugins),

@@ -12,9 +12,10 @@
   * ruby.rb plugin added. Eval simple ruby expression.
   * ip.py plugin added. Return Ybot external ip address.
   * stackoverflow search plugin added.
-  * Dynamic observing and loading plugins.
-  * checking_new_plugins parameter to config added.
-  * checking_new_plugins_timeout parameter to config added.
+  * Dynamic loading plugins.
+  * Added command history.
+  * commands_history configuration parameter added.
+  * history_command_limit_count configuration parameter added.
 
 ## Ybot-0.2 --> released
 
