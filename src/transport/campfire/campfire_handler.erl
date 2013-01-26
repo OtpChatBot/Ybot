@@ -38,6 +38,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
+    % Get Ybot Nick from current chat
     Nick = binary_to_list(State#state.campfire_nick),
     % Decode json message
     {struct, DataList} = mochijson2:decode(IncomingMessage),
@@ -71,7 +72,7 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             gen_server:cast(State#state.campfire_client_pid, {send_message, "That's all :)"});
         [Nick, Command | _] ->
             % Get command arguments
-            Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
+            Args = lists:flatten(string:tokens(ybot_utils:split_at_end(Message, Command), "\r\n")),
             % Start process with supervisor which will be execute plugin and send to pid
             ybot_actor:start_link(State#state.campfire_client_pid, Command, Args);
         _ ->
