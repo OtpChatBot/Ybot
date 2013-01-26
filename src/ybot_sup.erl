@@ -40,6 +40,12 @@ init([]) ->
     % Root supervisor childrens
     Childrens = [
 
+        % start http supervisor
+        {http_sup,
+            {http_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % run irc root supervisor
         {irc_lib_sup,
             {irc_lib_sup, start_link, []},

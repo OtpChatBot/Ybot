@@ -26,6 +26,7 @@ Features
   * Irc supporting, also irc ssl supporting;
   * XMPP supporting;
   * Campfire supporting;
+  * HTTP interface;
 
 Building and Running
 =====================
@@ -66,6 +67,7 @@ Ybot transport - is network interface which Ybot supported. Ybot is chat bot and
   * Irc supporting.
   * Xmpp muc supporting. 
   * Campfire supporting.
+  * Http supporting.
 
 Plugins
 ==========

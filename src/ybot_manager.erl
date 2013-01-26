@@ -186,7 +186,16 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, Login}),
     % return correct transport
-    {campfire, ClientPid, HandlerPid}.
+    {campfire, ClientPid, HandlerPid};
+
+%% @doc Ybot http interface
+load_transport({http, Host, Port}) ->
+    % Start http server
+    {ok, HttpPid} = http_sup:start_http(Host, Port),
+    % Log
+    lager:info("Starting http transport ~p:~p", [Host, Port]),
+    % return correct transport
+    {http, HttpPid}.
 
 load_plugin(Plugin) ->
     % Get plugin extension

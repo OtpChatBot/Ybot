@@ -16,6 +16,7 @@
   * Added command history.
   * commands_history configuration parameter added.
   * history_command_limit_count configuration parameter added.
+  * Added http transport.
 
 ## Ybot-0.2 --> released
 
