@@ -130,6 +130,8 @@ Current plugins
   * ip - Ybot external ip
   * hacker_help - Ybot search in stackoverflow.
 
+This is Ybot's core plugins. Other plugins you can find at [ybot-contrib](https://github.com/0xAX/ybot-contrib)
+
 Contribute
 ============
 
