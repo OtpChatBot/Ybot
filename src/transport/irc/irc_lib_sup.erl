@@ -32,24 +32,16 @@ start_link() ->
                        -> {ok, Pid :: pid()} | {error, Reason :: term()}.
 start_irc_client(CallbackModule, Host, Port, Channel, Nick, UseSsl) ->
     % Check use ssl or not
-    case UseSsl of
-      false ->
-            % Irc client without ssl
-            Child = {irc_lib_client, 
-                        {irc_lib_client, start_link, [CallbackModule, Host, Port, Channel, Nick]},
-                         temporary, 2000, worker, []
-                     },
-            % run new irc client
-            supervisor:start_child(?MODULE, Child);
-      true ->
-          % ssl child spec
-          Child = {irc_ssl_client, 
-                      {irc_ssl_client, start_link, [CallbackModule, Host, Port, Channel, Nick]},
-                       temporary, 2000, worker, []
-                  },
-          % Start irc client with ssl
-          supervisor:start_child(?MODULE, Child)
-    end.
+    SocketMod = case UseSsl of
+      true -> ssl;
+      false -> gen_tcp
+    end,
+    Child = {irc_lib_client, 
+                {irc_lib_client, start_link, [CallbackModule, Host, Port, SocketMod, Channel, Nick]},
+                 temporary, 2000, worker, []
+             },
+    % run new irc client
+    supervisor:start_child(?MODULE, Child).
 
 init([]) ->
     % init

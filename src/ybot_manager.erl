@@ -129,38 +129,20 @@ code_change(_OldVsn, State, _Extra) ->
 load_transport({irc, Nick, Channel, Host, Options}) ->
     % Get irc server port
     {port, Port} = lists:keyfind(port, 1, Options),
+    % SSL?
+    {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
     % Start irc handler
     {ok, HandlerPid} = irc_handler:start_link(),
-    % Check use irc with ssl or not
-    case lists:keyfind(use_ssl, 1, Options) of
-        % Start without ssl
-        {use_ssl, false} ->
-            % Run new irc client
-            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, false),
-            % Log
-            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
-            % send client pid to handler
-            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
-            % return correct transport
-            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
-        % Start ssl
-        {use_ssl, true} ->
-            io:format("Start with SSL ~n"),
-            % Start irc client with ssl
-            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, true),
-            % Log
-            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
-            % send client pid to handler
-            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
-            % return correct transport
-            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
-        % Wrong options
-        _ ->
-            % Stop handler
-            gen_server:cast(HandlerPid, stop),
-            % Log error
-            lager:error("Wrong irc options ~p~n", [Options])
-    end;
+    % Run new irc client
+    {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl),
+    lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
+    % send client pid to handler
+    ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
+    % return correct transport
+    {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+    %% Here was rather strange case that meant to validate options (why here?).
+    %% Now when the Options are incorrect (no port given, or no use_ssl option given)
+    %% `exception error: no match of right hand side value false` will be thrown.
 
 %% @doc start xmpp clients
 load_transport({xmpp, Login, Password, Room, Host, Resource}) ->
