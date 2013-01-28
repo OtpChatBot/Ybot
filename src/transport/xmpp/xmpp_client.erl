@@ -87,7 +87,8 @@ handle_cast({connect, Host}, State) ->
             % init
             {noreply, State#state{socket = Socket}};
         {error, Reason} ->
-            io:format("Error: ~p~n", [Reason]),
+            % Some log
+            lager:error("Unable to connect to xmpp server with reason ~p", [Reason]),
             {noreply, State}
     end;
 

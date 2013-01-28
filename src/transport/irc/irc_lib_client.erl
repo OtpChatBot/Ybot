@@ -69,7 +69,7 @@ handle_cast({connect, Host, Port}, State) ->
             ok = irc_connect(Socket, State),
             {noreply, State#state{socket = Socket, is_auth = false}};
         {error, Reason} ->
-            lager:error("~p~n", [Reason]),
+            lager:error("Unable to connect to irc server with reason ~s", [Reason]),
             {noreply, State}
         end;
 
