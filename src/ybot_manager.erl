@@ -138,7 +138,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             % Run new irc client
             {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, false),
             % Log
-            lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
+            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
             % send client pid to handler
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
             % return correct transport
@@ -149,7 +149,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             % Start irc client with ssl
             {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, true),
             % Log
-            lager:info("Starting IRC transport: ~s, ~p, ~s", [Host, Channel, Nick]),
+            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
             % send client pid to handler
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
             % return correct transport

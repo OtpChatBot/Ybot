@@ -23,6 +23,8 @@
     login = <<>> :: binary(),
     % irc server host
     host = <<>> :: binary(),
+    % irc server password
+    password = <<>> :: binary(),
     % irc channel
     irc_channel = <<>> :: binary(),
     % channel key
@@ -38,13 +40,15 @@
 start_link(CallbackModule, Host, Port, Channel, Nick) ->
     gen_server:start_link(?MODULE, [CallbackModule, Host, Port, Channel, Nick], []).
 
-init([CallbackModule, Host, Port, Channel, Nick]) ->
+init([CallbackModule, Host0, Port, Channel, Nick]) ->
+    % Get host and password
+    {Host, Pass} = Host0,
     % try to connect
     gen_server:cast(self(), {connect, Host, Port}),
     % Get channel and key
     {Chan, Key} = Channel,
     % init process internal state
-    {ok, #state{login = Nick, host = Host, irc_channel = Chan, irc_channel_key = Key, callback = CallbackModule}}.
+    {ok, #state{login = Nick, host = Host, password = Pass, irc_channel = Chan, irc_channel_key = Key, callback = CallbackModule}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -54,6 +58,7 @@ handle_cast({connect, Host, Port}, State) ->
     % Try to connect to irc server
     case ssl:connect(binary_to_list(Host), Port, [{delay_send, false}, {verify, 0}, {nodelay, true}]) of
         {ok, Socket} ->
+            ok = pass_maybe(Socket, State#state.password),
             ssl:send(Socket, "NICK " ++ binary_to_list(State#state.login) ++ "\r\n"),
             % Send user data
             ssl:send(Socket, "USER " ++ binary_to_list(State#state.login) ++ " some fake info\r\n"),
@@ -145,3 +150,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
+
+pass_maybe(Socket, <<>>) -> ok;
+pass_maybe(Socket, Pass) when is_binary(Pass) -> 
+    ssl:send(Socket, "PASS " ++ binary_to_list(Pass) ++ "\r\n").

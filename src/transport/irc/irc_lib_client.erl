@@ -23,6 +23,8 @@
     login = <<>> :: binary(),
     % irc server host
     host = <<>> :: binary(),
+    % irc server password
+    password = <<>> :: binary(),
     % irc channel
     irc_channel = <<>> :: binary(),
     % channel key
@@ -38,13 +40,15 @@
 start_link(CallbackModule, Host, Port, Channel, Nick) ->
     gen_server:start_link(?MODULE, [CallbackModule, Host, Port, Channel, Nick], []).
  
-init([CallbackModule, Host, Port, Channel, Nick]) ->
+init([CallbackModule, Host0, Port, Channel, Nick]) ->
+    % Get host and password
+    {Host, Pass} = Host0,
     % try to connect
     gen_server:cast(self(), {connect, Host, Port}),
     % Get channel and key
     {Chan, Key} = Channel,
     % init process internal state
-    {ok, #state{login = Nick, host = Host, irc_channel_key = Key, irc_channel = Chan, callback = CallbackModule}}.
+    {ok, #state{login = Nick, host = Host, password = Pass, irc_channel_key = Key, irc_channel = Chan, callback = CallbackModule}}.
  
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -54,6 +58,7 @@ handle_cast({connect, Host, Port}, State) ->
     % Try to connect to irc server
     case gen_tcp:connect(binary_to_list(Host), Port, [{delay_send, false}, {nodelay, true}]) of
         {ok, Socket} ->
+            gen_tcp:send(Socket, "PASS " ++ binary_to_list(State#state.password) ++ "\r\n"),
             gen_tcp:send(Socket, "NICK " ++ binary_to_list(State#state.login) ++ "\r\n"),
             % Send user data
             gen_tcp:send(Socket, "USER " ++ binary_to_list(State#state.login) ++ " some fake info\r\n"),
