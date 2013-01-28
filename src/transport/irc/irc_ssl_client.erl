@@ -151,6 +151,6 @@ code_change(_OldVsn, State, _Extra) ->
  
 %% Internal functions
 
-pass_maybe(Socket, <<>>) -> ok;
+pass_maybe(_, <<>>) -> ok;
 pass_maybe(Socket, Pass) when is_binary(Pass) -> 
     ssl:send(Socket, "PASS " ++ binary_to_list(Pass) ++ "\r\n").

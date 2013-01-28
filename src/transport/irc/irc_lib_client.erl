@@ -58,7 +58,7 @@ handle_cast({connect, Host, Port}, State) ->
     % Try to connect to irc server
     case gen_tcp:connect(binary_to_list(Host), Port, [{delay_send, false}, {nodelay, true}]) of
         {ok, Socket} ->
-            gen_tcp:send(Socket, "PASS " ++ binary_to_list(State#state.password) ++ "\r\n"),
+            ok = pass_maybe(Socket, State#state.password),
             gen_tcp:send(Socket, "NICK " ++ binary_to_list(State#state.login) ++ "\r\n"),
             % Send user data
             gen_tcp:send(Socket, "USER " ++ binary_to_list(State#state.login) ++ " some fake info\r\n"),
@@ -141,3 +141,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
+
+pass_maybe(_, <<>>) -> ok;
+pass_maybe(Socket, Pass) when is_binary(Pass) -> 
+    gen_tcp:send(Socket, "PASS " ++ binary_to_list(Pass) ++ "\r\n").
