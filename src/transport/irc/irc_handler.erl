@@ -45,7 +45,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% @doc Receive incoming message from irc chat
-handle_info({incoming_message, IncomingMessage}, State) ->
+handle_info({incoming_message, IncomingMessage, From}, State) ->
     Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of

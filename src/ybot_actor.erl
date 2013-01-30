@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/3, stop/0]).
+-export([start_link/4, stop/0]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -24,15 +24,15 @@
 
 -record(state, {}).
 
-start_link(TransportPid, Command, Args) ->
-    gen_server:start_link(?MODULE, [TransportPid, Command, Args], []).
+start_link(TransportPid, From, Command, Args) ->
+    gen_server:start_link(?MODULE, [TransportPid, From, Command, Args], []).
 
 stop() ->
     gen_server:cast(?MODULE, stop).
 
-init([TransportPid, Command, Args]) ->
+init([TransportPid, From, Command, Args]) ->
     % execute plugin
-    gen_server:cast(self(), {execute, TransportPid, Command, Args}),
+    gen_server:cast(self(), {execute, TransportPid, From, Command, Args}),
     % init
     {ok, #state{}}.
 
@@ -40,11 +40,11 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 %% @doc Try to execute command
-handle_cast({execute, TransportPid, Command, Args}, State) ->
+handle_cast({execute, TransportPid, From, Command, Args}, State) ->
     % Log
     lager:info("Command: ~s, ~p", [Command, Args]),
     % Handle received command
-    handle_command(Command, Args, TransportPid),
+    handle_command(From, Command, Args, TransportPid),
     % stop actor
     stop(),
     % return
@@ -69,20 +69,20 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 
 %% @doc Try to find plugin and execute it
--spec handle_command(cmd(), cmd_args(), transport()) -> ok | pass.
-handle_command(Command, Args, TransportPid) ->
+-spec handle_command(string(), cmd(), cmd_args(), transport()) -> ok | pass.
+handle_command(From, Command, Args, TransportPid) ->
     % Get plugin metadata
     TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
     % Check plugin
     case TryToFindPlugin of
         wrong_plugin ->
             % plugin not found
-            gen_server:cast(TransportPid, {send_message, "Sorry, but i don't know about this :("});
+            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :(", From});
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
             % Save command to history
             ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ Command ++ " " ++ Args ++ "\n"}),
             % send result to chat
-            gen_server:cast(TransportPid, {send_message, Result})
+            gen_server:cast(TransportPid, {send_message, From, Result})
     end.
