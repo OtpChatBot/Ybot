@@ -48,33 +48,33 @@ handle_info({incoming_message, IncomingMessage}, State) ->
     % Check this is message for Ybot or not
     case Message of
         [Nick] ->
-            gen_server:cast(State#state.campfire_client_pid, {send_message, "What?"});
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", "What?"});
         [Nick, "hi"] ->
-            gen_server:cast(State#state.campfire_client_pid, {send_message, "Hello :)"});
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Hello :)"});
         [Nick, "bye"] ->    
-            gen_server:cast(State#state.campfire_client_pid, {send_message, "Good bue"});
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Good bue"});
         [Nick, "history"] ->
             % Get history
             History = gen_server:call(ybot_history, {get_history, State#state.campfire_client_pid}),
             % Send history
-            gen_server:cast(State#state.campfire_client_pid, {send_message, History});
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", History});
         [Nick, "plugins?"] ->
             % Get plugins
             Plugins = gen_server:call(ybot_manager, get_all_plugins),
             % Send plugins label
-            gen_server:cast(State#state.campfire_client_pid, {send_message, "Plugins:"}),
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugins:"}),
             % Make plugins list
             lists:foreach(fun(Plugin) ->
                               {_, _, Pl, _} = Plugin,
-                              gen_server:cast(State#state.campfire_client_pid, {send_message, "Plugin:" ++ Pl ++ "\r\n"})
+                              gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugin:" ++ Pl ++ "\r\n"})
                           end, 
                           Plugins),
-            gen_server:cast(State#state.campfire_client_pid, {send_message, "That's all :)"});
+            gen_server:cast(State#state.campfire_client_pid, {send_message, "", "That's all :)"});
         [Nick, Command | _] ->
             % Get command arguments
             Args = lists:flatten(string:tokens(ybot_utils:split_at_end(Message, Command), "\r\n")),
             % Start process with supervisor which will be execute plugin and send to pid
-            ybot_actor:start_link(State#state.campfire_client_pid, Command, Args);
+            ybot_actor:start_link(State#state.campfire_client_pid, "", Command, Args);
         _ ->
             % this is not our command
             pass

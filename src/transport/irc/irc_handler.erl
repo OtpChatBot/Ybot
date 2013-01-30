@@ -45,33 +45,35 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% @doc Receive incoming message from irc chat
-handle_info({incoming_message, IncomingMessage}, State) ->
+handle_info({incoming_message, IncomingMessage, From}, State) ->
     Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, "What?"});
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, "What?"});
         [Nick, "hi"] ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, "Hello :)"});
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Hello :)"});
         [Nick, "bye"] ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, "Good bue"});
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Good bue"});
         [Nick, "history"] ->
             % Get history
             History = gen_server:call(ybot_history, {get_history, State#state.irc_client_pid}),
             % Send history
-            gen_server:cast(State#state.irc_client_pid, {send_message, History});
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, History});
         [Nick, "plugins?"] ->
             % Get plugins
             Plugins = gen_server:call(ybot_manager, get_plugins),
+            % Format plugins
             PluginNames = lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins),
-            % Send plugins label
-            gen_server:cast(State#state.irc_client_pid, {send_message, "Plugins: " ++ string:join(PluginNames, ", ")}),
-            gen_server:cast(State#state.irc_client_pid, {send_message, "That's all :)"});
+            % Send plugins
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Plugins: " ++ string:join(PluginNames, ", ")}),
+            % That's all :)
+            gen_server:cast(State#state.irc_client_pid, {send_message, From, "That's all :)"});
         [Nick, Command | _] ->
                 % Get command arguments
                 Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
                 % Start process with supervisor which will be execute plugin and send to pid
-                ybot_actor:start_link(State#state.irc_client_pid, Command, Args);
+                ybot_actor:start_link(State#state.irc_client_pid, From, Command, Args);
         _ ->
             % this is not our command
             pass

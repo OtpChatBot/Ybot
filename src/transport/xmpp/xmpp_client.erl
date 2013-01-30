@@ -63,7 +63,7 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 %% @doc send message to jabber
-handle_cast({send_message, Message}, State) ->
+handle_cast({send_message, _From, Message}, State) ->
     % Make from
     From = binary_to_list(State#state.login) ++ "@" ++ binary_to_list(State#state.host) ++ "/" ++ binary_to_list(State#state.resource),
     % Make room

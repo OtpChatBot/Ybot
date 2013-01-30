@@ -42,7 +42,7 @@ init([CallbackModule, Room, Token, Domain]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast({send_message, Message}, State) ->
+handle_cast({send_message, _From, Message}, State) ->
     % Make url
     Url = "https://" ++ binary_to_list(State#state.domain) ++ ".campfirenow.com/room/" ++ integer_to_list(State#state.room) ++ "/speak.xml",
     % Make message

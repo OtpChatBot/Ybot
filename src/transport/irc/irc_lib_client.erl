@@ -74,16 +74,30 @@ handle_cast({connect, Host, Port}, State) ->
         end;
 
 %% Send message to irc
-handle_cast({send_message, Message}, State) ->
+handle_cast({send_message, From, Message}, State) ->
     % Split messages by \r\n
     MessagesList = string:tokens(Message, "\r\n"),
-    % Send messages
-    lists:foreach(fun(Mes) ->
-                      timer:sleep(200),
-                      % Send message to irc
-                      (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")
-                  end, 
-                  MessagesList),
+    % Check private message or public
+    case From of
+        "" ->
+            % Send messages
+            lists:foreach(fun(Mes) ->
+                              timer:sleep(200),
+                              % Send message to irc
+                              (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")
+                          end, 
+                          MessagesList);
+        _ ->
+            % Send messages
+            lists:foreach(fun(Mes) ->
+                              timer:sleep(200),
+                              % Get username
+                              [UserName | _] = string:tokens(From, "!"),
+                              % Send private message to irc
+                              (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ UserName ++ " :" ++ Mes ++ "\r\n")
+                          end, 
+                          MessagesList)
+    end,
     % return
     {noreply, State};
 
@@ -122,11 +136,23 @@ handle_info({_, Socket, Data}, State) ->
         ["PING" | PongHost] ->
             % Send pong
             (State#state.socket_mod):send(Socket, "PONG " ++ PongHost ++ "\r\n");    
-        [_User, "PRIVMSG", _Channel | Message] ->
+        [User, "PRIVMSG", To | Message] ->
             % Get incoming message
             [_ | IncomingMessage] = string:join(Message, " "),
-            % Send incomming message to callback
-            State#state.callback ! {incoming_message, IncomingMessage};
+            % Check private message or not
+            [Symb | _] = To,
+            % Get user
+            [$: | From] = User,
+            % Check the first symbol   
+            case Symb of
+                % this is public message
+                $# ->
+                    % Send incomming message to callback
+                    State#state.callback ! {incoming_message, IncomingMessage, ""};
+                % this is private message
+                _ ->
+                    State#state.callback ! {incoming_message, IncomingMessage, From}
+            end;
         _ ->
             pass
     end,
