@@ -17,6 +17,7 @@
   * commands_history configuration parameter added.
   * history_command_limit_count configuration parameter added.
   * Added http transport.
+  * Added PASS paraemetr to IRC.
   * Irc private messages support added --> # 24
 
 ## Ybot-0.2 --> released
