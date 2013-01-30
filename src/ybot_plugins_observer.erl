@@ -26,13 +26,17 @@
     % plugins directory
     plugins_directory = ""
     }).
- 
+
+%% @doc plugins directory observer
+%% PluginsDirectory - Directory with plugins
+%% Plugins - current plugins
+%% Timeout - observe timeout
 start_link(PluginsDirectory, Plugins, Timeout) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Plugins, Timeout], []).
  
 init([PluginsDirectory, Plugins, Timeout]) ->
     % start observer
-    erlang:send_after(Timeout, self(), {check_new_plugins, PluginsDirectory}),
+    erlang:send_after(Timeout, self(), {check_new_plugins, PluginsDirectory, Plugins}),
     % init observer parameters
     {ok, #state{current_plugins = Plugins, timeout = Timeout, plugins_directory = PluginsDirectory}}.
  
@@ -43,27 +47,24 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% @doc check new plugins
-handle_info({check_new_plugins, PluginsDirectory}, State) ->
+handle_info({check_new_plugins, PluginsDirectory, CurrentPlugins}, State) ->
     % Get all plugins
     AllPlugins = ybot_utils:get_all_files(PluginsDirectory),
-    % Get all current plugins
-    CurrentPlugins = [Plugin || {_, _, _, Plugin} <- gen_server:call(ybot_manager, get_plugins)],
-    % Check difference between plugins
-    case AllPlugins -- CurrentPlugins of        
+    % Try to get difference between plugins
+    case AllPlugins -- CurrentPlugins of
         % no new plugins
         [] ->
-            % do nothing
-            ok;
+            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, AllPlugins});
         NewPlugs ->
             % Make new plugins
             NewPlugins = lists:flatten(lists:map(fun ybot_manager:load_plugin/1, NewPlugs)),
             % update manager's plugins list
-            gen_server:cast(ybot_manager, {update_plugins, NewPlugins})
+            gen_server:cast(ybot_manager, {update_plugins, NewPlugins}),
+            % Start new timer
+            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, AllPlugins})
     end,
-    % Start new timer
-    erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory}),
     % return
-    {noreply, State};
+    {noreply, State#state{current_plugins = CurrentPlugins}};
  
 handle_info(_Info, State) ->
     {noreply, State}.

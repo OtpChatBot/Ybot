@@ -75,6 +75,11 @@ handle_cast(init_history, State) ->
     % return
     {noreply, State};
 
+%% @doc update plugins
+handle_cast({update_plugins, NewPlugins}, State) ->
+    % save new plugins
+    {noreply, State#state{plugins = lists:flatten([NewPlugins | State#state.plugins])}};
+
 %% @doc Init active plugins
 handle_cast({init_plugins, PluginsDirectory}, State) ->
     case filelib:is_dir(PluginsDirectory) of
@@ -91,7 +96,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                     % Get new plugins checking timeout
                     {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
                     % Start new plugins observer
-                    ybot_plugins_observer:start_link(PluginsDirectory, Plugins, NewPluginsCheckingTimeout);
+                    ybot_plugins_observer:start_link(PluginsDirectory, PluginsPaths, NewPluginsCheckingTimeout);
                 _ ->
                     % don't use new plugins
                     pass
