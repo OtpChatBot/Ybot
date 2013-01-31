@@ -11,9 +11,26 @@
 		 bind/1, 
 		 muc/1, 
 		 message/3,
-		 private_message/3]).
+		 private_message/3,
+		 presence/0,
+		 presence_subscribed/1]).
 
 -include("xmpp.hrl").
+
+%% @doc send online status to all
+presence() ->
+	% xml data structure
+	XmlData = [{'presence', [{'priority', '50'}, {'show', 'chat'}, {'status', 'Hello, from Ybot'}], []}],
+	% convert to xml
+	lists:flatten(xmerl:export_simple(XmlData, xmerl_xml, [{prolog, ""}])).
+
+%% @doc send 'subscribed' presence
+-spec presence_subscribed(To :: string()) -> string().
+presence_subscribed(To) ->
+	% xml data structure
+	XmlData = [{'presence', [{'to', To}, {'type', 'subscribed'}], []}],
+	% convert to xml
+	lists:flatten(xmerl:export_simple(XmlData, xmerl_xml, [{prolog, ""}])).
 
 %% @doc xmpp plain authentication
 -spec auth_plain(Login :: string()) -> string().

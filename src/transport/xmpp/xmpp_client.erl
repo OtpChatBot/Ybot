@@ -63,7 +63,7 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 %% @doc send message to jabber
-handle_cast({send_message, From, Message}, State) ->   
+handle_cast({send_message, From, Message}, State) ->
     % Make from
     FromJid = binary_to_list(State#state.login) ++ "@" ++ binary_to_list(State#state.host) ++ "/" ++ binary_to_list(State#state.resource),
     % Check private or public message
@@ -75,10 +75,8 @@ handle_cast({send_message, From, Message}, State) ->
             % send message to jabber
             gen_tcp:send(State#state.socket, xmpp_xml:message(FromJid, Room, Message));
         _ ->
-            % Make To JID
-            To = lists:last(string:tokens(From, "/")) ++ "@" ++ binary_to_list(State#state.host),
             % send message to jabber
-            gen_tcp:send(State#state.socket, xmpp_xml:private_message(FromJid, To, Message))
+            gen_tcp:send(State#state.socket, xmpp_xml:private_message(FromJid, From, Message))
     end,
     
     % return
@@ -115,6 +113,8 @@ handle_info({tcp, _Socket, Data}, State) ->
         case State#state.is_auth of
             % Authorized
             true ->
+                % try to send presence
+                send_presence(Xml, State#state.socket),
                 % Catch incoming jabber message
                 case xmerl_xpath:string("/message", Xml) of
                     [] ->
@@ -152,6 +152,8 @@ handle_info({tcp, _Socket, Data}, State) ->
                         gen_tcp:send(State#state.socket, xmpp_xml:bind(binary_to_list(State#state.resource))),
                         % create session
                         gen_tcp:send(State#state.socket, xmpp_xml:create_session()),
+                        % send presence
+                        gen_tcp:send(State#state.socket, xmpp_xml:presence()),
                         % Join to muc
                         gen_tcp:send(State#state.socket, xmpp_xml:muc(binary_to_list(State#state.room))),
                         % set is_auth = true and return
@@ -170,3 +172,17 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% internal functions
+
+%% @doc send online status to single user chat
+send_presence(Xml, Socket) ->
+    case xmerl_xpath:string("/presence/@type", Xml) of
+        [{_,_,_,_, _, _, _, _,"subscribe", _}] ->
+            [{_,_,_,_, _, _, _, _, To, _}] = xmerl_xpath:string("/presence/@from", Xml),
+            % send subscribed
+            gen_tcp:send(Socket, xmpp_xml:presence_subscribed(To));
+        % do nothing
+        _ ->
+            pass
+    end.
