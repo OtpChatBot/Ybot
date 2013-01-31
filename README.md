@@ -157,4 +157,6 @@ pull and merge Ybot master to avoid conflicts.
 Author
 ========
 
-[@0xAX](https://twitter.com/0xAX)
+Create of Ybot [@0xAX](https://twitter.com/0xAX). 
+
+Thank you all who participating in Ybot developing. Names and contact information of those who helped Yubotu, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)
