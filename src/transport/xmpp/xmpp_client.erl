@@ -63,13 +63,24 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 %% @doc send message to jabber
-handle_cast({send_message, _From, Message}, State) ->
+handle_cast({send_message, From, Message}, State) ->   
     % Make from
-    From = binary_to_list(State#state.login) ++ "@" ++ binary_to_list(State#state.host) ++ "/" ++ binary_to_list(State#state.resource),
-    % Make room
-    [Room | _] = string:tokens(binary_to_list(State#state.room), "/"),
-    % send message to jabber
-    gen_tcp:send(State#state.socket, xmpp_xml:message(From, Room, Message)),
+    FromJid = binary_to_list(State#state.login) ++ "@" ++ binary_to_list(State#state.host) ++ "/" ++ binary_to_list(State#state.resource),
+    % Check private or public message
+    case From of
+        % this is public message
+        "" ->
+            % Make room
+            [Room | _] = string:tokens(binary_to_list(State#state.room), "/"),
+            % send message to jabber
+            gen_tcp:send(State#state.socket, xmpp_xml:message(FromJid, Room, Message));
+        _ ->
+            % Make To JID
+            To = lists:last(string:tokens(From, "/")) ++ "@" ++ binary_to_list(State#state.host),
+            % send message to jabber
+            gen_tcp:send(State#state.socket, xmpp_xml:private_message(FromJid, To, Message))
+    end,
+    
     % return
     {noreply, State};
 
@@ -111,11 +122,21 @@ handle_info({tcp, _Socket, Data}, State) ->
                         {noreply, State};
                     _ ->
                         % Get message body
-                        case xmerl_xpath:string("/message/body/text()", Xml) of
-                            [{xmlText, _, _, _, IncomingMessage, text}] ->
-                                % Send message to callback
-                                State#state.callback ! {incoming_message, IncomingMessage}
+                        [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
+                        % Try to get message type
+                        case xmerl_xpath:string("/message/@type", Xml) of
+                            % this is group-chat
+                            [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
+                                % Send public message to callback
+                                State#state.callback ! {incoming_message, "", IncomingMessage};
+                            % This is private message
+                            [{_,_,_,_, _, _, _, _,"chat", _}] ->
+                                % Get From parameter
+                                [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
+                                % Send private message to callback
+                                State#state.callback ! {incoming_message, From, IncomingMessage}
                         end,
+                        % return
                         {noreply, State}
                 end;
             % Not authorized
