@@ -10,8 +10,8 @@
 		 create_session/0, 
 		 bind/1, 
 		 muc/1, 
-		 message/3,
-		 private_message/3,
+		 message/2,
+		 private_message/2,
 		 presence/0,
 		 presence_subscribed/1]).
 
@@ -70,22 +70,21 @@ create_session() ->
 	lists:flatten([xmerl:export_simple(XmlData, xmerl_xml, [{prolog, ""}])]).
 
 %% @doc send private message
--spec private_message(From :: string(), To :: string(), Message :: string()) -> string().
-private_message(From, To, Message) ->
+-spec private_message(To :: string(), Message :: string()) -> string().
+private_message(To, Message) ->
   % xml data structure
-  XmlData = [{'message', [{'to', To}, {'from', From}, {'type', "chat"}],
+  XmlData = [{'message', [{'to', To},  {'type', "chat"}],
 			  [{'body', [Message]}]
 			}],
   
   % convert to xml
   lists:flatten(xmerl:export_simple(XmlData, xmerl_xml, [{prolog, ""}])).
 
-
 %% @doc Send message to muc
--spec message(From :: string(), Room :: string(), Message :: string()) -> string().
-message(From, Room, Message) ->
+-spec message(Room :: string(), Message :: string()) -> string().
+message(Room, Message) ->
 	% xml structure data
-	XmlData = [{'message', [{'to', Room}, {'from', From}, {'type', "groupchat"}],
+	XmlData = [{'message', [{'to', Room}, {'type', "groupchat"}],
 				[{'body', [Message]}]
 			  }],
 	% convert to xml

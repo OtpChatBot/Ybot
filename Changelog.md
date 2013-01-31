@@ -21,6 +21,10 @@
   * Irc private messages support added --> # 24
   * XMPP-muc private message supporting added.
   * XMPP single user chat supporting added.
+  * XMPP ssl support added.
+  * GTALK support added.
+  * New option xmpp port added. 
+  * New option xmpp use_ssl added.
 
 ## Ybot-0.2 --> released
 
