@@ -1,7 +1,11 @@
 Ybot
 ===============
 
-Ybot - is a customizable bot software which inspired with Github hubot. Github hubot is realy cool, but sorry, i don't like javascript and i don't know coffescript. Ybot written fully with erlang/otp and you can write plugins in other different scripting language like python, ruby or shell. 
+Ybot is a customizable bot which was inspired by GitHub's
+[Hubot](http://hubot.github.com/). Hubot is really cool, but sorry, I
+don't like JavaScript and I don't know coffescript. Ybot is completely
+written in Erlang/OTP and you can write plugins in Python, Perl, Ruby,
+or even in shell.
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
@@ -10,22 +14,21 @@ Ybot - is a customizable bot software which inspired with Github hubot. Github h
 Features
 =========
 
-  * Fully written with erlang;
+  * Completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
-  * Supporting plugins in different technology;
-  * Now supporting:
+  * Supports plugins in different technology;
     * Python plugins;
     * Ruby plugins;
     * Shell plugins;
     * Perl plugins;
     * Elixir plugins;
-  * To write a plugin does not need to know erlang;
+  * You don't need to know Erlang to write a plugin;
   * Command history with tunable limit;
-  * Dynamic loading plugins;
+  * Dynamic loading of plugins;
   * Very easily extensible;
-  * Irc supporting, also irc ssl supporting;
-  * XMPP supporting;
-  * Campfire supporting;
+  * Supports IRC and IRC via SSL;
+  * Supports XMPP;
+  * Supports Campfire
   * HTTP interface;
 
 Building and Running
@@ -37,15 +40,15 @@ First of all you must get your own Ybot:
 git clone https://github.com/0xAX/Ybot.git
 ```
 
-Or download archive with source: [.tar.gz](https://github.com/0xAX/Ybot/tarball/master) or [.zip](https://github.com/0xAX/Ybot/zipball/master)
+Or download the source file archive: [.tar.gz](https://github.com/0xAX/Ybot/tarball/master) or [.zip](https://github.com/0xAX/Ybot/zipball/master)
 
-After getting source you must download dependencies and build sources:
+After getting source you need to download dependencies and build the source:
 
 ```
 ./rebar get-deps && ./rebar compile
 ```
 
-After that configure with ybot.config and you can run your Ybot copy:
+Then edit the `ybot.config` configuration file and you can run your Ybot copy:
 
 ```
 ./start.sh
@@ -62,65 +65,71 @@ Dependencies
 Transport
 ==========
 
-Ybot transport - is network interface which Ybot supported. Ybot is chat bot and all time of his life he spends chatting. Ybot receives chat messages and execute some commands depending on received message. Add that moment hubot supports:
+Ybot's basic transport is a network interface. Ybot is a chat bot and he
+spends all of his life chatting. Ybot receives chat messages and execute
+commands depending on those received messages. At that moment Ybot
+supports:
 
-  * Irc supporting. (+ssl, +private messages).
-  * Xmpp muc supporting (+single user chat).
-  * Campfire supporting.
-  * Http supporting.
+  * IRC (+ssl supporting, +private messages supporting).
+  * XMPP MUC (+single user chat supporting, +private messages supporting).
+  * Campfire.
+  * HTTP.
 
 Plugins
 ==========
 
-Ybot chat bot and it can execute different commands. Command - is simple chat message. For example chat session:
+Ybot is a chat bot and it can execute different commands. Commands are
+simple chat messages. For example, a chat session:
 
 ```
 you: Ybot math 1 + 5
 Ybot: Answer: 6
 ```
 
-Here are a few simple rules, of structure of the all Ybot plugins.
+Here are a few simple rules for structuring Ybot plugins.
 
-  * Every message to Ybot must started from `Ybot` chat login.
+  * You must address messages to the `Ybot`.
 
-  * After `Ybot` login is command for example `math` or `ping` or something else supporting command. Every command consists from one word.
+  * After addressing the bot you specify the command to be executed, for example `math` or `ping`. Every command consists from one word.
 
-  * After `Ybot` login and command are command arguments. Ybot send all arguments in '', it turns one argument. 
+  * After the command you can specify arguments. Ybot sends all arguments in '' and it turns them into one argument. 
 
-  * One command = One plugin. We must have plugins in our plugin directory.
+  * One command = One plugin. Plugins must live in the `plugins` directory.
 
-  * Plugin is file necessarily with extension of:
+  * Each plugin must have the correct extension, for example:
 
     * .py
     * .rb
     * .shell
 
-with python, ruby or shell code.
+Containing Python, Ruby or shell code.
 
-  * Name of this file must be same as command. For example if we got `Ybot ping` command, we must have plugin ping.py or ping.rb or ping.shell
+  * The name of the plugin file must be the same name as the command.
+    For example if we have a `Ybot ping` command, we must have a plugin
+    named `ping.py` or `ping.rb` or `ping.shell`, etc.
 
-  * Plugin can consist any code and write result to stdout in the end.
+  * Plugin can consist of any code but write the results to `STDOUT` in the end.
 
-Example of treatment to Ybot:
+Example Ybot:
 
 ```
 Ybot math 3 ^ 2
 ```
 
-Here ybot call plugin with math.some_ext with argument: '3 ^ 2'
+Here Ybot calls the `math` plugin with the argument: '3 ^ 2'
 
 Current plugins
 ================
 
   * chuck - Chuck Norris quotes :)
-  * decide - Ybot try to help decide you.
+  * decide - Ybot try to help make decisions for you.
   * github_status - Github status state.
   * help - Ybot help.
   * ping - Ybot simple ping/pong.
   * math - Ybot calculate math expressions.
   * date - Ybot show date/time.
   * pugme - Ybot pugme service plugin.
-  * erl   - Ybot computation of erlang expression with tryerlang.org.
+  * erl   - Ybot computation of erlang expression using tryerlang.org.
   * today? - Ybot return current day.
   * shorten_url - Ybot url shortener with goo.gl.
   * hacker_news - Ybot download news from https://news.ycombinator.com/
@@ -130,14 +139,15 @@ Current plugins
   * ip - Ybot external ip
   * hacker_help - Ybot search in stackoverflow.
 
-This is Ybot's core plugins. Other plugins you can find at [ybot-contrib](https://github.com/0xAX/ybot-contrib)
+These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib)
 
 Contribute
 ============
 
-Ybot - is open source project under Erlang public license (see LICENSE file). Issues, questions and patches are welcome.
+Ybot is an open source project under the Erlang public license (see LICENSE file). Issues, questions and patches are welcome.
 
-If you're hacking Ybot core, please, before pull request, pull and merge Ybot master, for avoiding further conflicts.
+If you're hacking Ybot core, please, before sending your pull request,
+pull and merge Ybot master to avoid conflicts.
 
   * Fork main ybot repository (https://github.com/0xAX/Ybot).
   * Make your changes in your clone of ybot.
