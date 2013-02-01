@@ -55,6 +55,20 @@ Then edit the `ybot.config` configuration file and you can run your Ybot copy:
 ./start.sh
 ```
 
+Run on heroku
+===============
+
+
+  * Get you ybot and configure it.
+  * Download heroku
+
+```
+cd Ybot
+heroku create your-application-name -s cedar
+heroku config:add BUILDPACK_URL=http://github.com/heroku/heroku-buildpack-erlang.git
+git push heroku master
+```
+
 Dependencies
 =============
 
