@@ -27,9 +27,10 @@ Features
   * Dynamic loading of plugins;
   * Very easily extensible;
   * Supports IRC and IRC via SSL;
-  * Supports XMPP;
+  * Supports XMPP and XMPP via ssl;
   * Supports Campfire
   * HTTP interface;
+  * GTalk supporting;
 
 Building and Running
 =====================
@@ -70,10 +71,11 @@ spends all of his life chatting. Ybot receives chat messages and execute
 commands depending on those received messages. At that moment Ybot
 supports:
 
-  * IRC.
-  * XMPP MUC.
+  * IRC (+ssl supporting, +private messages supporting).
+  * XMPP MUC (+single user chat supporting, +private messages supporting, +ssl supporting).
   * Campfire.
   * HTTP.
+  * Gtalk.
 
 Plugins
 ==========
@@ -157,4 +159,6 @@ pull and merge Ybot master to avoid conflicts.
 Author
 ========
 
-[@0xAX](https://twitter.com/0xAX)
+Create of Ybot [@0xAX](https://twitter.com/0xAX). 
+
+Thank you all who participating in Ybot developing. Names and contact information of those who helped Yubotu, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)

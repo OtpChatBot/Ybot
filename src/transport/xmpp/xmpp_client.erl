@@ -10,7 +10,7 @@
 -include("xmpp.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
--export([start_link/6]).
+-export([start_link/8]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -19,9 +19,6 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
-
-%% @doc Default port
--define(PORT, 5222).
 
 %% @doc Xmpp client internal state
 -record (state, {
@@ -40,50 +37,54 @@
         % Jabber room
         room,
         % Client resource
-        resource
+        resource,
+        % Xmpp server port
+        port = 5222,
+        % socket mode
+        socket_mod = null
     }).
 
-start_link(CallbackModule, Login, Password, Server, Room, Resource) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Room, Resource], []).
+start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode], []).
 
-init([CallbackModule, Login, Password, Server, Room, Resource]) ->
+init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode]) ->
     % try to connect
-    gen_server:cast(self(), {connect, Server}),
+    gen_server:cast(self(), {connect, Server, Port}),
     % init process internal state
     {ok, #state{callback = CallbackModule,
                 login = Login,
                 password = Password,
                 host = Server,
                 room = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
-                resource = Resource
+                resource = Resource,
+                port = Port,
+                socket_mod = SocketMode
                }
     }.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-%% @doc send message to jabber
-handle_cast({send_message, _From, Message}, State) ->
-    % Make from
-    From = binary_to_list(State#state.login) ++ "@" ++ binary_to_list(State#state.host) ++ "/" ++ binary_to_list(State#state.resource),
-    % Make room
-    [Room | _] = string:tokens(binary_to_list(State#state.room), "/"),
-    % send message to jabber
-    gen_tcp:send(State#state.socket, xmpp_xml:message(From, Room, Message)),
-    % return
-    {noreply, State};
-
 %% @doc connect to jabber server
-handle_cast({connect, Host}, State) ->
+handle_cast({connect, Host, Port}, State) ->
+    % Connection options
+    Options = case State#state.socket_mod of
+                ssl -> 
+                    [{verify, 0}];
+                gen_tcp -> 
+                    []
+    end,
     % connect
-    case gen_tcp:connect(binary_to_list(Host), ?PORT, []) of
+    case (State#state.socket_mod):connect(binary_to_list(Host), Port, Options) of
         {ok, Socket} ->
+            % Get new stream
+            NewStream = lists:last(string:tokens(binary_to_list(State#state.login), "@")),
             % handshake with jabber server
-            gen_tcp:send(Socket, ?STREAM(binary_to_list(Host))),
+            (State#state.socket_mod):send(Socket, ?STREAM(NewStream)),
             % Format login/password
             Auth = binary_to_list(base64:encode("\0" ++ binary_to_list(State#state.login) ++ "\0" ++ binary_to_list(State#state.password))),
             % Send authorization (PLAIN method)
-            gen_tcp:send(Socket, xmpp_xml:auth_plain(Auth)),
+            (State#state.socket_mod):send(Socket, xmpp_xml:auth_plain(Auth)),
             % init
             {noreply, State#state{socket = Socket}};
         {error, Reason} ->
@@ -92,11 +93,29 @@ handle_cast({connect, Host}, State) ->
             {noreply, State}
     end;
 
+%% @doc send message to jabber
+handle_cast({send_message, From, Message}, State) ->
+    % Check private or public message
+    case From of
+        % this is public message
+        "" ->
+            % Make room
+            [Room | _] = string:tokens(binary_to_list(State#state.room), "/"),
+            % send message to jabber
+            (State#state.socket_mod):send(State#state.socket, xmpp_xml:message(Room, Message));
+        _ ->
+            % send message to jabber
+            (State#state.socket_mod):send(State#state.socket, xmpp_xml:private_message(From, Message))
+    end,
+    
+    % return
+    {noreply, State};
+
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% @doc Incoming message
-handle_info({tcp, _Socket, Data}, State) ->
+handle_info({_, _Socket, Data}, State) ->
     try
         % Parse incoming xml
         {Xml, _} = xmerl_scan:string(Data),
@@ -104,6 +123,8 @@ handle_info({tcp, _Socket, Data}, State) ->
         case State#state.is_auth of
             % Authorized
             true ->
+                % try to send presence
+                send_presence(Xml, State#state.socket, State#state.socket_mod),
                 % Catch incoming jabber message
                 case xmerl_xpath:string("/message", Xml) of
                     [] ->
@@ -111,11 +132,21 @@ handle_info({tcp, _Socket, Data}, State) ->
                         {noreply, State};
                     _ ->
                         % Get message body
-                        case xmerl_xpath:string("/message/body/text()", Xml) of
-                            [{xmlText, _, _, _, IncomingMessage, text}] ->
-                                % Send message to callback
-                                State#state.callback ! {incoming_message, IncomingMessage}
+                        [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
+                        % Try to get message type
+                        case xmerl_xpath:string("/message/@type", Xml) of
+                            % this is group-chat
+                            [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
+                                % Send public message to callback
+                                State#state.callback ! {incoming_message, "", IncomingMessage};
+                            % This is private message
+                            [{_,_,_,_, _, _, _, _,"chat", _}] ->
+                                % Get From parameter
+                                [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
+                                % Send private message to callback
+                                State#state.callback ! {incoming_message, From, IncomingMessage}
                         end,
+                        % return
                         {noreply, State}
                 end;
             % Not authorized
@@ -125,14 +156,17 @@ handle_info({tcp, _Socket, Data}, State) ->
                     [] ->
                         {noreply, State};
                     _ ->
+                        NewStream = lists:last(string:tokens(binary_to_list(State#state.login), "@")),
                         % create new stream
-                        gen_tcp:send(State#state.socket, ?STREAM(binary_to_list(State#state.host))),
+                        (State#state.socket_mod):send(State#state.socket, ?STREAM(NewStream)),
                         % bind resource
-                        gen_tcp:send(State#state.socket, xmpp_xml:bind(binary_to_list(State#state.resource))),
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:bind(binary_to_list(State#state.resource))),
                         % create session
-                        gen_tcp:send(State#state.socket, xmpp_xml:create_session()),
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:create_session()),
+                        % send presence
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:presence()),
                         % Join to muc
-                        gen_tcp:send(State#state.socket, xmpp_xml:muc(binary_to_list(State#state.room))),
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(binary_to_list(State#state.room))),
                         % set is_auth = true and return
                         {noreply, State#state{is_auth = true}}
                 end
@@ -149,3 +183,27 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% internal functions
+
+%% @doc send online status to single user chat
+send_presence(Xml, Socket, M) ->
+    case xmerl_xpath:string("/presence/@type", Xml) of
+        [{_,_,_,_, _, _, _, _,"subscribe", _}] ->
+            [{_,_,_,_, _, _, _, _, To, _}] = xmerl_xpath:string("/presence/@from", Xml),
+            % send subscribed
+            M:send(Socket, xmpp_xml:presence_subscribed(To));
+        % do nothing
+        _ ->
+            pass
+    end,
+
+    case xmerl_xpath:string("/presence/@from", Xml) of
+        [{_,_,_,_, _, _, _, _, From, _}] ->
+            % send subscribed
+            M:send(Socket, xmpp_xml:presence_subscribed(From));
+        % do nothing
+        _ ->
+            pass
+    end.
+    
