@@ -132,36 +132,50 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% @doc Start irc clients
 load_transport({irc, Nick, Channel, Host, Options}) ->
-    % Get irc server port
-    {port, Port} = lists:keyfind(port, 1, Options),
-    % SSL?
-    {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
-    % Start irc handler
-    {ok, HandlerPid} = irc_handler:start_link(),
-    % Run new irc client
-    {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl),
-    lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
-    % send client pid to handler
-    ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
-    % return correct transport
-    {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+    % Validate transport options
+    case ybot_validators:validate_transport_opts(Options) of
+        ok ->
+            % Get irc server port
+            {port, Port} = lists:keyfind(port, 1, Options),
+            % SSL?
+            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Start irc handler
+            {ok, HandlerPid} = irc_handler:start_link(),
+            % Run new irc client
+            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl),
+            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
+            % send client pid to handler
+            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
+            % return correct transport
+            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+        % wrong transport
+        _ ->
+            []
+    end;
 
 %% @doc start xmpp clients
 load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
-    % Get irc server port
-    {port, Port} = lists:keyfind(port, 1, Options),
-    % SSL?
-    {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
-    % Start xmpp handler
-    {ok, HandlerPid} = xmpp_handler:start_link(),
-    % Run new xmpp client
-    {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
-    % Log
-    lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
-    % Send client pid to handler
-    ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
-    % return correct transport
-    {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+    % Validate transport options
+    case ybot_validators:validate_transport_opts(Options) of
+        ok ->
+            % Get irc server port
+            {port, Port} = lists:keyfind(port, 1, Options),
+            % SSL?
+            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Start xmpp handler
+            {ok, HandlerPid} = xmpp_handler:start_link(),
+             % Run new xmpp client
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
+            % Log
+            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+            % Send client pid to handler
+            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
+            % return correct transport
+            {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+        % wrong options
+        _ ->
+            []
+    end;
 
 %% @doc start campfire clients
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain}) ->
