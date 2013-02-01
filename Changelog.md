@@ -25,6 +25,7 @@
   * GTALK support added.
   * New option xmpp port added. 
   * New option xmpp use_ssl added.
+  * Transport options validating added.
 
 ## Ybot-0.2 --> released
 
