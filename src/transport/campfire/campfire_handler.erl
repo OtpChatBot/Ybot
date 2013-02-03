@@ -60,19 +60,26 @@ handle_info({incoming_message, IncomingMessage}, State) ->
             gen_server:cast(State#state.campfire_client_pid, {send_message, "", History});
         [Nick, "plugins?"] ->
             % Get plugins
-            Plugins = gen_server:call(ybot_manager, get_all_plugins),
+            Plugins = gen_server:call(ybot_manager, get_plugins),
+            io:format("Plugins ~p~n", [Plugins]),
             % Send plugins label
             gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugins:"}),
             % Make plugins list
             lists:foreach(fun(Plugin) ->
                               {_, _, Pl, _} = Plugin,
-                              gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugin:" ++ Pl ++ "\r\n"})
+                              gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugin: " ++ Pl ++ "\r\n"})
                           end, 
                           Plugins),
             gen_server:cast(State#state.campfire_client_pid, {send_message, "", "That's all :)"});
-        [Nick, Command | _] ->
-            % Get command arguments
-            Args = lists:flatten(string:tokens(ybot_utils:split_at_end(Message, Command), "\r\n")),
+        [Nick, Command | Arg] ->
+            Args = case Arg of
+                    [] ->
+                        % return empty args
+                        "";
+                    _ ->
+                        % Get command arguments
+                        ybot_utils:split_at_end(Message, Command)
+                    end,
             % Start process with supervisor which will be execute plugin and send to pid
             ybot_actor:start_link(State#state.campfire_client_pid, "", Command, Args);
         _ ->

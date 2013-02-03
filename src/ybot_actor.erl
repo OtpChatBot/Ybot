@@ -77,7 +77,7 @@ handle_command(From, Command, Args, TransportPid) ->
     case TryToFindPlugin of
         wrong_plugin ->
             % plugin not found
-            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :(", From});
+            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :("});
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
