@@ -25,17 +25,13 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % Start crypto        
-    ok = application:start(crypto),
-    % Start public key
-    ok = application:start(public_key),
-    % Start ssl
-    ok = application:start(ssl),
-
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
+
+    % Get brain backend storage
+    {ok, BrainStorage} = application:get_env(ybot, brain_storage),
 
     % Root supervisor childrens
     Childrens = [
@@ -62,6 +58,12 @@ init([]) ->
         {campfire_sup,
             {campfire_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
+        },
+
+        % starts brain
+        {ybot_brain,
+            {ybot_brain, start_link, [BrainStorage]},
+             permanent, brutal_kill, worker, []
         },
 
         % start manager with transports list
