@@ -169,7 +169,7 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
              % Run new xmpp client
             {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
             % Log
-            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+            lager:info("Starting XMPP transport: ~s, ~p, ~s", [Host, Room, Resource]),
             % Send client pid to handler
             ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
             % return correct transport

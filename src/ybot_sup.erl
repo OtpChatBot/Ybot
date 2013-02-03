@@ -27,6 +27,7 @@ start_link() ->
 init([]) ->
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
+
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
