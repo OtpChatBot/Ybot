@@ -186,7 +186,8 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
-            % Is hipchat
+            
+	    % Is hipchat
             ClientPid = case lists:keyfind(is_hipchat, 1, Options) of
                 {_, false} -> 
                     % Make room
@@ -212,6 +213,13 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
                     % return xmpp client pid
                     CPid
             end,
+             
+            % Run new xmpp client
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
+            % Log
+            lager:info("Starting XMPP transport: ~s, ~p, ~s", [Host, Room, Resource]),
+            % Send client pid to handler
+            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
             % return correct transport
             {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
         % wrong options
