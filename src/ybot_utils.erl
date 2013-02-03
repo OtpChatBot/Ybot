@@ -31,5 +31,7 @@ split_at_end(String, SplitSnippet) ->
 %% @doc Get priv directory path
 -spec get_priv_dir() -> string().
 get_priv_dir() ->
+    % get current dir
     {ok, Cwd} = file:get_cwd(),
+    % Return priv dir
     Cwd ++ "/priv/".

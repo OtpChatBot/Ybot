@@ -46,6 +46,7 @@ handle_cast(_Msg, State) ->
 
 %% @doc Receive incoming message from irc chat
 handle_info({incoming_message, IncomingMessage, From}, State) ->
+    % Get bot chat nick
     Nick = binary_to_list(State#state.nick),
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
@@ -99,8 +100,11 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 
 maybe_respond({FirstWord, YNick}, F) when is_list(YNick) and is_list(FirstWord) and is_function(F) ->
-    [_LastLetter|DrowTsrif] = lists:reverse(FirstWord),
-    case (DrowTsrif == lists:reverse(YNick)) or (YNick == FirstWord) of
+    [LastLetter | DrowTsrif] = lists:reverse(FirstWord),
+    % Check last permissible symbol
+    CheckLastLEtter = lists:member(LastLetter, [$,, $:]),
+    % Validate
+    case ((DrowTsrif == lists:reverse(YNick)) or (YNick == FirstWord)) and (CheckLastLEtter == true) of
       true -> F();
       _ -> pass
     end.
