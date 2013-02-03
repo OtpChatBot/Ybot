@@ -139,10 +139,12 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
             {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Get reconnect timeout
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start irc handler
             {ok, HandlerPid} = irc_handler:start_link(),
             % Run new irc client
-            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl),
+            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl, ReconnectTimeout),
             lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
             % send client pid to handler
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),

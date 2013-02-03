@@ -2,6 +2,8 @@
 
 ## Ybot-0.3.1 --> In development
 
+  * Added reconnect timeout options and reconnect ability to irc client --> #33.
+
 ## Ybot-0.3 --> released
 
   * New wat plugin

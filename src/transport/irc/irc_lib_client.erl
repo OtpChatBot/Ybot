@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/6]).
+-export([start_link/7]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -23,6 +23,8 @@
     login = <<>> :: binary(),
     % irc server host
     host = <<>> :: binary(),
+    % irc server port
+    port = 0 :: integer(),
     % irc server password
     password = <<>> :: binary(),
     % irc channel
@@ -36,15 +38,17 @@
     % auth or not
     is_auth = false :: boolean(),
     % calback module
-    callback = null
+    callback = null,
+    % reconnect timeout
+    reconnect_timeout = 0 :: integer()
     }).
 
 -define(TIMEOUT, 15000).
 
-start_link(CallbackModule, Host, Port, SocketMod, Channel, Nick) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Host, Port, SocketMod, Channel, Nick], []).
+start_link(CallbackModule, Host, Port, SocketMod, Channel, Nick, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Host, Port, SocketMod, Channel, Nick, ReconnectTimeout], []).
 
-init([CallbackModule, Host0, Port, SocketMod, Channel, Nick]) ->
+init([CallbackModule, Host0, Port, SocketMod, Channel, Nick, ReconnectTimeout]) ->
     % Get host and password
     {Host, Pass} = Host0,
     % try to connect
@@ -52,7 +56,9 @@ init([CallbackModule, Host0, Port, SocketMod, Channel, Nick]) ->
     % Get channel and key
     {Chan, Key} = Channel,
     % init process internal state
-    {ok, #state{login = Nick, host = Host, password = Pass, irc_channel = Chan, irc_channel_key = Key, socket_mod = SocketMod, callback = CallbackModule}}.
+    {ok, #state{login = Nick, host = Host, password = Pass, irc_channel = Chan, port = Port,
+                irc_channel_key = Key, socket_mod = SocketMod, callback = CallbackModule,
+                reconnect_timeout = ReconnectTimeout}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -110,22 +116,34 @@ handle_info({join, Socket, Message}, State) ->
     {noreply, State};
 
 handle_info({ssl_closed, Reason}, State) ->
+    % Some log
     lager:info("ssl_closed with reason: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State),
     % stop and return state
     {stop, normal, State};
 
 handle_info({ssl_error, _Socket, Reason}, State) ->
+    % Some log
     lager:error("tcp_error: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State),
     % stop and return state
     {stop, normal, State};
 
 handle_info({tcp_closed, Reason}, State) ->
+    % Some log
     lager:info("tcp_closed with reason: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State),
     % stop and return state
     {stop, normal, State};
 
 handle_info({tcp_error, _Socket, Reason}, State) ->
+    % Some log
     lager:error("tcp_error: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State),
     % stop and return state
     {stop, normal, State};
     
@@ -205,3 +223,19 @@ join_channel(M, Socket, Chan, ChanKey) ->
         join, Socket, "JOIN " ++ binary_to_list(Chan) ++ " " ++ binary_to_list(ChanKey) ++ "\r\n"
     })),
     ok.
+
+%% @doc try reconnect
+-spec try_reconnect(State :: #state{}) -> ok.
+try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = _State) ->
+    case Timeout > 0 of
+        true ->
+            % no need in reconnect
+            ok;
+        false ->
+            % sleep
+            timer:sleep(Timeout),
+            % Try reconnect
+            gen_server:cast(self(), {connect, Host, Port}),
+            % return
+            ok
+    end.
