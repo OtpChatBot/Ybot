@@ -1,6 +1,8 @@
 # Ybot news & changelog
 
-## Ybot-0.3 --> In development
+## Ybot-0.3.1 --> In development
+
+## Ybot-0.3 --> released
 
   * New wat plugin
   * Irc ssl supporting --> #16
@@ -26,6 +28,8 @@
   * New option xmpp port added. 
   * New option xmpp use_ssl added.
   * Transport options validating added.
+  * Procfile added for Heroku deploying support.
+  * Added experemental message parser to irc handler --> #23
 
 ## Ybot-0.2 --> released
 
