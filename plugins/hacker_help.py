@@ -12,7 +12,9 @@ import urllib2
 import simplejson as json
 import zlib
 
-# http://api.stackoverflow.com/1.1/search?&intitle=%3Cdiv%3E
+if len(sys.argv) != 2:
+	print 'Wrong arguments\nUsage: ybot hacker_help my request' 
+	sys.exit()
 
 # Get question from command line
 question = sys.argv[1]
