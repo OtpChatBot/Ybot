@@ -11,6 +11,8 @@ or even in shell.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
 
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/5dd801f19f2b135fdfeee8c75818b42c "githalytics.com")](http://githalytics.com/0xAX/Ybot)
+
 Features
 =========
 
