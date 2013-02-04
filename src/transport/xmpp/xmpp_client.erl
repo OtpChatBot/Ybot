@@ -1,7 +1,7 @@
 %%%----------------------------------------------------------------------
 %%% File    : transport/xmpp/xmpp_client.erl
 %%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Xmpp client
+%%% Purpose : Xmpp client with ssl support
 %%%----------------------------------------------------------------------
 -module(xmpp_client).
 
@@ -46,7 +46,7 @@
         reconnect_timeout = 0
     }).
 
-start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout ) ->
+start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout) ->
     gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout], []).
 
 init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout ]) ->
@@ -57,7 +57,7 @@ init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode,
                 login = Login,
                 password = Password,
                 host = Server,
-                room = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
+                room = Room,
                 resource = Resource,
                 port = Port,
                 socket_mod = SocketMode,
@@ -193,8 +193,10 @@ handle_info({_, _Socket, Data}, State) ->
                         (State#state.socket_mod):send(State#state.socket, xmpp_xml:create_session()),
                         % send presence
                         (State#state.socket_mod):send(State#state.socket, xmpp_xml:presence()),
+                        % Little timer
+                        timer:sleep(1000),
                         % Join to muc
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(binary_to_list(State#state.room))),
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(State#state.room)),
                         % set is_auth = true and return
                         {noreply, State#state{is_auth = true}}
                 end

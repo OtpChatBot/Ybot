@@ -5,6 +5,7 @@
   * Added reconnect timeout option and reconnect ability to irc client --> #33.
   * hacker_help plugin fixed --> #35
   * Added reconnect timeout option to xmpp and campfire.
+  * Added supporting of HipChat.
 
 ## Ybot-0.3 --> released
 

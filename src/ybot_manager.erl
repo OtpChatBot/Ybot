@@ -168,12 +168,32 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
-             % Run new xmpp client
-            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl, ReconnectTimeout),
-            % Log
-            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
-            % Send client pid to handler
-            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
+            % Is hipchat
+            ClientPid = case lists:keyfind(is_hipchat, 1, Options) of
+                {_, false} -> 
+                    % Make room
+                    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
+                    % Log
+                    lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+                    {ok, CPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+                    % Send client pid to handler
+                    ok = gen_server:cast(HandlerPid, {xmpp_client, CPid, Login}),
+                    % return xmpp client pid
+                    CPid;
+                % This is hipchat
+                {_, true} ->
+                    % Get hipchat nick
+                    {_, HipChatNick}  = lists:keyfind(hipchat_nick, 1, Options),
+                    % Make room
+                    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
+                    % Run new xmpp client
+                    {ok, CPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+                    % Send client pid to handler
+                    ok = gen_server:cast(HandlerPid, {xmpp_client, CPid, 
+                        list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
+                    % return xmpp client pid
+                    CPid
+            end,
             % return correct transport
             {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
         % wrong options

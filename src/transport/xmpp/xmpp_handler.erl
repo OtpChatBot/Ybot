@@ -35,14 +35,26 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast({xmpp_client, ClientPid, BotNick}, State) ->
+    % Get first symbol of bot nick name
+    [NickSymb | _] = binary_to_list(BotNick),
+    % Check this symbol. If it's '@' this is Hipchat.
+    Nick = case NickSymb of
+        $@ ->
+            % return nick
+            binary_to_list(BotNick);
+        _ ->
+            % get nick part
+            [TempNick | _] = string:tokens(binary_to_list(State#state.nick), "@"),
+            % return nick
+            TempNick
+    end,
     % save xmpp client pid
-    {noreply, State#state{xmpp_client_pid = ClientPid, nick = BotNick}};
+    {noreply, State#state{xmpp_client_pid = ClientPid, nick = Nick}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-handle_info({incoming_message, From, IncomingMessage}, State) ->
-    [Nick | _] = string:tokens(binary_to_list(State#state.nick), "@"),
+handle_info({incoming_message, From, IncomingMessage}, #state{nick = Nick} = State) ->
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->

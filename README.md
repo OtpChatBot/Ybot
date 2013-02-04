@@ -31,6 +31,7 @@ Features
   * Supports Campfire
   * HTTP interface;
   * GTalk supporting;
+  * HipChat supporting;
 
 Building and Running
 =====================
@@ -90,6 +91,7 @@ supports:
   * Campfire.
   * HTTP.
   * Gtalk.
+  * HipChat.
 
 Plugins
 ==========
