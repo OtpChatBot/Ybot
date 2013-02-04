@@ -78,9 +78,7 @@ handle_cast({connect, Host, Port}, State) ->
             % Some log
             lager:error("Unable to connect to irc server with reason ~s", [Reason]),
             % Try reconnect
-            try_reconnect(State),
-            % return
-            {noreply, State}
+            try_reconnect(State)
         end;
 
 %% Send message to irc
@@ -123,33 +121,25 @@ handle_info({ssl_closed, Reason}, State) ->
     % Some log
     lager:info("ssl_closed with reason: ~p~n", [Reason]),
     % try reconnect
-    try_reconnect(State),
-    % stop and return state
-    {stop, normal, State};
+    try_reconnect(State);
 
 handle_info({ssl_error, _Socket, Reason}, State) ->
     % Some log
     lager:error("tcp_error: ~p~n", [Reason]),
     % try reconnect
-    try_reconnect(State),
-    % stop and return state
-    {stop, normal, State};
+    try_reconnect(State);
 
 handle_info({tcp_closed, Reason}, State) ->
     % Some log
     lager:info("tcp_closed with reason: ~p~n", [Reason]),
     % try reconnect
-    try_reconnect(State),
-    % stop and return state
-    {stop, normal, State};
+    try_reconnect(State);
 
 handle_info({tcp_error, _Socket, Reason}, State) ->
     % Some log
     lager:error("tcp_error: ~p~n", [Reason]),
     % try reconnect
-    try_reconnect(State),
-    % stop and return state
-    {stop, normal, State};
+    try_reconnect(State);
     
 %% @doc Incoming message
 handle_info({_, Socket, Data}, State) ->
@@ -229,17 +219,17 @@ join_channel(M, Socket, Chan, ChanKey) ->
     ok.
 
 %% @doc try reconnect
--spec try_reconnect(State :: #state{}) -> ok.
-try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = _State) ->
+-spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
+try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = State) ->
     case Timeout > 0 of
         true ->
             % no need in reconnect
-            ok;
+            {normal, stop, State};
         false ->
             % sleep
             timer:sleep(Timeout),
             % Try reconnect
             gen_server:cast(self(), {connect, Host, Port}),
             % return
-            ok
+            {noreply, State}
     end.

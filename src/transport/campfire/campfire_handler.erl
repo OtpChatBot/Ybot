@@ -18,8 +18,10 @@
          code_change/3]).
  
 -record(state, {
-    campfire_nick,
-    campfire_client_pid
+        % bot nick in campfire room
+        campfire_nick = <<>> :: binary(),
+        % campfire client process pid
+        campfire_client_pid :: pid()
     }).
  
 start_link() ->
@@ -61,7 +63,6 @@ handle_info({incoming_message, IncomingMessage}, State) ->
         [Nick, "plugins?"] ->
             % Get plugins
             Plugins = gen_server:call(ybot_manager, get_plugins),
-            io:format("Plugins ~p~n", [Plugins]),
             % Send plugins label
             gen_server:cast(State#state.campfire_client_pid, {send_message, "", "Plugins:"}),
             % Make plugins list

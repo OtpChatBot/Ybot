@@ -2,8 +2,9 @@
 
 ## Ybot-0.3.1 --> In development
 
-  * Added reconnect timeout options and reconnect ability to irc client --> #33.
+  * Added reconnect timeout option and reconnect ability to irc client --> #33.
   * hacker_help plugin fixed --> #35
+  * Added reconnect timeout option to xmpp and campfire.
 
 ## Ybot-0.3 --> released
 

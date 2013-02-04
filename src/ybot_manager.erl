@@ -164,10 +164,12 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
             {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Get reconnect timeout
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
              % Run new xmpp client
-            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl, ReconnectTimeout),
             % Log
             lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
             % Send client pid to handler
@@ -180,11 +182,13 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
     end;
 
 %% @doc start campfire clients
-load_transport({campfire, Login, Token, RoomId, CampfireSubDomain}) ->
+load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
+    % Get reconnect timeout
+    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
-    {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain),
+    {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain, ReconnectTimeout),
     % Log
     lager:info("Starting Campfire transport: ~p, ~s", [RoomId, CampfireSubDomain]),
     % Send client pid to handler
