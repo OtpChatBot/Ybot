@@ -21,6 +21,6 @@ check_site = 'It\'s just you' in response
 # Return
 if check_site == True:
 	print "Site is up"
-else
+else:
 	print "Site is down"
 
