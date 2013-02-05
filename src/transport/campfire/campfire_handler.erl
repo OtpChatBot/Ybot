@@ -42,8 +42,14 @@ handle_cast(_Msg, State) ->
 handle_info({incoming_message, IncomingMessage}, State) ->
     % Get Ybot Nick from current chat
     Nick = binary_to_list(State#state.campfire_nick),
-    % Decode json message
-    {struct, DataList} = mochijson2:decode(IncomingMessage),
+    % Try to decode json
+    {struct, DataList} = try
+                            % Decode json message
+                            mochijson2:decode(IncomingMessage)
+                         catch _ : _ ->
+                                {struct, [{<<"body">>, <<"">>}]}
+                         end,
+    % Get body
     {_, Body} = lists:keyfind(<<"body">>, 1, DataList),
     % Get message body
     Message = string:tokens(binary_to_list(Body), " \r\n"),
@@ -79,7 +85,7 @@ handle_info({incoming_message, IncomingMessage}, State) ->
                         "";
                     _ ->
                         % Get command arguments
-                        ybot_utils:split_at_end(Message, Command)
+                        ybot_utils:split_at_end(binary_to_list(Body), Command)
                     end,
             % Start process with supervisor which will be execute plugin and send to pid
             ybot_actor:start_link(State#state.campfire_client_pid, "", Command, Args);
