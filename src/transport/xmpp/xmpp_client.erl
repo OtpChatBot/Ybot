@@ -145,7 +145,7 @@ handle_info({tcp_error, _Socket, Reason}, State) ->
 %% @doc Incoming message
 handle_info({_, _Socket, Data}, State) ->
     try
-        % Parse incoming xml
+        % Try to parse incoming xml
         {Xml, _} = xmerl_scan:string(Data),
         % Check auth state
         case State#state.is_auth of
@@ -153,7 +153,7 @@ handle_info({_, _Socket, Data}, State) ->
             true ->
                 % try to send presence
                 send_presence(Xml, State#state.socket, State#state.socket_mod),
-                % Catch incoming jabber message
+                % Try to catch incoming xmpp message and send it to hander
                 case xmerl_xpath:string("/message", Xml) of
                     [] ->
                         % Not find
@@ -161,19 +161,8 @@ handle_info({_, _Socket, Data}, State) ->
                     _ ->
                         % Get message body
                         [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
-                        % Try to get message type
-                        case xmerl_xpath:string("/message/@type", Xml) of
-                            % this is group-chat
-                            [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
-                                % Send public message to callback
-                                State#state.callback ! {incoming_message, "", IncomingMessage};
-                            % This is private message
-                            [{_,_,_,_, _, _, _, _,"chat", _}] ->
-                                % Get From parameter
-                                [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
-                                % Send private message to callback
-                                State#state.callback ! {incoming_message, From, IncomingMessage}
-                        end,
+                        % Check message type and send it to handler
+                        ok = send_message_to_handler(Xml, State#state.callback, IncomingMessage),
                         % return
                         {noreply, State}
                 end;
@@ -252,3 +241,22 @@ try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = St
             % return
             {noreply, State}
     end.
+
+%% @doc Check incomming message type and send it to handler
+-spec send_message_to_handler(Xml :: #xmlDocument{}, Callback :: pid(), IncomingMessage :: binary()) -> ok.
+send_message_to_handler(Xml, Callback, IncomingMessage) ->
+    % Try to get message type
+    case xmerl_xpath:string("/message/@type", Xml) of
+        % this is group-chat
+        [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
+            % Send public message to callback
+            Callback ! {incoming_message, "", IncomingMessage};
+            % This is private message
+        [{_,_,_,_, _, _, _, _,"chat", _}] ->
+            % Get From parameter
+            [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
+            % Send private message to callback
+            Callback ! {incoming_message, From, IncomingMessage}
+    end,
+    % return
+    ok.

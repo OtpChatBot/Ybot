@@ -44,7 +44,7 @@ handle_cast({xmpp_client, ClientPid, BotNick}, State) ->
             binary_to_list(BotNick);
         _ ->
             % get nick part
-            [TempNick | _] = string:tokens(binary_to_list(State#state.nick), "@"),
+            [TempNick | _] = string:tokens(binary_to_list(BotNick), "@"),
             % return nick
             TempNick
     end,
