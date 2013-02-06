@@ -11,6 +11,10 @@ import sys
 import urllib
 import urllib2
 
+if len(sys.argv) != 2:
+	print 'Wrong arguments\nUsage: Ybot checkk-site http://example.com'
+	exit(0)
+
 # Get url for checking
 url = sys.argv[1]
 # Send request
