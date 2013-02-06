@@ -23,7 +23,9 @@
        % Example : [{irc, ClientPid, HandlerPid, Nick, Channel, Host}]
        transports = [],
        % Ybot active plugins list
-       plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}]
+       plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}],
+       % Runned transports pid list
+       runned_transports = [] :: [pid()] 
     }).
 
 start_link(PluginsDirectory, Transports) ->
@@ -50,8 +52,14 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             {reply, Plugin, State}
     end;
 
+%% @doc get all runned transports pid
+handle_call(get_runnned_transports, _From, State) ->
+    % Return all runned transports
+    {reply, State#state.runned_transports, State};
+
 %% @doc Return all plugins
 handle_call(get_plugins, _From, State) ->
+    % Return all plugins
     {reply, State#state.plugins, State};
 
 handle_call(_Request, _From, State) ->
@@ -114,7 +122,10 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
 handle_cast({start_transports, Transports}, State) ->
     % Review supported mode of transportation
     TransportList = lists:flatten(lists:map(fun load_transport/1, Transports)),
-    {noreply, State#state{transports = TransportList}};
+    % Get runned transports pid list
+    RunnedTransport = lists:map(fun(Transport) -> erlang:element(2, Transport) end, TransportList),
+    % Init transports
+    {noreply, State#state{transports = TransportList, runned_transports = RunnedTransport}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -217,11 +228,13 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     {campfire, ClientPid, HandlerPid};
 
 %% @doc Ybot http interface
-load_transport({http, Host, Port}) ->
+load_transport({http, Host, Port, BotNick}) ->
     % Start http server
     {ok, HttpPid} = http_sup:start_http(Host, Port),
     % Log
     lager:info("Starting http transport ~p:~p", [Host, Port]),
+    % Send bot nick to http server
+    ok = gen_server:cast(HttpPid, {bot_nick, BotNick}),
     % return correct transport
     {http, HttpPid}.
 

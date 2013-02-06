@@ -6,6 +6,9 @@
   * hacker_help plugin fixed --> #35
   * Added reconnect timeout option to xmpp and campfire.
   * Added supporting of HipChat.
+  * HTTP transport imrpoved. JSON request support added.
+  * HTTP transport bot-nick parameter added to config.
+  * ybot_manager get_all_transports_pid api added.
 
 ## Ybot-0.3 --> released
 

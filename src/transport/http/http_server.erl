@@ -21,6 +21,8 @@
 
  %% @doc internal state
 -record(state, {
+        % bot nick
+        nick = "" :: string()
     }).
  
 start_link(Host, Port) ->
@@ -51,7 +53,11 @@ handle_cast({start_serve, Host, Port}, State) ->
  
     % return
     {noreply, State};
- 
+
+%% @doc Set bot nick
+handle_cast({bot_nick, BotNick}, State) ->
+    {noreply, State#state{nick = binary_to_list(BotNick)}};
+
 handle_cast(_Msg, State) ->
     {noreply, State}.
  
@@ -67,30 +73,61 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 
 %% @doc httpd callback
-do(#mod{entity_body = Data} = _ModData) ->
+do(#mod{entity_body = Data, parsed_header = Headers} = _ModData) ->
+    % Try to find content-type header
+    Incomming = case lists:keyfind("content-type", 1, Headers) of
+        false ->
+            % do nothing
+            Data;
+        {_, ContentType} ->
+            % Check content-type
+            case ContentType of
+                % Got json
+                "application/json" ->
+                    % Try to decode
+                    try
+                        % decode json
+                        {struct, DecodeJson} = mochijson2:decode(Data),
+                        % get nick
+                        {_, Nick} = lists:keyfind(<<"nick">>, 1, DecodeJson),
+                        % get command
+                        {_, Comm} = lists:keyfind(<<"command">>, 1, DecodeJson),
+                        % get arguments
+                        {_, TempArgs} = lists:keyfind(<<"args">>, 1, DecodeJson),
+                        % Make string
+                        binary_to_list(Nick) ++ " " ++ binary_to_list(Comm) ++ " " ++ lists:flatten([binary_to_list(Arg) ++ " " || Arg <- TempArgs])
+                    catch _ : _ ->
+                        ""
+                    end;
+                % Other content-type. Do nothing
+                _ ->
+                    Data
+            end
+    end,
+
     % Match incoming message
-    case string:tokens(Data, " \r\n") of
-        ["Ybot"] ->
+    case string:tokens(Incomming, " \r\n") of
+        [BotNick] ->
             % Send response
             {proceed, [{response, {200, "What?"}}]};
-        ["Ybot", "hi"] ->
+        [BotNick, "hi"] ->
             % Send response
             {proceed, [{response, {200, "Hello :)"}}]};
-        ["Ybot", "bye"] ->
+        [BotNick, "bye"] ->
             % Send response
             {proceed, [{response, {200, "Good bue"}}]};
-        ["Ybot", "history"] ->
+        [BotNick, "history"] ->
             % Get history
             History = gen_server:call(ybot_history, {get_history, self()}),
             % Send response
             {proceed, [{response, {200, History}}]};
-        ["Ybot", "plugins?"] ->
+        [BotNick, "plugins?"] ->
             % Get plugins
             Plugins = gen_server:call(ybot_manager, get_plugins),
             PluginNames = lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins),
             % Send plugins label
             {proceed, [{response, {200, "Plugins: " ++ string:join(PluginNames, ", ") ++ "\n" ++ "That's all :)"}}]};
-        ["Ybot", Command | _] ->
+        [BotNick, Command | _] ->
                 % Get command arguments
                 Args = string:tokens(ybot_utils:split_at_end(Data, Command), "\r\n"),
                 % Try to execute plugin and resend result
