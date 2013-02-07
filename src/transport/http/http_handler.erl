@@ -17,7 +17,7 @@ handle(Req, State) ->
     {Method, Req2} = cowboy_req:method(Req),
     % Check method
     case Method of
-        % This is post
+        % Post request. Execute plugin.
         <<"POST">> ->
             % Try to get body request
             HasBody = cowboy_req:has_body(Req2),
@@ -28,12 +28,26 @@ handle(Req, State) ->
                     % Get headers
                     {Headers, _} = cowboy_req:headers(Req2),
                     % handle requets
-                    do(Body, Headers, Req2);
+                    do_post(Body, Headers, Req2);
                 false ->
                     % Send error message
                     cowboy_req:reply(400, [], <<"Missing body.">>, Req)
-            end,
-            ok;
+            end;
+        % Put request. Send body to all transports
+        <<"PUT">> ->
+            % Try to get body request
+            HasBody = cowboy_req:has_body(Req2),
+            % Check request body
+            case HasBody of
+                true -> 
+                    % Get body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req2),
+                    % handle put request body
+                    do_put(Body);
+                false -> 
+                    % no body. do nothing
+                    pass
+            end;
         % Other methods
         _ ->
             % do nothing
@@ -44,8 +58,19 @@ handle(Req, State) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
-%% @doc parse incomming response
-do(Data, _Headers, Req) ->
+%% @doc Handle put request
+do_put(Body) ->
+    % Get all runned transports pid list
+    Transports = gen_server:call(ybot_manager, get_runnned_transports),
+    % Send to messages
+    lists:foreach(fun(TransportPid) -> 
+                    % Send message
+                    gen_server:cast(TransportPid, {send_message, "", binary_to_list(Body)})
+                  end, 
+                  Transports).
+
+%% @doc Handle post requets
+do_post(Data, _Headers, Req) ->
     % Match incoming message
     case string:tokens(binary_to_list(Data), " \r\n") of
         [_BotNick] ->

@@ -123,7 +123,14 @@ handle_cast({start_transports, Transports}, State) ->
     % Review supported mode of transportation
     TransportList = lists:flatten(lists:map(fun load_transport/1, Transports)),
     % Get runned transports pid list
-    RunnedTransport = lists:map(fun(Transport) -> erlang:element(2, Transport) end, TransportList),
+    RunnedTransport = lists:flatten(lists:map(fun(Transport) -> 
+                                                  if erlang:element(1, Transport) == http ->
+                                                      % we no need in http transport
+                                                      [];
+                                                  true ->
+                                                      erlang:element(2, Transport) 
+                                                  end 
+                                              end, TransportList)),
     % Init transports
     {noreply, State#state{transports = TransportList, runned_transports = RunnedTransport}};
 

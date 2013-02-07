@@ -44,7 +44,7 @@ handle_cast({start_serve, Host, Port}, State) ->
         {binary_to_list(Host), [{'_', http_handler, []}]}
     ]),
 
-    {ok, _} = cowboy:start_http(my_http_listener, 100, [{port, Port}], [
+    {ok, _} = cowboy:start_http(my_http_listener, 3, [{port, Port}], [
         {env, [{dispatch, Dispatch}]}
     ]),
 
