@@ -9,6 +9,7 @@
   * HTTP transport imrpoved. JSON request support added.
   * HTTP transport bot-nick parameter added to config.
   * ybot_manager get_all_transports_pid api added.
+  * Use cowboy web server instead inets httpd for http serving.
 
 ## Ybot-0.3 --> released
 

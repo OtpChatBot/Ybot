@@ -77,6 +77,7 @@ Dependencies
   * [reloader](https://github.com/bjnortier/reloader) - Mochiweb's reloader.
   * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
   * [mochijson2](https://github.com/bjnortier/mochijson2) - Erlang json encoder/decoder.
+  * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
 
 Transport
 ==========
