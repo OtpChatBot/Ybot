@@ -40,6 +40,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
+    %io:format("11111111111 ~p~n", [State#state.campfire_nick]),
     % Get Ybot Nick from current chat
     Nick = binary_to_list(State#state.campfire_nick),
     % Try to decode json

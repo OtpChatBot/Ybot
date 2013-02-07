@@ -152,20 +152,11 @@ handle_info({_, _Socket, Data}, State) ->
             % Authorized
             true ->
                 % try to send presence
-                send_presence(Xml, State#state.socket, State#state.socket_mod),
+                ok = send_presence(Xml, State#state.socket, State#state.socket_mod),
                 % Try to catch incoming xmpp message and send it to hander
-                case xmerl_xpath:string("/message", Xml) of
-                    [] ->
-                        % Not find
-                        {noreply, State};
-                    _ ->
-                        % Get message body
-                        [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
-                        % Check message type and send it to handler
-                        ok = send_message_to_handler(Xml, State#state.callback, IncomingMessage),
-                        % return
-                        {noreply, State}
-                end;
+                ok = is_xmpp_message(Xml, State#state.callback),
+                % return
+                {noreply, State};
             % Not authorized
             false ->
                 % Got success authorization
@@ -224,7 +215,9 @@ send_presence(Xml, Socket, M) ->
         % do nothing
         _ ->
             pass
-    end.
+    end,
+    % return
+    ok.
 
 %% @doc try reconnect
 -spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
@@ -259,4 +252,19 @@ send_message_to_handler(Xml, Callback, IncomingMessage) ->
             Callback ! {incoming_message, From, IncomingMessage}
     end,
     % return
+    ok.
+
+%% @doc Check is it incoming message
+-spec is_xmpp_message(Xml :: #xmlDocument{}, Callback :: pid()) -> ok.
+is_xmpp_message(Xml, Callback) ->
+    case xmerl_xpath:string("/message", Xml) of
+        [] ->
+            % this is not xmpp message. do nothing
+            pass;
+        _ ->
+            % Get message body
+            [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
+            % Check message type and send it to handler
+            ok = send_message_to_handler(Xml, Callback, IncomingMessage)
+    end,
     ok.
