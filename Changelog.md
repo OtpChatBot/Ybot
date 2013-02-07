@@ -11,6 +11,7 @@
   * ybot_manager get_all_transports_pid api added.
   * Use cowboy web server instead inets httpd for http serving.
   * Added http `PUT` request support. Resend request body from http to all runned transports.
+  * echo plugin added.
 
 ## Ybot-0.3 --> released
 
