@@ -251,7 +251,20 @@ load_transport({http, Host, Port, BotNick}) ->
     % Send bot nick to http server
     ok = gen_server:cast(HttpPid, {bot_nick, BotNick}),
     % return correct transport
-    {http, HttpPid}.
+    {http, HttpPid};
+
+%% @doc start flowdock client
+load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
+    % Start flowdock handler
+    {ok, HandlerPid} = flowdock_handler:start_link(),
+    % Start flowdock client
+    {ok, ClientPid} = flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow, Login, Password),
+    % Log
+    lager:info("Starting flowdock transport ~p:~p", [FlowdockOrg, Flow]),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, NickInChat}),
+    % return correct transport
+    {flowdock, ClientPid, HandlerPid}.
 
 load_plugin(Plugin) ->
     % Get plugin extension
