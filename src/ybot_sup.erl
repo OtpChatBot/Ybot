@@ -46,6 +46,12 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % start flowdock supervisor
+        {flowdock_sup,
+            {flowdock_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % run irc root supervisor
         {irc_lib_sup,
             {irc_lib_sup, start_link, []},

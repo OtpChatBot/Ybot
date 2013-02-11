@@ -32,6 +32,7 @@ Features
   * HTTP interface;
   * GTalk supporting;
   * HipChat supporting;
+  * Flowdock supporting;
 
 Building and Running
 =====================
@@ -93,6 +94,7 @@ supports:
   * HTTP.
   * Gtalk.
   * HipChat.
+  * Flowdock.
 
 Plugins
 ==========

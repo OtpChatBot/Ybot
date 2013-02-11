@@ -12,6 +12,7 @@
   * Use cowboy web server instead inets httpd for http serving.
   * Added http `PUT` request support. Resend request body from http to all runned transports.
   * echo plugin added.
+  * Flowdock support added.
 
 ## Ybot-0.3 --> released
 

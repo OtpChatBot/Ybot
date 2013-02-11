@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/4, stop/0]).
+-export([start_link/4, stop/0, handle_command/4]).
 
 %% gen_server callbacks
 -export([init/1,
