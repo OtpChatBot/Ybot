@@ -33,6 +33,7 @@ Features
   * GTalk supporting;
   * HipChat supporting;
   * Flowdock supporting;
+  * Skype supporting;
 
 Building and Running
 =====================
@@ -60,7 +61,6 @@ Then edit the `ybot.config` configuration file and you can run your Ybot copy:
 Run on heroku
 ===============
 
-
   * Get you ybot and configure it.
   * Download heroku
 
@@ -79,6 +79,7 @@ Dependencies
   * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
   * [mochijson2](https://github.com/bjnortier/mochijson2) - Erlang json encoder/decoder.
   * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
+  * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
 
 Transport
 ==========
@@ -95,6 +96,7 @@ supports:
   * Gtalk.
   * HipChat.
   * Flowdock.
+  * Skype.
 
 Plugins
 ==========

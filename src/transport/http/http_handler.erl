@@ -21,6 +21,7 @@ handle(Req, State) ->
         <<"POST">> ->
             % Try to get body request
             HasBody = cowboy_req:has_body(Req2),
+            % Check body
             case HasBody of
                 true ->
                     % Get body

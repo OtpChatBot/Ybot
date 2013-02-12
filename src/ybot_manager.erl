@@ -256,7 +256,27 @@ load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, NickInChat}),
     % return correct transport
-    {flowdock, ClientPid, HandlerPid}.
+    {flowdock, ClientPid, HandlerPid};
+
+%% @doc Use skype or not
+load_transport({skype, UseSkype, Host, Port}) ->
+    % Check use skype or not
+    case UseSkype of
+        true ->
+            % Get skype script from priv dir
+            Skype = ybot_utils:get_priv_dir() ++ "skype.py",
+            % Skype command
+            Command = "python " ++ Skype ++ " " ++ binary_to_list(Host) ++ " " ++ integer_to_list(Port), 
+            % Start skype
+            skype:start_link(Command),
+            % Log
+            lager:info("Starting skype ..."),
+            % return correct transport
+            {skype, UseSkype, Host, Port};
+        _ ->
+            % do nothing
+            []
+    end.
 
 load_plugin(Plugin) ->
     % Get plugin extension

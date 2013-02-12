@@ -13,6 +13,7 @@
   * Added http `PUT` request support. Resend request body from http to all runned transports.
   * echo plugin added.
   * Flowdock support added.
+  * Skype support added.
 
 ## Ybot-0.3 --> released
 
