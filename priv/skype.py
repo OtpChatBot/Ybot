@@ -15,7 +15,7 @@ port = sys.argv[2]
 	Init skype bot
 """
 class SkypeBot(object):
-  	# init skype connection
+	# init skype connection
 	def __init__(self):
 		self.Skype = Skype4Py.Skype()
 		self.Skype.Attach()
@@ -25,7 +25,7 @@ class SkypeBot(object):
 	def MessageStatus(self, msg, status):
 		if status == Skype4Py.cmsReceived:
 			try:
-    			# Check message
+				# Check message
 				if msg.Body.split(' ')[0] == self.Skype.CurrentUser.Handle:
 					# send request to Ybot
 					response = urllib2.urlopen(host + ':' + str(port), data = urllib.urlencode({msg.Body : msg.Body}))
