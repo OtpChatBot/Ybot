@@ -7,6 +7,8 @@ don't like JavaScript and I don't know coffescript. Ybot is completely
 written in Erlang/OTP and you can write plugins in Python, Perl, Ruby,
 or even in shell.
 
+![Ybot](http://s7.postimage.org/5hiyut7ff/logo79187921.png "Ybot logo")
+
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
