@@ -14,7 +14,8 @@
   * echo plugin added.
   * Flowdock support added.
   * Skype support added.
-
+  * Removed http PUT request supporting. Now only POST.
+  
 ## Ybot-0.3 --> released
 
   * New wat plugin
