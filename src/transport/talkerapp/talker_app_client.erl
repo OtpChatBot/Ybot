@@ -53,7 +53,7 @@ handle_cast({send_message, _From, Message}, State) ->
                       % Make json message
                       JsonMessage = "{\"type\":\"message\",\"content\" :\"" ++ M ++ "\"}",
                       % Send message
-                      ssl:send(State#state.socket, JsonMessage),
+                      ssl:send(State#state.socket, JsonMessage)
                   end, 
                   MessageList),
     % return state
