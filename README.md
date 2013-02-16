@@ -36,6 +36,7 @@ Features
   * HipChat supporting;
   * Flowdock supporting;
   * Skype supporting;
+  * Talkerapp supporting;
 
 Building and Running
 =====================
@@ -99,6 +100,7 @@ supports:
   * HipChat.
   * Flowdock.
   * Skype.
+  * Talkerapp.
 
 Plugins
 ==========

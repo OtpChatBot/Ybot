@@ -276,7 +276,20 @@ load_transport({skype, UseSkype, Host, Port}) ->
         _ ->
             % do nothing
             []
-    end.
+    end;
+
+%% @doc start talkerapp client
+load_transport({talkerapp, Nick, Room, Token}) ->
+    % Start handler
+    {ok, HandlerPid} = talkerapp_handler:start_link(),
+    % Start talker app client
+    {ok, ClientPid} = talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {talkerapp_client, ClientPid, Nick}),
+    % Log
+    lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
+    % return correct transport
+    {talkerapp, ClientPid, HandlerPid}.
 
 load_plugin(Plugin) ->
     % Get plugin extension

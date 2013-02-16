@@ -70,6 +70,12 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % run talkerapp root supervisor
+        {talker_app_sup,
+            {talker_app_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start manager with transports list
         {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports]},

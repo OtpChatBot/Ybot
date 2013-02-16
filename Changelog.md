@@ -15,6 +15,7 @@
   * Flowdock support added.
   * Skype support added.
   * Removed http PUT request supporting. Now only POST.
+  * New transport - Talkerapp (http://talkerapp.com/rooms).
   
 ## Ybot-0.3 --> released
 
