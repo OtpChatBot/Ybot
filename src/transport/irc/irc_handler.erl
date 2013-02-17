@@ -22,7 +22,9 @@
         % irc bot nick
         nick = <<>> :: binary(),
         % irc client pid
-        irc_client_pid :: pid()
+        irc_client_pid :: pid(),
+        % command parser process
+        parser_pid :: pid()
     }).
 
 start_link() ->
@@ -34,9 +36,9 @@ init([]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast({irc_client, ClientPid, BotNick}, State) ->
+handle_cast({irc_client, ClientPid, ParserPid, BotNick}, State) ->
     % save irc client pid
-    {noreply, State#state{irc_client_pid = ClientPid, nick = BotNick}};
+    {noreply, State#state{irc_client_pid = ClientPid, parser_pid = ParserPid, nick = BotNick}};
 
 handle_cast(stop, State) ->
     {stop, normal, State};
@@ -48,43 +50,8 @@ handle_cast(_Msg, State) ->
 handle_info({incoming_message, IncomingMessage, From}, State) ->
     % Get bot chat nick
     Nick = binary_to_list(State#state.nick),
-    % Check this is message for Ybot or not
-    case string:tokens(IncomingMessage, " \r\n") of
-        [Nick1] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, "What?"}) 
-        end);
-        [Nick1, "hi"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Hello :)"}) 
-        end);
-        [Nick1, "bye"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Good bue"}) 
-        end);
-        [Nick1, "history"] -> maybe_respond({Nick1, Nick}, fun() ->
-            % Get history
-            History = gen_server:call(ybot_history, {get_history, State#state.irc_client_pid}),
-            % Send history
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, History}) 
-        end);
-        [Nick1, "plugins?"] -> maybe_respond({Nick1, Nick}, fun() ->
-            % Get plugins
-            Plugins = gen_server:call(ybot_manager, get_plugins),
-            % Format plugins
-            PluginNames = lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins),
-            % Send plugins
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, "Plugins: " ++ string:join(PluginNames, ", ")}),
-            % That's all :)
-            gen_server:cast(State#state.irc_client_pid, {send_message, From, "That's all :)"}) 
-        end);
-        [Nick1, Command | _] -> maybe_respond({Nick1, Nick}, fun() ->
-                % Get command arguments
-                Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
-                % Start process with supervisor which will be execute plugin and send to pid
-                ybot_actor:start_link(State#state.irc_client_pid, From, Command, Args) 
-        end);
-        _ ->
-            % this is not our command
-            pass
-    end,
+    % Send message to parser
+    gen_server:cast(State#state.parser_pid, {incoming_message, State#state.irc_client_pid, Nick, From, IncomingMessage}),
     % return
     {noreply, State};
 
@@ -98,13 +65,3 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% Internal functions
-
-maybe_respond({FirstWord, YNick}, F) when is_list(YNick) and is_list(FirstWord) and is_function(F) ->
-    [LastLetter | DrowTsrif] = lists:reverse(FirstWord),
-    % Check last permissible symbol
-    CheckLastLEtter = lists:member(LastLetter, [$,, $:]),
-    % Validate
-    case ((DrowTsrif == lists:reverse(YNick)) or (YNick == FirstWord)) and (CheckLastLEtter == true) of
-      true -> F();
-      _ -> pass
-    end.
