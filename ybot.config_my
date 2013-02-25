@@ -1,0 +1,80 @@
+%% -*- mode: Erlang; -*-
+
+%%%
+%%% Main Ybot config
+%%%
+
+[
+    {ybot,
+        [
+            % list of transport
+            {transports, [
+                    % Irc transport
+                    {irc,
+                          % Irc nick
+                          <<"ybot">>,
+                          % Irc channel / key
+                          {<<"#erlplay">>, <<>>},
+                          % Irc server host / pass
+                          {<<"irc.config.no">>, <<>>},
+                          % Options
+                          [{port, 7000},
+                           {use_ssl, true},
+                           {reconnect_timeout, 300}
+                          ]
+                    }
+
+                    % Xmpp transport
+                    %{xmpp, % bot login
+                    %       <<"ybot@jabber.org">>,
+                    %       % bot password
+                    %       <<"ybot_password">>,
+                    %       % xmpp room
+                    %       <<"room@conference.jabber.com">>,
+                    %       % xmpp server
+                    %       <<"jabber.com">>,
+                    %       % xmpp resource
+                    %       <<"home">>,
+                    %       % xmpp options
+                    %       [{port, 5222}, {use_ssl, false}]
+                    %},
+
+                    % Campfire transport
+                    %{campfire, % campfire login
+                    %           <<"ybot">>,
+                    %           % campfire token
+                    %           <<"ybot_token">>,
+                    %           % campfire room id
+                    %           100100,
+                    %           % campfire sub-domain
+                    %           <<"home100">>
+                    %},
+
+                    % Http Ybot interface
+                    %{http,
+                    %    % Http server host
+                    %    <<"http://ybot-test.herokuapp.com/">>,
+                    %    % Http server port
+                    %    8080
+                    %}
+                ]
+            },
+
+            % Loading new plugins during work or not
+            {checking_new_plugins, false},
+            % Checking new plugins timeout
+            {checking_new_plugins_timeout, 60000},
+
+            % Save commands history
+            {commands_history, false},
+            % Command history limit
+            {history_command_limit_count, 1000},
+
+	    % Default brain storage
+ 	    {brain_storage, mnesia},
+
+            % Plugins directory path
+            {plugins_path, "plugins/"}
+        ]
+    }
+].

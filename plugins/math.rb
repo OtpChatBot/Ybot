@@ -30,5 +30,5 @@ if result == " \"\""
 	puts 'Wrong expression'
 else
 	# print result
-	puts 'Answer:' + result
+	puts 'Answer:' + result.gsub(/\"+/, "")
 end

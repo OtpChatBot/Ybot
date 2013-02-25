@@ -7,6 +7,8 @@ don't like JavaScript and I don't know coffescript. Ybot is completely
 written in Erlang/OTP and you can write plugins in Python, Perl, Ruby,
 or even in shell.
 
+![Ybot](http://s7.postimage.org/5hiyut7ff/logo79187921.png "Ybot logo")
+
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
@@ -33,6 +35,8 @@ Features
   * GTalk supporting;
   * HipChat supporting;
   * Flowdock supporting;
+  * Skype supporting;
+  * Talkerapp supporting;
 
 Building and Running
 =====================
@@ -60,7 +64,6 @@ Then edit the `ybot.config` configuration file and you can run your Ybot copy:
 Run on heroku
 ===============
 
-
   * Get you ybot and configure it.
   * Download heroku
 
@@ -79,6 +82,7 @@ Dependencies
   * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
   * [mochijson2](https://github.com/bjnortier/mochijson2) - Erlang json encoder/decoder.
   * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
+  * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
 
 Transport
 ==========
@@ -95,6 +99,8 @@ supports:
   * Gtalk.
   * HipChat.
   * Flowdock.
+  * Skype.
+  * Talkerapp.
 
 Plugins
 ==========

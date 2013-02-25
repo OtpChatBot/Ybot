@@ -1,9 +1,9 @@
 %%%----------------------------------------------------------------------
-%%% File    : ../transport/campfire/capfire_handler.erl
+%%% File    : ../transport/talkerapp/talkerapp_handler.erl
 %%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot campfire incoming message handler.
+%%% Purpose : Ybot talkerapp incoming message handler.
 %%%----------------------------------------------------------------------
--module(campfire_handler).
+-module(talkerapp_handler).
 
 -behaviour(gen_server).
  
@@ -16,12 +16,12 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
- 
+
 -record(state, {
-        % bot nick in campfire room
-        campfire_nick = <<>> :: binary(),
-        % campfire client process pid
-        campfire_client_pid :: pid(),
+        % bot nick in handler room
+        bot_nick = <<>> :: binary(),
+        % talker_app client process pid
+        client_pid :: pid(),
         % parser process pid
         parser_pid :: pid()
     }).
@@ -35,26 +35,17 @@ init([]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast({campfire_client, ClientPid, ParserPid, Login}, State) ->
-    {noreply, State#state{campfire_client_pid = ClientPid, parser_pid = ParserPid, campfire_nick = Login}};
+handle_cast({talkerapp_client, ClientPid, ParserPid, Login}, State) ->
+    {noreply, State#state{client_pid = ClientPid, parser_pid = ParserPid, bot_nick = Login}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
 handle_info({incoming_message, IncomingMessage}, State) ->
     % Get Ybot Nick from current chat
-    Nick = binary_to_list(State#state.campfire_nick),
-    % Try to decode json
-    {struct, DataList} = try
-                            % Decode json message
-                            mochijson2:decode(IncomingMessage)
-                         catch _ : _ ->
-                                {struct, [{<<"body">>, <<"">>}]}
-                         end,
-    % Get body
-    {_, Body} = lists:keyfind(<<"body">>, 1, DataList),
+    Nick = binary_to_list(State#state.bot_nick),
     % Send message to parser
-    gen_server:cast(State#state.parser_pid, {incoming_message, State#state.campfire_client_pid, Nick, "", binary_to_list(Body)}),
+    gen_server:cast(State#state.parser_pid, {incoming_message, State#state.client_pid, Nick, "", binary_to_list(IncomingMessage)}),
     % return
     {noreply, State};
 

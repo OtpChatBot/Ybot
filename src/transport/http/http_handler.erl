@@ -21,6 +21,7 @@ handle(Req, State) ->
         <<"POST">> ->
             % Try to get body request
             HasBody = cowboy_req:has_body(Req2),
+            % Check body
             case HasBody of
                 true ->
                     % Get body
@@ -33,21 +34,6 @@ handle(Req, State) ->
                     % Send error message
                     cowboy_req:reply(400, [], <<"Missing body.">>, Req)
             end;
-        % Put request. Send body to all transports
-        <<"PUT">> ->
-            % Try to get body request
-            HasBody = cowboy_req:has_body(Req2),
-            % Check request body
-            case HasBody of
-                true -> 
-                    % Get body
-                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req2),
-                    % handle put request body
-                    do_put(Body);
-                false -> 
-                    % no body. do nothing
-                    pass
-            end;
         % Other methods
         _ ->
             % do nothing
@@ -58,8 +44,8 @@ handle(Req, State) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
-%% @doc Handle put request
-do_put(Body) ->
+%% @doc Send Body to all chats
+broadcast(Body) ->
     % Get all runned transports pid list
     Transports = gen_server:call(ybot_manager, get_runnned_transports),
     % Send to messages
@@ -70,7 +56,52 @@ do_put(Body) ->
                   Transports).
 
 %% @doc Handle post requets
-do_post(Data, _Headers, Req) ->
+do_post(Data, Headers, Req) ->
+    % Check content type
+    Message = case lists:keyfind(<<"content-type">>, 1, Headers) of
+                false ->
+                    % do nothing
+                    Data;
+                {_, ContentType} ->
+                    case lists:member("application/json", string:tokens(binary_to_list(ContentType), ",")) of
+                        true ->
+                            % try to decode json
+                            try
+                                {struct, DecodeJson} = mochijson2:decode(Data),
+                                % Get type
+                                {_, Type} = lists:keyfind(<<"type">>, 1, DecodeJson),
+                                % Get command
+                                {_, JsonCommand} = lists:keyfind(<<"content">>, 1, DecodeJson),
+                                % return
+                                {Type, JsonCommand}
+                            catch _ : _ ->
+                                wrong_json
+                            end;
+                        false ->
+                            Data
+                    end
+            end,
+
+    case Message of
+        wrong_json ->
+            cowboy_req:reply(400, [], "Wrong json data", Req);
+        {CommandType, Command} ->
+            % Check command type
+            case CommandType of
+                <<"broadcast">> ->
+                    broadcast(Command);
+                <<"response">> ->
+                    handle_data(Command, Req);
+                % Send error message
+                _ ->
+                    cowboy_req:reply(400, [], "Wrong command type", Req)
+                end;
+        _ ->
+            handle_data(Data, Req)
+    end.
+
+%% doc Handle incoming data
+handle_data(Data, Req) ->
     % Match incoming message
     case string:tokens(binary_to_list(Data), " \r\n") of
         [_BotNick] ->

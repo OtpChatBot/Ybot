@@ -1,6 +1,8 @@
 # Ybot news & changelog
 
-## Ybot-0.3.1 --> In development
+## Ybot-0.3.2 --> In development
+
+## Ybot-0.3.1 --> released
 
   * Added reconnect timeout option and reconnect ability to irc client --> #33.
   * hacker_help plugin fixed --> #35
@@ -13,6 +15,10 @@
   * Added http `PUT` request support. Resend request body from http to all runned transports.
   * echo plugin added.
   * Flowdock support added.
+  * Skype support added.
+  * Removed http PUT request supporting. Now only POST.
+  * New transport - Talkerapp (http://talkerapp.com/rooms).
+  * Message parsers moved to ybot_parser module.
 
 ## Ybot-0.3 --> released
 

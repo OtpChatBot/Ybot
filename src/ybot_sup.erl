@@ -73,6 +73,12 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % run talkerapp root supervisor
+        {talker_app_sup,
+            {talker_app_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % starts brain
         {ybot_brain,
             {ybot_brain, start_link, [BrainStorage]},
