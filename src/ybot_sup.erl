@@ -43,6 +43,12 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % start brain http api supervisor
+        {ybot_brain_sup,
+            {ybot_brain_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start flowdock supervisor
         {flowdock_sup,
             {flowdock_sup, start_link, []},

@@ -1,5 +1,5 @@
 %%%----------------------------------------------------------------------
-%%% File    : ybot_sup.erl
+%%% File    : ybot_brain_mnesia.erl
 %%% Author  : tgrk <tajgur@gmail.com>
 %%% Purpose : Ybot Mnesia brain storage
 %%%----------------------------------------------------------------------

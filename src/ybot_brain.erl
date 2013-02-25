@@ -1,7 +1,7 @@
 %%%----------------------------------------------------------------------
-%%% File    : ybot_sup.erl
+%%% File    : ybot_brain.erl
 %%% Author  : tgrk <tajgur@gmail.com>
-%%% Purpose : Ybot brain API
+%%% Purpose : Ybot brain REST API
 %%%----------------------------------------------------------------------
 -module(ybot_brain).
 
