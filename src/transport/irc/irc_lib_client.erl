@@ -70,13 +70,15 @@ handle_cast({connect, Host, Port}, State) ->
       ssl -> [{delay_send, false}, {verify, 0}, {nodelay, true}];
       gen_tcp -> [{delay_send, false}, {nodelay, true}]
     end,
-    case (State#state.socket_mod):connect(binary_to_list(Host), Port, Options) of
+    Host1 = binary_to_list(Host),
+    case (State#state.socket_mod):connect(Host1, Port, Options) of
         {ok, Socket} ->
             ok = irc_connect(Socket, State),
             {noreply, State#state{socket = Socket, is_auth = false}};
         {error, Reason} ->
             % Some log
-            lager:error("Unable to connect to irc server with reason ~s", [Reason]),
+            lager:error("Unable to connect to irc server ~s with reason ~s",
+                        [Host, Reason]),
             % Try reconnect
             try_reconnect(State)
         end;

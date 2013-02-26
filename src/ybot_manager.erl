@@ -154,11 +154,11 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
     case ybot_validators:validate_transport_opts(Options) of
         ok ->
             % Get irc server port
-            {port, Port} = lists:keyfind(port, 1, Options),
+            {port, Port} = get_config(port, Options),
             % SSL?
-            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            {use_ssl, UseSsl} = get_config(use_ssl, Options),
             % Get reconnect timeout
-            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
+            {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
             % Start irc handler
             {ok, HandlerPid} = irc_handler:start_link(),
             % Run new irc client
@@ -184,15 +184,15 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
     case ybot_validators:validate_transport_opts(Options) of
         ok ->
             % Get irc server port
-            {port, Port} = lists:keyfind(port, 1, Options),
+            {port, Port} = get_config(port, Options),
             % SSL?
-            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            {use_ssl, UseSsl} = get_config(use_ssl, Options),
             % Get reconnect timeout
-            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
+            {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
             % Is hipchat
-            ClientPid = case lists:keyfind(is_hipchat, 1, Options) of
+            ClientPid = case get_config(is_hipchat, Options) of
                 {_, false} -> 
                     % Make room
                     XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
@@ -206,7 +206,7 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
                 % This is hipchat
                 {_, true} ->
                     % Get hipchat nick
-                    {_, HipChatNick}  = lists:keyfind(hipchat_nick, 1, Options),
+                    {_, HipChatNick}  = get_config(hipchat_nick, Options),
                     % Make room
                     XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
                     % Run new xmpp client
@@ -227,7 +227,7 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
 %% @doc start campfire clients
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     % Get reconnect timeout
-    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
+    {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
@@ -333,3 +333,6 @@ load_plugin(Plugin) ->
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
     end.
+
+get_config(Key, Options) ->
+    lists:keyfind(Key, 1, Options).
