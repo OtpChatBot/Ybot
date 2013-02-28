@@ -224,7 +224,7 @@ try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = St
     case Timeout > 0 of
         true ->
             % no need in reconnect
-            {normal, stop, State};
+            {stop, normal, State};
         false ->
             % sleep
             timer:sleep(Timeout),
