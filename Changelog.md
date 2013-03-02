@@ -2,6 +2,8 @@
 
 ## Ybot-0.3.2 --> In development
 
+  * Fixed #42 issue.
+
 ## Ybot-0.3.1 --> released
 
   * Added reconnect timeout option and reconnect ability to irc client --> #33.
