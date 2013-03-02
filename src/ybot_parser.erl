@@ -43,7 +43,10 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
             gen_server:cast(TrasportPid, {send_message, From, "What?"}) 
         end);
         [Nick1, "hi"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "Hello :)"}) 
+            gen_server:cast(TrasportPid, {send_message, From, "Hello"})
+        end);
+        [Nick1, "hello"] -> maybe_respond({Nick1, Nick}, fun() ->
+            gen_server:cast(TrasportPid, {send_message, From, "Hi!"})
         end);
         [Nick1, "bye"] -> maybe_respond({Nick1, Nick}, fun() ->
             gen_server:cast(TrasportPid, {send_message, From, "Good bue"}) 
@@ -53,6 +56,9 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
             History = gen_server:call(ybot_history, {get_history, TrasportPid}),
             % Send history
             gen_server:cast(TrasportPid, {send_message, From, History}) 
+        end);
+        [Nick1, "thanks"] -> maybe_respond({Nick1, Nick}, fun() ->
+            gen_server:cast(TrasportPid, {send_message, From, "by all means"})
         end);
         [Nick1, "plugins?"] -> maybe_respond({Nick1, Nick}, fun() ->
             % Get plugins
