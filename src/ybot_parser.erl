@@ -39,9 +39,8 @@ handle_call(_Request, _From, State) ->
 handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State) ->
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
-        [Nick1] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "What?"}) 
-        end);
+        [Nick] ->             
+            gen_server:cast(TrasportPid, {send_message, From, "What?"});
         [Nick1, "hi"] -> maybe_respond({Nick1, Nick}, fun() ->
             gen_server:cast(TrasportPid, {send_message, From, "Hello"})
         end);
@@ -52,10 +51,22 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
             gen_server:cast(TrasportPid, {send_message, From, "Good bue"}) 
         end);
         [Nick1, "history"] -> maybe_respond({Nick1, Nick}, fun() ->
-            % Get history
-            History = gen_server:call(ybot_history, {get_history, TrasportPid}),
-            % Send history
-            gen_server:cast(TrasportPid, {send_message, From, History}) 
+            % Check ybot_history process
+            case whereis(ybot_history) of
+                undefined ->
+                    gen_server:cast(TrasportPid, {send_message, From, "History is disabled"});
+                _ ->
+                    % Get history
+                    History = gen_server:call(ybot_history, {get_history, TrasportPid}),
+                    % Check history
+                    case History of
+                        [] ->
+                            gen_server:cast(TrasportPid, {send_message, From, "The history is empty"});
+                        _ ->
+                            % Send history
+                            gen_server:cast(TrasportPid, {send_message, From, History})
+                    end
+            end
         end);
         [Nick1, "thanks"] -> maybe_respond({Nick1, Nick}, fun() ->
             gen_server:cast(TrasportPid, {send_message, From, "by all means"})

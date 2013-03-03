@@ -3,6 +3,7 @@
 ## Ybot-0.3.2 --> In development
 
   * Fixed #42 issue.
+  * Fixed #44 issue.
 
 ## Ybot-0.3.1 --> released
 
