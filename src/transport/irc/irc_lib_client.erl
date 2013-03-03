@@ -162,6 +162,15 @@ handle_info({_, Socket, Data}, State) ->
             lager:info("Error: ~p", [Err]),
             % try reconnect if error
             try_reconnect(State);
+        % Wrong server
+        [_, "402" | _] ->
+            lager:info("Wrong server address ~p", [State#state.host]);
+        % Wrong server
+        [_, "403" | _] ->
+            lager:info("Wrong channel ~p", [State#state.irc_channel]);
+        % No nickname given
+        [_, "432" | _] ->
+            lager:info("No nickname given");
         % Nick already in use
         [_, "433" | _] ->
             % Log
