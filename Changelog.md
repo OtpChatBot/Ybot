@@ -2,6 +2,11 @@
 
 ## Ybot-0.3.2 --> In development
 
+  * Fixed #42 issue.
+  * Fixed #44 issue.
+  * #42. If bot nickname already in use, generate new name and try to reconnect.
+  * #45 fixed.
+
 ## Ybot-0.3.1 --> released
 
   * Added reconnect timeout option and reconnect ability to irc client --> #33.
