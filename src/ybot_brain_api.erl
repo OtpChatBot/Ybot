@@ -20,6 +20,7 @@
 
 %% API
 init(_Transport, _Req, []) ->
+    lager:info("init", []),
     {upgrade, protocol, cowboy_rest}.
 
 allowed_methods(Req, State) ->

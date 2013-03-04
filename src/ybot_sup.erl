@@ -31,9 +31,6 @@ init([]) ->
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
-    % Get brain backend storage
-    {ok, BrainStorage} = application:get_env(ybot, brain_storage),
-
     % Root supervisor childrens
     Childrens = [
 
@@ -77,12 +74,6 @@ init([]) ->
         {talker_app_sup,
             {talker_app_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
-        },
-
-        % starts brain
-        {ybot_brain,
-            {ybot_brain, start_link, [BrainStorage]},
-             permanent, brutal_kill, worker, []
         },
 
         % start manager with transports list

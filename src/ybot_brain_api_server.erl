@@ -21,6 +21,7 @@
 
 %% API
 start_link(Host, Port) ->
+    lager:info("start server ~p:~p", [Host, Port]),
     gen_server:start_link(?MODULE, [Host, Port], []).
 
 init([Host, Port]) ->
