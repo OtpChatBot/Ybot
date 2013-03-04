@@ -156,7 +156,9 @@ handle_info({_, Socket, Data}, State) ->
     case string:tokens(Data, " ") of
         ["PING" | PongHost] ->
             % Send pong
-            (State#state.socket_mod):send(Socket, "PONG " ++ PongHost ++ "\r\n");
+            (State#state.socket_mod):send(Socket, "PONG " ++ PongHost ++ "\r\n"),
+            % return
+            {noreply, State};
         ["ERROR" | Err] ->
             % log
             lager:info("Error: ~p", [Err]),

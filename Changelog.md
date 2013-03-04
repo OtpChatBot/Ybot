@@ -5,6 +5,7 @@
   * Fixed #42 issue.
   * Fixed #44 issue.
   * #42. If bot nickname already in use, generate new name and try to reconnect.
+  * #45 fixed.
 
 ## Ybot-0.3.1 --> released
 
