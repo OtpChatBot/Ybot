@@ -5,6 +5,8 @@
 %%%----------------------------------------------------------------------
 -module(ybot_brain_api).
 
+-include("ybot.hrl").
+
 %% REST Callbacks
 -export([init/3,
          allowed_methods/2,
@@ -12,6 +14,7 @@
          content_types_accepted/2,
          resource_exists/2,
          post_is_create/2,
+         create_path/2,
          post_json/2,
          put_json/2,
          get_json/2,
@@ -20,7 +23,6 @@
 
 %% API
 init(_Transport, _Req, []) ->
-    lager:info("init", []),
     {upgrade, protocol, cowboy_rest}.
 
 allowed_methods(Req, State) ->
@@ -46,24 +48,39 @@ content_types_provided(Req, State) ->
 %%                 false -> {false, Req2, PasteID}
 %%             end
 %%     end.
-
 resource_exists(Req, State)->
-    {true, Req, State}.
+    lager:info("api:resource_exists", []),
+    {true, Req, index}.
 
 post_is_create(Req, State) ->
+    lager:info("api:post_is_create", []),
     {true, Req, State}.
+
+create_path(Req, State) ->
+    lager:info("api:create_path", []),
+    {ybot_utils:get_uuid(), Req, State}.
 
 put_json(Req, State) ->
-    lager:info("api:put", []),
-    {true, Req, State}.
+    {Id, Req1} = cowboy_req:meta(put_path, Req),
+    {ok, [{Json, true}], Req2} = cowboy_req:body_qs(Req1),
+    lager:info("api:put id=~p, json=~p", [Id, from_json(Json)]),
+    {true, Req2, State}.
 
 post_json(Req, State) ->
-    lager:info("api:post", []),
-    {true, Req, State}.
+    {ok, [Json], Req1} = cowboy_req:body_qs(Req),
+    lager:info("api:post json=~p", [from_json(Json)]),
+    {true, Req1, State}.
 
 get_json(Req, State) ->
-    lager:info("api:get", []),
-    {true, Req, State}.
+    {Path, Req1} = cowboy_req:path(Req),
+    lager:info("api:get - path=~p", [Path]),
+    Reply = case Path of
+                <<"/">> -> [];
+                <<"/favicon.ico">> -> [];
+                _ ->
+                    get_resource(string:tokens(Path, "/"))
+            end,
+    {to_json(Reply), Req1, State}.
 
 delete_json(Req, State) ->
     lager:info("api:delete", []),
@@ -77,3 +94,19 @@ delete_json(Req, State) ->
 
 %% delete_completed(Req, State) ->
 %%     {true, Req, State}.
+
+%% Internal functions
+get_resource([Plugin]) ->
+    % get all keys for a plugin
+    "";
+get_resource([Plugin, Key]) ->
+    % get a specific memory
+    "".
+
+
+% Helpers
+from_json(Input) ->
+    mochijson2:decode(binary_to_list(Input)).
+
+to_json(Input) ->
+    list_to_binary(mochijson2:encode(Input)).

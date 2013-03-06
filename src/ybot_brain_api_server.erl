@@ -21,8 +21,9 @@
 
 %% API
 start_link(Host, Port) ->
-    lager:info("start server ~p:~p", [Host, Port]),
-    gen_server:start_link(?MODULE, [Host, Port], []).
+    Host1 = binary_to_list(Host),
+    lager:info("Start brain REST API: http://~s:~p", [Host1, Port]),
+    gen_server:start_link(?MODULE, [Host1, Port], []).
 
 init([Host, Port]) ->
     % start server
@@ -37,7 +38,7 @@ handle_call(_Request, _From, State) ->
 handle_cast({start_server, Host, Port}, State) ->
     % cowboy routes
     Dispatch = cowboy_router:compile([
-        {binary_to_list(Host), [{'_', ybot_brain_api, []}]}
+        {Host, [{'_', ybot_brain_api, []}]}
     ]),
 
     {ok, _} = cowboy:start_http(http, 100, [{port, Port}], [
