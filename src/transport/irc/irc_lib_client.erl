@@ -256,9 +256,6 @@ join_channel(M, Socket, Chan, ChanKey) ->
 -spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
 try_reconnect(#state{reconnect_timeout = Timeout} = State) ->
     case Timeout > 0 of
-        true ->
-            % no need in reconnect
-            {normal, stop, State};
         false ->
             % no need in reconnect
             {stop, normal, State};
