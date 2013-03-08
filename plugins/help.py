@@ -12,7 +12,8 @@ For example: Ybot math 1 + 1
   * 1 + 1 - are arguments
 
 My internal commands:
-
+  
+  * announce - Send messages to all chat rooms.
   * hi - say hi to Ybot
   * hello - say hello to Ybot
   * bye - say bye to Ybot

@@ -7,7 +7,8 @@
 
 -export([get_all_files/1,
          split_at_end/2,
-         get_priv_dir/0]).
+         get_priv_dir/0,
+         broadcast/1]).
 
 %% @doc get all files from directory
 -spec get_all_files(Dir :: string()) -> [string()].
@@ -35,3 +36,14 @@ get_priv_dir() ->
     {ok, Cwd} = file:get_cwd(),
     % Return priv dir
     Cwd ++ "/priv/".
+
+%% @doc Send Body to all chats
+broadcast(Body) ->
+    % Get all runned transports pid list
+    Transports = gen_server:call(ybot_manager, get_runnned_transports),
+    % Send to messages
+    lists:foreach(fun(TransportPid) -> 
+                    % Send message
+                    gen_server:cast(TransportPid, {send_message, "", binary_to_list(Body)})
+                  end, 
+                  Transports).

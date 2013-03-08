@@ -44,17 +44,6 @@ handle(Req, State) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
-%% @doc Send Body to all chats
-broadcast(Body) ->
-    % Get all runned transports pid list
-    Transports = gen_server:call(ybot_manager, get_runnned_transports),
-    % Send to messages
-    lists:foreach(fun(TransportPid) -> 
-                    % Send message
-                    gen_server:cast(TransportPid, {send_message, "", binary_to_list(Body)})
-                  end, 
-                  Transports).
-
 %% @doc Handle post requets
 do_post(Data, Headers, Req) ->
     % Check content type
@@ -89,7 +78,7 @@ do_post(Data, Headers, Req) ->
             % Check command type
             case CommandType of
                 <<"broadcast">> ->
-                    broadcast(Command);
+                    ybot_utils:broadcast(Command);
                 <<"response">> ->
                     handle_data(Command, Req);
                 % Send error message
