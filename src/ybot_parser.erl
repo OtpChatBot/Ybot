@@ -39,8 +39,13 @@ handle_call(_Request, _From, State) ->
 handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State) ->
     % Check this is message for Ybot or not
     case string:tokens(IncomingMessage, " \r\n") of
-        [Nick] ->             
+        [Nick] ->    
             gen_server:cast(TrasportPid, {send_message, From, "What?"});
+        [Nick, "announce" | _] ->
+            % Get announce content
+            Announce = string:tokens(ybot_utils:split_at_end(IncomingMessage, "announce"), "\r\n"),
+            % send announce to all chat
+            ybot_utils:broadcast(Announce);
         [Nick1, "hi"] -> maybe_respond({Nick1, Nick}, fun() ->
             gen_server:cast(TrasportPid, {send_message, From, "Hello"})
         end);
