@@ -6,7 +6,9 @@
   * Fixed #44 issue.
   * #42. If bot nickname already in use, generate new name and try to reconnect.
   * #45 fixed.
-  * help plugin improved.
+  * Help plugin improved.
+  * #44 Internal commands tested and fixed.
+  * New internal command 'announce' added.
 
 ## Ybot-0.3.1 --> released
 
@@ -49,7 +51,7 @@
   * XMPP single user chat supporting added.
   * XMPP ssl support added.
   * GTALK support added.
-  * New option xmpp port added. 
+  * New option xmpp port added.
   * New option xmpp use_ssl added.
   * Transport options validating added.
   * Procfile added for Heroku deploying support.
