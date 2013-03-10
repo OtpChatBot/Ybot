@@ -96,7 +96,6 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
             % this is not our command
             pass
     end,
-
     % return
     {noreply, State};
 

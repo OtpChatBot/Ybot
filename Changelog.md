@@ -9,6 +9,8 @@
   * Help plugin improved.
   * #44 Internal commands tested and fixed.
   * New internal command 'announce' added.
+  * New api ybot:act/1 added
+  * New api ybot:plugins/0 added
 
 ## Ybot-0.3.1 --> released
 
@@ -51,7 +53,7 @@
   * XMPP single user chat supporting added.
   * XMPP ssl support added.
   * GTALK support added.
-  * New option xmpp port added.
+  * New option xmpp port added. 
   * New option xmpp use_ssl added.
   * Transport options validating added.
   * Procfile added for Heroku deploying support.
