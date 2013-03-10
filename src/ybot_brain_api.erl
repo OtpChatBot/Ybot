@@ -15,7 +15,6 @@
 %         resource_exists/2,
          post_is_create/2,
          created_path/2,
-         process_post/2,
          create_json/2,
          get_json/2,
          delete_resource/2,
@@ -39,10 +38,6 @@ content_types_provided(Req, State) ->
       {{<<"application">>, <<"json">>, []}, get_json}
      ], Req, State}.
 
-%% resource_exists(Req, State)->
-%%     lager:info("api:resource_exists", []),
-%%     {true, Req, index}.
-
 post_is_create(Req, State) ->
     {true, Req, State}.
 
@@ -53,13 +48,12 @@ created_path(Req, State) ->
 create_json(Req, State) ->
     {Id, Req1} = cowboy_req:meta(put_path, Req),
     {ok, Body, Req2} = cowboy_req:body(Req1),
-    lager:info("api:put id=~p, json=~p", [Id, from_json(Body)]),
-    {true, Req2, State}.
-
-process_post(Req, State) ->
-    {ok, Body, Req1} = cowboy_req:body(Req),
-    lager:info("api:post json=~p", [from_json(Body)]),
-    {true, Req1, State}.
+    case Id of
+        undefined ->
+            lager:info("api:post json=~p", [from_json(Body)]);
+        _ ->
+            lager:info("api:put id=~p, json=~p", [Id, from_json(Body)])
+    end,    {true, Req2, State}.
 
 get_json(Req, State) ->
     {Path, Req1} = cowboy_req:path(Req),
