@@ -48,23 +48,44 @@ created_path(Req, State) ->
 create_json(Req, State) ->
     {Id, Req1} = cowboy_req:meta(put_path, Req),
     {ok, Body, Req2} = cowboy_req:body(Req1),
-    case Id of
-        undefined ->
-            lager:info("api:post json=~p", [from_json(Body)]);
-        _ ->
-            lager:info("api:put id=~p, json=~p", [Id, from_json(Body)])
-    end,    {true, Req2, State}.
+    Json = from_json(Body),
+    case validate_json(Json) of
+        true ->
+            {struct, List} = Json,
+            case Id of
+                undefined ->
+                    % handle POST
+                    ybot_brain:post(
+                      get_value(<<"plugin">>, List),
+                      get_value(<<"key">>, List),
+                      get_value(<<"value">>, List)
+                     );
+                _ ->
+                    % handle PUT
+                    ybot_brain:put(
+                      Id,
+                      get_value(<<"plugin">>, List),
+                      get_value(<<"key">>, List),
+                      get_value(<<"value">>, List)
+                     )
+                end,
+            {true, Req2, State};
+        false ->
+            lager:error("Unable to create memoery. Invalid JSON=~p", [Json]),
+            {false, Req2, State}
+    end.
 
 get_json(Req, State) ->
     {Path, Req1} = cowboy_req:path(Req),
     lager:info("api:get - path=~p", [Path]),
+    {Plugin, Req2} = get_param(<<"plugin">>, Req1),
+    lager:info("api:get - plugin=~p", [Plugin]),
     Reply = case Path of
                 <<"/">> -> [];
                 <<"/favicon.ico">> -> [];
-                _ ->
-                    get_resource(string:tokens(Path, "/"))
+                Id -> get_resource(ybot_utils:to_list(Id))
             end,
-    {to_json(Reply), Req1, State}.
+    {to_json(Reply), Req2, State}.
 
 delete_resource(Req, State) ->
     lager:info("api:delete", []),
@@ -75,16 +96,33 @@ delete_completed(Req, State) ->
     {true, Req, State}.
 
 %% Internal functions
-get_resource([Plugin]) ->
+get_resource(Id) ->
     % get all keys for a plugin
-    "";
-get_resource([Plugin, Key]) ->
-    % get a specific memory
     "".
+
+validate_json(Json) ->
+    try
+      {struct,
+       [{<<"plugin">>, _},
+        {<<"key">>, _},
+        {<<"value">>, _}
+       ]
+      } = Json,
+      true
+    catch
+        _:_Reason ->
+            false
+    end.
 
 % Helpers
 from_json(Input) ->
-    mochijson2:decode(binary_to_list(Input)).
+    mochijson2:decode(ybot_utils:to_list(Input)).
 
 to_json(Input) ->
-    list_to_binary(mochijson2:encode(Input)).
+    ybot_utils:to_binary(mochijson2:encode(Input)).
+
+get_param(Key, Req) ->
+    cowboy_req:qs_val(Key, Req).
+
+get_value(Key, List) ->
+    proplists:get_value(Key, List).

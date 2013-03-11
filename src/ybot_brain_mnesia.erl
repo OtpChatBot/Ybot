@@ -6,11 +6,10 @@
 -module(ybot_brain_mnesia).
 
 -include("ybot.hrl").
-
 -include_lib("stdlib/include/qlc.hrl").
 
 -export([post/3,
-         put/3,
+         put/4,
          delete/2,
          get_by_uuid/1,
          get/0,
@@ -40,26 +39,30 @@ stop() ->
 post(Plugin, Key, Value) ->
     run(fun() ->
                 mnesia:write(
-                  #memory{uuid = ybot_utils:get_uuid(),
-                          plugin = ybot_utils:to_atom(Plugin),
-                          key = ybot_utils:to_binary(Key),
-                          value = Value,
-                          created = erlang:localtime()
-                         }
+                  #memory{
+                     uuid = ybot_utils:get_uuid(),
+                     plugin = ybot_utils:to_atom(Plugin),
+                     key = ybot_utils:to_binary(Key),
+                     value = Value,
+                     created = erlang:localtime()
+                    }
                  )
         end).
 
-put(Plugin, Key, Value) ->
-    case get(Plugin, Key) of
+put(Id, Plugin, Key, Value) ->
+    case get_by_uuid(Id) of
         [] -> unknown_item;
         Item ->
             run(fun() ->
                         mnesia:write(
-                          Item#memory{value=Value,
-                                      created=erlang:localtime()
-                                     }
+                          Item#memory{
+                            plugin = Plugin,
+                            key = Key,
+                            value = Value,
+                            created = erlang:localtime()
+                           }
                          )
-                end)
+                 end)
     end.
 
 delete(Plugin, Key) ->

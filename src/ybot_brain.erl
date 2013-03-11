@@ -10,7 +10,7 @@
 -include("ybot.hrl").
 
 -export([post/3,
-         put/3,
+         put/4,
          delete/2,
          get_by_uuid/1,
          get/0,
@@ -40,8 +40,8 @@ stop() ->
 post(Plugin, Key, Value) ->
     gen_server:call(?MODULE, {post, [Plugin, Key, Value]}).
 
-put(Plugin, Key, Value) ->
-    gen_server:call(?MODULE, {put, [Plugin, Key, Value]}).
+put(Id, Plugin, Key, Value) ->
+    gen_server:call(?MODULE, {put, [Id, Plugin, Key, Value]}).
 
 get_by_uuid(Id) ->
     gen_server:call(?MODULE, {get_by_uuid, [Id]}).
@@ -65,8 +65,8 @@ init([Type]) ->
 
 handle_call({post, [Plugin, Key, Value]}, _From, #state{storage=Db}=State) ->
     {reply, Db:post(Plugin, Key, Value), State};
-handle_call({put, [Plugin, Key, Value]}, _From, #state{storage=Db}=State) ->
-    {reply, Db:put(Plugin, Key, Value), State};
+handle_call({put, [Id, Plugin, Key, Value]}, _From, #state{storage=Db}=State) ->
+    {reply, Db:put(Id, Plugin, Key, Value), State};
 handle_call({get_by_uuid, [Id]}, _From, #state{storage=Db}=State) ->
     {reply, Db:get_by_uuid(Id), State};
 handle_call(get, _From, #state{storage=Db}=State) ->

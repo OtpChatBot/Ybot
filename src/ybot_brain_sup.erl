@@ -31,7 +31,7 @@ init([]) ->
     ChildSpec = [
         {ybot_brain,
             {ybot_brain, start_link, [BrainStorage]},
-             permanent, brutal_kill, worker, []
+             permanent, 2000, worker, []
         },
 
         {ybot_brain_api_server,
