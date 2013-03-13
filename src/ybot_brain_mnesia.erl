@@ -8,12 +8,14 @@
 -include("ybot.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 
--export([post/3,
+-export([post/4,
          put/4,
          delete/2,
-         get_by_uuid/1,
-         get/0,
-         get/1,
+         get_by_id/1,
+         get_by_key/1,
+         get_by_value/1,
+         get_by_plugin/1,
+         get_all/0,
          get/2,
 
          start/0,
@@ -22,8 +24,15 @@
 
 %% API
 start() ->
-    case mnesia:create_schema([node()]) of
+     case mnesia:create_schema([node()]) of
         {error, {_,{already_exists, _}}} ->
+            case mnesia:system_info(local_tables) of
+                [schema] ->
+                    mnesia:change_table_copy_type(schema, node(), disc_copies),
+                    create_schema();
+                _        ->
+                    already_created
+            end,
             start_db();
         {error, Error} ->
             exit(Error);
@@ -36,13 +45,13 @@ start() ->
 stop() ->
     mnesia:stop().
 
-post(Plugin, Key, Value) ->
+post(Id, Plugin, Key, Value) ->
     run(fun() ->
                 mnesia:write(
                   #memory{
-                     uuid = ybot_utils:get_uuid(),
-                     plugin = ybot_utils:to_atom(Plugin),
-                     key = ybot_utils:to_binary(Key),
+                     uuid = Id,
+                     plugin = Plugin,
+                     key = Key,
                      value = Value,
                      created = erlang:localtime()
                     }
@@ -50,7 +59,7 @@ post(Plugin, Key, Value) ->
         end).
 
 put(Id, Plugin, Key, Value) ->
-    case get_by_uuid(Id) of
+    case get_by_id(Id) of
         [] -> unknown_item;
         Item ->
             run(fun() ->
@@ -72,17 +81,33 @@ delete(Plugin, Key) ->
             run(fun() -> mnesia:delete({memory, Item#memory.uuid}) end)
     end.
 
-get_by_uuid(Id) ->
+get_by_id(Id) ->
     run(fun() -> mnesia:wread({memory, Id}) end).
 
-get() ->
+get_all() ->
     run(fun() -> qlc:eval(qlc:q([X || X <- mnesia:table(memory)])) end).
 
-get(Plugin) ->
+get_by_plugin(Plugin) ->
     run(fun() ->
                 qlc:eval(
                   qlc:q([X || X <- mnesia:table(memory),
-                              X#memory.plugin =:= ybot_utils:to_atom(Plugin)])
+                              X#memory.plugin =:= Plugin])
+                 )
+        end).
+
+get_by_key(Key) ->
+    run(fun() ->
+                qlc:eval(
+                  qlc:q([X || X <- mnesia:table(memory),
+                              X#memory.key =:= Key])
+                 )
+        end).
+
+get_by_value(Value) ->
+    run(fun() ->
+                qlc:eval(
+                  qlc:q([X || X <- mnesia:table(memory),
+                              X#memory.value =:= Value])
                  )
         end).
 
@@ -90,8 +115,8 @@ get(Plugin, Key) ->
     run(fun() ->
                 qlc:eval(
                   qlc:q([X || X <- mnesia:table(memory),
-                              X#memory.plugin =:= ybot_utils:to_atom(Plugin),
-                              X#memory.key =:= ybot_utils:to_binary(Key)
+                              X#memory.plugin =:= Plugin,
+                              X#memory.key =:= Key
                         ])
                  )
          end).
@@ -117,5 +142,6 @@ run(ExecFun) ->
         State
     catch
         _:Reason ->
+            lager:error("Unable to run brain query! Error ~p", [Reason]),
             {error, Reason}
     end.
