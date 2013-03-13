@@ -48,7 +48,7 @@ handle_cast({send_message, _From, Message}, State) ->
     % Make url
     Url = "https://" ++ binary_to_list(State#state.domain) ++ ".campfirenow.com/room/" ++ integer_to_list(State#state.room) ++ "/speak.xml",
     % Make message
-    Mes = "<message><body>" ++ Message ++ "</body></message>",
+    Mes = "<message><type>TextMessage</type><body>" ++ Message ++ "</body></message>",
     % Send message
     ibrowse:send_req(Url, [{"Content-Type", "application/xml"}, {basic_auth, {binary_to_list(State#state.token), "x"}}], post, Mes),
     % return

@@ -11,6 +11,7 @@
   * New internal command 'announce' added.
   * New api ybot:act/1 added
   * New api ybot:plugins/0 added
+  * Fixed campfire image/video posting.
 
 ## Ybot-0.3.1 --> released
 
