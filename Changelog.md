@@ -14,6 +14,7 @@
   * Fixed campfire image/video posting.
   * Scala plugins support added.
   * Url decode/encode new plugin added.
+  * tranlate text with google translate plugin added.
 
 ## Ybot-0.3.1 --> released
 

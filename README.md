@@ -24,6 +24,7 @@ Features
     * Shell plugins;
     * Perl plugins;
     * Elixir plugins;
+    * Scala plugins;
   * You don't need to know Erlang to write a plugin;
   * Command history with tunable limit;
   * Dynamic loading of plugins;
