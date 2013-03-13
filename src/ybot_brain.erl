@@ -11,7 +11,7 @@
 
 -export([post/4,
          put/4,
-         delete/2,
+         delete/1,
          get_by_id/1,
          get_by_key/1,
          get_by_value/1,
@@ -63,8 +63,8 @@ get_by_key(Key) ->
 get_by_value(Value) ->
     gen_server:call(?MODULE, {get_by_value, [Value]}).
 
-delete(Plugin, Key) ->
-    gen_server:call(?MODULE, {delete, [Plugin, Key]}).
+delete(Id) ->
+    gen_server:call(?MODULE, {delete, [Id]}).
 
 %% gen_server callbacks
 init([Type]) ->
@@ -89,8 +89,8 @@ handle_call({get_by_value, [Value]}, _From, #state{storage = Db} = State) ->
     {reply, Db:get_by_value(Value), State};
 handle_call({get, [Plugin, Key]}, _From, #state{storage = Db} = State) ->
     {reply, Db:get(Plugin, Key), State};
-handle_call({delete, [Plugin, Key]}, _From, #state{storage = Db} = State) ->
-    {reply, Db:delete(Plugin, Key), State};
+handle_call({delete, [Id]}, _From, #state{storage = Db} = State) ->
+    {reply, Db:delete(Id), State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 

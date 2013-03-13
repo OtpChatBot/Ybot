@@ -10,7 +10,7 @@
 
 -export([post/4,
          put/4,
-         delete/2,
+         delete/1,
          get_by_id/1,
          get_by_key/1,
          get_by_value/1,
@@ -24,8 +24,9 @@
 
 %% API
 start() ->
-     case mnesia:create_schema([node()]) of
+    case mnesia:create_schema([node()]) of
         {error, {_,{already_exists, _}}} ->
+            % if there is already ram_copies schema
             case mnesia:system_info(local_tables) of
                 [schema] ->
                     mnesia:change_table_copy_type(schema, node(), disc_copies),
@@ -59,27 +60,20 @@ post(Id, Plugin, Key, Value) ->
         end).
 
 put(Id, Plugin, Key, Value) ->
-    case get_by_id(Id) of
-        [] -> unknown_item;
-        Item ->
-            run(fun() ->
-                        mnesia:write(
-                          Item#memory{
-                            plugin = Plugin,
-                            key = Key,
-                            value = Value,
-                            created = erlang:localtime()
-                           }
-                         )
-                 end)
-    end.
+    run(fun() ->
+                [R] = mnesia:wread({memory, Id}),
+                mnesia:write(
+                  R#memory{
+                    plugin = Plugin,
+                    key = Key,
+                    value = Value,
+                    created = erlang:localtime()
+                   }
+                 )
+        end).
 
-delete(Plugin, Key) ->
-    case get(Plugin, Key) of
-        [] -> unknown_item;
-        Item ->
-            run(fun() -> mnesia:delete({memory, Item#memory.uuid}) end)
-    end.
+delete(Id) ->
+    run(fun() -> mnesia:delete({memory, Id}) end).
 
 get_by_id(Id) ->
     run(fun() -> mnesia:wread({memory, Id}) end).
@@ -124,7 +118,7 @@ get(Plugin, Key) ->
 %% Internal functions
 start_db() ->
     case mnesia:start() of
-        {error, Error1}  ->
+        {error, Error1} ->
             exit(Error1);
         ok -> ok
     end.
