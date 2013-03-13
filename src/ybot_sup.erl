@@ -80,6 +80,12 @@ init([]) ->
         {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports]},
              permanent, brutal_kill, worker, []
+        },
+
+        % start ybot api process
+        {ybot,
+            {ybot, start_link, []},
+            permanent, brutal_kill, worker, []
         }
     ],
 
