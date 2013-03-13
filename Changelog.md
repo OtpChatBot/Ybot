@@ -1,20 +1,26 @@
 # Ybot news & changelog
 
-## Ybot-0.3.2 --> In development
+## Ybot-0.3.3 --> in development
 
-  * Fixed #42 issue.
-  * Fixed #44 issue.
+## Ybot-0.3.2 --> released
+
+  * Fixed #42 issue. Unable to connect to IRC bug.
+  * Fixed #44 issue. Fixed internal Ybot commands.
   * #42. If bot nickname already in use, generate new name and try to reconnect.
-  * #45 fixed.
+  * #45 fixed. Timeout error from IRC transport.
+  * #43 fixed. Unable to compile using rebar.
   * Help plugin improved.
   * #44 Internal commands tested and fixed.
+  * To all plugins added checks arguments.
   * New internal command 'announce' added.
   * New api ybot:act/1 added
   * New api ybot:plugins/0 added
+  * All plugins argumets checking added.
   * Fixed campfire image/video posting.
   * Scala plugins support added.
   * Url decode/encode new plugin added.
-  * tranlate text with google translate plugin added.
+  * math.rb plugin result output fixed.
+  * New core plugin translate.rb added. tranlate text with google translate plugin added.
 
 ## Ybot-0.3.1 --> released
 

@@ -120,7 +120,7 @@ Here are a few simple rules for structuring Ybot plugins.
 
   * After addressing the bot you specify the command to be executed, for example `math` or `ping`. Every command consists from one word.
 
-  * After the command you can specify arguments. Ybot sends all arguments in '' and it turns them into one argument. 
+  * After the command you can specify arguments. Ybot sends all arguments in '' and it turns them into one argument.
 
   * One command = One plugin. Plugins must live in the `plugins` directory.
 
@@ -152,6 +152,7 @@ Current plugins
   * chuck - Chuck Norris quotes :)
   * decide - Ybot try to help make decisions for you.
   * github_status - Github status state.
+  * echo - simple echo plugin.
   * help - Ybot help.
   * ping - Ybot simple ping/pong.
   * math - Ybot calculate math expressions.
@@ -166,8 +167,10 @@ Current plugins
   * ruby - Ybot eval simple ruby expression
   * ip - Ybot external ip
   * hacker_help - Ybot search in stackoverflow.
+  * translate - use google translate from Ybot.
+  * url - url encode/decode plugin.
 
-These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib)
+These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib) or see at [ybot plugins catalog](http://0xax.github.com/ybot-plugins.html).
 
 Contribute
 ============
@@ -185,6 +188,6 @@ pull and merge Ybot master to avoid conflicts.
 Author
 ========
 
-Creator of Ybot [@0xAX](https://twitter.com/0xAX). 
+Creator of Ybot [@0xAX](https://twitter.com/0xAX).
 
 Thank you all who participating in Ybot developing. Names and contact information of those who helped Yubotu, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)
