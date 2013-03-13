@@ -323,11 +323,15 @@ load_plugin(Plugin) ->
         ".pl" ->
             % perl plugin
             lager:info("Loading plugin(Perl) ~s", [Name]),
-            {plugins, "perl", Name, Plugin};
+            {plugin, "perl", Name, Plugin};
         ".ex" ->
             % elixir plugin
             lager:info("Loading plugin(Elixir) ~s", [Name]),
-            {plugins, "elixir", Name, Plugin};
+            {plugin, "elixir", Name, Plugin};
+        ".scala" ->
+            % scala plugin
+            lager:info("Loading plugin(Scala) ~s", [Name]),
+            {plugin, "scala", Name, Plugin};
         _ ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),

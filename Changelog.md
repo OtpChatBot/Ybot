@@ -12,6 +12,8 @@
   * New api ybot:act/1 added
   * New api ybot:plugins/0 added
   * Fixed campfire image/video posting.
+  * Scala plugins support added.
+  * Url decode/encode new plugin added.
 
 ## Ybot-0.3.1 --> released
 
