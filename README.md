@@ -176,6 +176,9 @@ Ybot brain REST API
 ============
 Ybot brain allows to persist data using REST API. It is designed to support multiple storage engines, but the default is based on Mnesia.
 
+REST API endpoint:
+`http://localhost:8090/memories` (port and host is configurable)
+
 An example JSON object:
 ```
 {
