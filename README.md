@@ -172,6 +172,22 @@ Current plugins
 
 These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib) or see at [ybot plugins catalog](http://0xax.github.com/ybot-plugins.html).
 
+Ybot brain REST API
+============
+Ybot brain allows to persist data using REST API. It is designed to support multiple storage engines, but the default is based on Mnesia.
+
+An example JSON object:
+```
+{
+ "id":"88DAF3FFB0419E0A8368036200000553620002B99862000429C1",
+ "plugin":"foo",
+ "key":"key1",
+ "value":"foo1",
+ "created":"2013-03-13 23:45:00"
+ }
+```
+
+
 Contribute
 ============
 
