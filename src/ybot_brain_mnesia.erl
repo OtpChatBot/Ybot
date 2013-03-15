@@ -8,7 +8,8 @@
 -include("ybot.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 
--export([post/4,
+-export([post/3,
+         post/4,
          put/4,
          delete/1,
          get_by_id/1,
@@ -45,6 +46,19 @@ start() ->
 
 stop() ->
     mnesia:stop().
+
+post(Plugin, Key, Value) ->
+    run(fun() ->
+                mnesia:write(
+                  #memory{
+                     uuid = ybot_utils:get_uuid(),
+                     plugin = Plugin,
+                     key = Key,
+                     value = Value,
+                     created = erlang:localtime()
+                    }
+                 )
+        end).
 
 post(Id, Plugin, Key, Value) ->
     run(fun() ->

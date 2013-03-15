@@ -58,34 +58,20 @@ create_path(Req, State) ->
     {ybot_utils:get_uuid(), Req, State}.
 
 create_json(Req, Id) ->
-    {Method, Req1} = cowboy_req:method(Req),
-    {ok, Body, Req2} = cowboy_req:body(Req1),
-    Json = from_json(Body),
-    lager:info("debug:create_json: method=~p, id=~p, json=~p",
-               [Method, Id, Json]),
-    case validate_json(Json) of
-        true ->
-            {struct, List} = Json,
-            case Method of
-                <<"POST">> ->
-                    ybot_brain:post(
-                      Id,
-                      get_value(<<"plugin">>, List),
-                      get_value(<<"key">>, List),
-                      get_value(<<"value">>, List)
-                     );
-                <<"PUT">> ->
-                    ybot_brain:put(
-                      Id,
-                      get_value(<<"plugin">>, List),
-                      get_value(<<"key">>, List),
-                      get_value(<<"value">>, List)
-                     )
-            end,
-            {true, Req2, Id};
-        false ->
-            lager:error("Unable to create memoery. Invalid JSON=~p", [Json]),
-            {false, Req2, Id}
+    try
+        {Method, Req1} = cowboy_req:method(Req),
+        {ok, Body, Req2} = cowboy_req:body(Req1),
+        Json = from_json(Body),
+        lager:info("debug:create_json: method=~p, id=~p, json=~p",
+                   [Method, Id, Json]),
+        Items = deserialize(Json),
+        [store(Method, Id, Item) || Item <- Items],
+        {true, Req2, Id}
+    catch
+        _:Reason ->
+            lager:error("Unable to create memoery. Invalid JSON!"
+                        "Error=~p", [Reason]),
+            {false, Req, Id}
     end.
 
 get_json(Req, all) ->
@@ -100,16 +86,25 @@ delete_resource(Req, Id) ->
     ybot_brain:delete(Id),
     {true, Req, Id}.
 
-%% Internal functions
-validate_json({struct, [{<<"plugin">>, _}, {<<"key">>, _},
-                        {<<"value">>, _}]}) ->
-    true;
-validate_json({struct, [{<<"id">>, _}, {<<"plugin">>, _}, {<<"key">>, _},
-                        {<<"value">>, _}]}) ->
-    true;
-validate_json(_Other) ->
-    false.
 
+%% Internal functions
+store(<<"POST">>, undefind, List) ->
+    ybot_brain:post(get_value(<<"plugin">>, List),
+                    get_value(<<"key">>, List),
+                    get_value(<<"value">>, List)
+                   );
+store(<<"POST">>, Id, List) ->
+    ybot_brain:post(Id,
+                    get_value(<<"plugin">>, List),
+                    get_value(<<"key">>, List),
+                    get_value(<<"value">>, List)
+                   );
+store(<<"PUT">>, Id, List) ->
+    ybot_brain:put(Id,
+                   get_value(<<"plugin">>, List),
+                   get_value(<<"key">>, List),
+                   get_value(<<"value">>, List)
+                  ).
 
 get_by_id(Id) ->
     case ybot_brain:get_by_id(Id) of
@@ -142,6 +137,17 @@ get_by_params([{<<"plugin">>, Plugin}, {<<"key">>, Key}]) ->
 from_json(Input) ->
     mochijson2:decode(ybot_utils:to_list(Input)).
 
+%TODO - check how mochijson handles arrays
+deserialize(Collection) when is_list(Collection) ->
+    [deserialize(I) || I <- Collection];
+deserialize(Item) ->
+    case validate_json(Item) of
+        true  -> {struct, List} = Item,
+                 List;
+        false ->
+            throw({invalid_json, Item})
+    end.
+
 serialize(Records) when is_list(Records) ->
     [serialize(R) || R <- Records];
 serialize(Record) ->
@@ -153,6 +159,21 @@ serialize(Record) ->
              {created, format_datetime(Record#memory.created)}
             ]}.
 
+validate_json({struct, [{<<"plugin">>, _}, {<<"key">>, _},
+                        {<<"value">>, _}]}) ->
+    true;
+validate_json({struct, [{<<"id">>, _}, {<<"plugin">>, _}, {<<"key">>, _},
+                        {<<"value">>, _}]}) ->
+    true;
+validate_json(_Other) ->
+    false.
+
+to_json(Input) ->
+    ybot_utils:to_binary(mochijson2:encode(Input)).
+
+get_value(Key, List) ->
+    proplists:get_value(Key, List).
+
 format_datetime({{Y,M,D},{H,Mi,S}}) ->
     list_to_binary(
       lists:flatten(
@@ -160,9 +181,3 @@ format_datetime({{Y,M,D},{H,Mi,S}}) ->
                       [Y, M, D, H, Mi, S])
        )
      ).
-
-to_json(Input) ->
-    ybot_utils:to_binary(mochijson2:encode(Input)).
-
-get_value(Key, List) ->
-    proplists:get_value(Key, List).

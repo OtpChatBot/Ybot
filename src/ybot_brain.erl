@@ -9,7 +9,8 @@
 
 -include("ybot.hrl").
 
--export([post/4,
+-export([post/3,
+         post/4,
          put/4,
          delete/1,
          get_by_id/1,
@@ -38,6 +39,9 @@ start_link(Type) ->
 
 stop() ->
     gen_server:cast({local,?MODULE}, stop).
+
+post(Plugin, Key, Value) ->
+    gen_server:call(?MODULE, {post, [Plugin, Key, Value]}).
 
 post(Id, Plugin, Key, Value) ->
     gen_server:call(?MODULE, {post, [Id, Plugin, Key, Value]}).
@@ -71,6 +75,9 @@ init([Type]) ->
     Db = start_storage(Type),
     {ok, #state{storage=Db}}.
 
+handle_call({post, [Plugin, Key, Value]}, _From,
+            #state{storage = Db} = State) ->
+    {reply, Db:post(Plugin, Key, Value), State};
 handle_call({post, [Id, Plugin, Key, Value]}, _From,
             #state{storage = Db} = State) ->
     {reply, Db:post(Id, Plugin, Key, Value), State};

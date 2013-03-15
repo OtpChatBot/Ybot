@@ -1,7 +1,7 @@
 % Types
--type datetime() :: {date(), time()}.
 -type date() :: {pos_integer(), pos_integer(), pos_integer()}.
 -type time() :: {pos_integer(), pos_integer(), pos_integer()}.
+-type datetime() :: {date(), time()}.
 
 % Schema
 -record(memory, {uuid    :: binary(),
