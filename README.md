@@ -193,7 +193,7 @@ An example JSON memory object:
 Operations using brain API:
 
 Operation | HTTP Method | Url | Description
-----|------|----
+----------|-------------|-----|-------------
 Insert | POST  | http://localhost:8090/memories |
 
 
