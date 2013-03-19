@@ -192,16 +192,16 @@ An example JSON memory object:
 
 Operations using brain API:
 
-Operation     | HTTP Verb | Url                     | Description
---------------|-----------|-------------------------|-------------------------------------------------
-Insert        | POST      | /memories               | Pass memory object without id and created field
-Update        | PUT       | /memories/id            | Pass memory object without id and created field
-Delete        | DELETE    | /memories/id            |
-Get all       | GET       | /memories               |
-Get by id     | GET       | /memories/id            |
-Get by plugin | GET       | /memories/?plugin=foo   |
-Get by key    | GET       | /memories/?key=bar      |
-Get by value  | GET       | /memories/?value=foobar |
+Operation       | HTTP Verb | Url                     | Description
+----------------|-----------|-------------------------|-------------------------------------------------
+Insert new      | POST      | /memories               | Pass memory object without id and created field
+Update existing | PUT       | /memories/id            | Pass memory object without id and created field
+Remove by id    | DELETE    | /memories/id            |
+Get all         | GET       | /memories               |
+Get by id       | GET       | /memories/id            |
+Get by plugin   | GET       | /memories/?plugin=foo   |
+Get by key      | GET       | /memories/?key=bar      |
+Get by value    | GET       | /memories/?value=foobar |
 
 Contribute
 ============
