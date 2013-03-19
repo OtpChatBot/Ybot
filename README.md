@@ -179,7 +179,7 @@ Ybot brain allows to persist data using REST API. It is designed to support mult
 REST API endpoint:
 `http://localhost:8090/memories` (port and host is configurable)
 
-An example JSON object:
+An example JSON memory object:
 ```
 {
  "id":"88DAF3FFB0419E0A8368036200000553620002B99862000429C1",

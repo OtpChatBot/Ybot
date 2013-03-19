@@ -153,7 +153,6 @@ deserialize(Item) ->
 serialize(Records) when is_list(Records) ->
     [serialize(R) || R <- Records];
 serialize(Record) ->
-    lager:info("debug: ~p", [Record]),
     {struct,[
              {id,      bin_to_hex(Record#memory.uuid)},
              {plugin,  Record#memory.plugin},
