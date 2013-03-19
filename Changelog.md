@@ -2,6 +2,10 @@
 
 ## Ybot-0.3.3 --> in development
 
+  * #47. HipChat config moved to separte config from XMPP transport.
+  * XMPP 'is_hipchat' option was removed.
+  * XMPP 'hipchat_nick' option was removed.
+  
 ## Ybot-0.3.2 --> released
 
   * Fixed #42 issue. Unable to connect to IRC bug.

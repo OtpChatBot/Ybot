@@ -18,17 +18,17 @@ Features
 
   * Completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
-  * Supports plugins in different technology;
+  * You don't need to know Erlang to write a plugin;
+  * Supports plugins in different technology:
     * Python plugins;
     * Ruby plugins;
     * Shell plugins;
     * Perl plugins;
     * Elixir plugins;
     * Scala plugins;
-  * You don't need to know Erlang to write a plugin;
   * Command history with tunable limit;
-  * Dynamic loading of plugins;
-  * Very easily extensible;
+  * Dynamic search and loading of plugins;
+  * Very easily extensible, just put plugin to plugin directory;
   * Supports IRC and IRC via SSL;
   * Supports XMPP and XMPP via ssl;
   * Supports Campfire

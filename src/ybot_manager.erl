@@ -148,17 +148,17 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% Internal functions
 
-%% @doc Start irc clients
+%% @doc Start irc client
 load_transport({irc, Nick, Channel, Host, Options}) ->
     % Validate transport options
     case ybot_validators:validate_transport_opts(Options) of
         ok ->
             % Get irc server port
-            {port, Port} = get_config(port, Options),
+            {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
-            {use_ssl, UseSsl} = get_config(use_ssl, Options),
+            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
             % Get reconnect timeout
-            {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start irc handler
             {ok, HandlerPid} = irc_handler:start_link(),
             % Run new irc client
@@ -176,7 +176,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             []
     end;
 
-%% @doc start xmpp clients
+%% @doc start xmpp client
 load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
     % Start parser process
     {ok, ParserPid} = ybot_parser:start_link(),
@@ -184,39 +184,21 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
     case ybot_validators:validate_transport_opts(Options) of
         ok ->
             % Get irc server port
-            {port, Port} = get_config(port, Options),
+            {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
-            {use_ssl, UseSsl} = get_config(use_ssl, Options),
+            {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
             % Get reconnect timeout
-            {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
-            % Is hipchat
-            ClientPid = case get_config(is_hipchat, Options) of
-                {_, false} -> 
-                    % Make room
-                    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
-                    % Log
-                    lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
-                    {ok, CPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
-                    % Send client pid to handler
-                    ok = gen_server:cast(HandlerPid, {xmpp_client, CPid, ParserPid, Login}),
-                    % return xmpp client pid
-                    CPid;
-                % This is hipchat
-                {_, true} ->
-                    % Get hipchat nick
-                    {_, HipChatNick}  = get_config(hipchat_nick, Options),
-                    % Make room
-                    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
-                    % Run new xmpp client
-                    {ok, CPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
-                    % Send client pid to handler
-                    ok = gen_server:cast(HandlerPid, {xmpp_client, CPid, ParserPid,
-                        list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
-                    % return xmpp client pid
-                    CPid
-            end,
+            % Make room
+            XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
+            % Log
+            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+            % Start new xmpp transport
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+            % Send client pid to handler
+            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, Login}),
             % return correct transport
             {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
         % wrong options
@@ -224,10 +206,33 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             []
     end;
 
-%% @doc start campfire clients
+%% @doc start hipchat client
+load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick, Options}) ->
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
+    % HipChat port
+    Port = 5223,
+    % Use ssl for hipchat
+    UseSsl = true,
+    % Get reconnect timeout
+    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
+    % Start xmpp handler
+    {ok, HandlerPid} = xmpp_handler:start_link(),
+    % Make room
+    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
+    % Run new xmpp client
+    {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+    % Log
+    lager:info("Starting HipChat transport: ~s, ~s, ~s", [Host, Room, Resource]),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
+    % return correct transport
+    {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+
+%% @doc start campfire client
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     % Get reconnect timeout
-    {reconnect_timeout, ReconnectTimeout} = get_config(reconnect_timeout, Options),
+    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
@@ -337,6 +342,3 @@ load_plugin(Plugin) ->
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
     end.
-
-get_config(Key, Options) ->
-    lists:keyfind(Key, 1, Options).
