@@ -202,7 +202,6 @@ Get by id     | GET       | /memories/id            |
 Get by plugin | GET       | /memories/?plugin=foo   |
 Get by key    | GET       | /memories/?key=bar      |
 Get by value  | GET       | /memories/?value=foobar |
---------------|-----------|-------------------------|---------------------------
 
 Contribute
 ============
