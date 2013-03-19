@@ -5,7 +5,6 @@
 %%%----------------------------------------------------------------------------
 %%% TODO
 %%%----------------------------------------------------------------------------
-%%% * operations on collections
 %%% * write docs into README
 %%% * handle errors
 %%%----------------------------------------------------------------------------
@@ -23,7 +22,8 @@
          create_path/2,
          create_json/2,
          get_json/2,
-         delete_resource/2
+         delete_resource/2,
+         get_uuid/0
         ]).
 
 %% API
@@ -48,14 +48,14 @@ resource_exists(Req, _State) ->
         {undefined, Req2} ->
             {true, Req2, all};
         {Id, Req2} ->
-            {true, Req2, ybot_utils:hex_to_bin(Id)}
+            {true, Req2, hex_to_bin(Id)}
     end.
 
 post_is_create(Req, State) ->
     {true, Req, State}.
 
 create_path(Req, State) ->
-    {ybot_utils:get_uuid(), Req, State}.
+    {get_uuid(), Req, State}.
 
 create_json(Req, Id) ->
     try
@@ -64,13 +64,13 @@ create_json(Req, Id) ->
         Json = from_json(Body),
         lager:info("debug:create_json: method=~p, id=~p, json=~p",
                    [Method, Id, Json]),
-        Items = deserialize(Json),
-        [store(Method, Id, Item) || Item <- Items],
+        store(Method, Id, deserialize(Json)),
         {true, Req2, Id}
     catch
         _:Reason ->
             lager:error("Unable to create memoery. Invalid JSON!"
-                        "Error=~p", [Reason]),
+                        " Error=~p, Stack=~p",
+                        [Reason, erlang:get_stacktrace()]),
             {false, Req, Id}
     end.
 
@@ -88,7 +88,7 @@ delete_resource(Req, Id) ->
 
 
 %% Internal functions
-store(<<"POST">>, undefind, List) ->
+store(<<"POST">>, all, List) ->
     ybot_brain:post(get_value(<<"plugin">>, List),
                     get_value(<<"key">>, List),
                     get_value(<<"value">>, List)
@@ -138,12 +138,14 @@ from_json(Input) ->
     mochijson2:decode(ybot_utils:to_list(Input)).
 
 %TODO - check how mochijson handles arrays
-deserialize(Collection) when is_list(Collection) ->
-    [deserialize(I) || I <- Collection];
+%% deserialize(Collection) when is_list(Collection) ->
+%%     [deserialize(I) || I <- Collection];
 deserialize(Item) ->
     case validate_json(Item) of
-        true  -> {struct, List} = Item,
-                 List;
+        true  ->
+            {struct, List} = Item,
+            lager:info("debug: ~p", [List]),
+            List;
         false ->
             throw({invalid_json, Item})
     end.
@@ -151,11 +153,12 @@ deserialize(Item) ->
 serialize(Records) when is_list(Records) ->
     [serialize(R) || R <- Records];
 serialize(Record) ->
+    lager:info("debug: ~p", [Record]),
     {struct,[
-             {id,      ybot_utils:bin_to_hex(Record#memory.uuid)},
+             {id,      bin_to_hex(Record#memory.uuid)},
              {plugin,  Record#memory.plugin},
              {key,     Record#memory.key},
-             {value,   Record#memory.plugin},
+             {value,   Record#memory.value},
              {created, format_datetime(Record#memory.created)}
             ]}.
 
@@ -181,3 +184,17 @@ format_datetime({{Y,M,D},{H,Mi,S}}) ->
                       [Y, M, D, H, Mi, S])
        )
      ).
+
+bin_to_hex(Bin) ->
+    <<<<(binary:list_to_bin(
+             case length(S = integer_to_list(I, 16)) of 1 -> [48|S]; 2 -> S end
+          ))/bytes>> || <<I>> <= Bin>>.
+
+hex_to_bin(Hex) when is_list(Hex) ->
+    <<<<(list_to_integer([I1,I2], 16))>> || <<I1,I2>> <= list_to_binary(Hex)>>;
+hex_to_bin(Hex) ->
+    <<<<(list_to_integer([I1,I2], 16))>> || <<I1,I2>> <= Hex>>.
+
+get_uuid() ->
+    <<(crypto:rand_bytes(8))/bytes,
+      (erlang:term_to_binary(erlang:now()))/bytes>>.

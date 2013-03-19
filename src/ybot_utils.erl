@@ -9,13 +9,9 @@
          get_priv_dir/0,
          split_at_end/2,
 
-         get_uuid/0,
-
          to_binary/1,
          to_atom/1,
          to_list/1,
-         bin_to_hex/1,
-         hex_to_bin/1,
 
          broadcast/1
         ]).
@@ -47,12 +43,6 @@ get_priv_dir() ->
     % Return priv dir
     Cwd ++ "/priv/".
 
-%% @doc Get unique id
--spec get_uuid() -> binary().
-get_uuid() ->
-    <<(crypto:rand_bytes(8))/bytes,
-      (erlang:term_to_binary(erlang:now()))/bytes>>.
-
 %% @doc Ensures that is binary
 -spec to_binary(any()) -> binary().
 to_binary(X) when is_list(X) -> list_to_binary(X);
@@ -72,20 +62,6 @@ to_list(X) when is_integer(X) -> integer_to_list(X);
 to_list(X) when is_float(X) -> mochinum:digits(X);
 to_list(X) when is_atom(X) -> atom_to_list(X);
 to_list(X) when is_list(X) -> X.
-
-%% @doc Encode binary into hexadecimal string
--spec bin_to_hex(bitstring()) -> bitstring().
-bin_to_hex(Bin) ->
-    <<<<(binary:list_to_bin(
-             case length(S = integer_to_list(I, 16)) of 1 -> [48|S]; 2 -> S end
-          ))/bytes>> || <<I>> <= Bin>>.
-
-%% @doc Decodes hexadecimal string into binary
--spec hex_to_bin(list() | binary()) -> binary().
-hex_to_bin(Hex) when is_list(Hex) ->
-    <<<<(list_to_integer([I1,I2], 16))>> || <<I1,I2>> <= list_to_binary(Hex)>>;
-hex_to_bin(Hex) ->
-    <<<<(list_to_integer([I1,I2], 16))>> || <<I1,I2>> <= Hex>>.
 
 %% @doc Send Body to all chats
 -spec broadcast(any()) -> ok.

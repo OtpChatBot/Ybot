@@ -51,7 +51,7 @@ post(Plugin, Key, Value) ->
     run(fun() ->
                 mnesia:write(
                   #memory{
-                     uuid = ybot_utils:get_uuid(),
+                     uuid = ybot_brain_api:get_uuid(),
                      plugin = Plugin,
                      key = Key,
                      value = Value,
