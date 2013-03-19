@@ -193,9 +193,9 @@ An example JSON memory object:
 Operations using brain API:
 
 Operation     | HTTP Verb | Url                     | Description
---------------|-----------|-------------------------|---------------------------
-Insert        | POST      | /memories               |
-Update        | PUT       | /memories/id            |
+--------------|-----------|-------------------------|-------------------------------------------------
+Insert        | POST      | /memories               | Pass memory object without id and created field
+Update        | PUT       | /memories/id            | Pass memory object without id and created field
 Delete        | DELETE    | /memories/id            |
 Get all       | GET       | /memories               |
 Get by id     | GET       | /memories/id            |
