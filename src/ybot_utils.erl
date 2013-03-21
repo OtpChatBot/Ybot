@@ -6,6 +6,7 @@
 -module(ybot_utils).
 
 -export([get_all_files/1,
+         get_all_directories/1,
          get_priv_dir/0,
          split_at_end/2,
 
@@ -20,7 +21,12 @@
 -spec get_all_files(Dir :: string()) -> [string()].
 get_all_files(Dir) ->
     FindFiles = fun(F, Acc) -> [F | Acc] end,
-    filelib:fold_files(Dir, ".*", true, FindFiles, []).
+    filelib:fold_files(Dir, ".*", false, FindFiles, []).
+
+%% @doc get all sub directories from directory
+-spec get_all_directories(Pathx :: string()) -> [string()].
+get_all_directories(Path) ->
+    lists:filter(fun(X) -> filelib:is_dir(X) end, filelib:wildcard(Path ++ "/*")).
 
 %% @doc Take 2 string. Find SplitSnippet in String
 %%      and return all string content which after SplitSnippet in string.

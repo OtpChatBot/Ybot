@@ -94,8 +94,10 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
         true ->
             % Get all plugins
             PluginsPaths = ybot_utils:get_all_files(PluginsDirectory),
+            OtpPluginsPaths = ybot_utils:get_all_directories(PluginsDirectory),
             % Parse plugins and load to state
             Plugins = lists:flatten(lists:map(fun load_plugin/1, PluginsPaths)),
+            OtpPlugins = lists:flatten(lists:map(fun load_otp_plugin/1, OtpPluginsPaths)),
             % Get checking_new_plugins parameter from config
             {ok, UseNewPlugins} = application:get_env(ybot, checking_new_plugins),
             % Check checking_new_plugins
@@ -110,7 +112,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                     pass
             end,
             % return plugins
-            {noreply, State#state{plugins = Plugins}};
+            {noreply, State#state{plugins = lists:append(Plugins, OtpPlugins)}};
         false ->
             % some log
             lager:error("Unable to load plugins. Invalid directory ~s", [PluginsDirectory]),
@@ -342,3 +344,11 @@ load_plugin(Plugin) ->
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
     end.
+
+load_otp_plugin(Plugin) ->
+    [AppFile] = filelib:wildcard(Plugin ++ "/ebin/*.app"),
+    AppName = list_to_atom(filename:basename(AppFile, ".app")),
+    [_, Name] = string:tokens(Plugin, "/"),
+    lager:info("Loading plugin(Erlang) ~s", [Name]),
+    application:start(AppName),
+    {plugin, "erlang", Name, AppName}.

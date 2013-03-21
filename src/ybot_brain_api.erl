@@ -3,11 +3,6 @@
 %%% Author  : tgrk <tajgur@gmail.com>
 %%% Purpose : Ybot brain REST API
 %%%----------------------------------------------------------------------------
-%%% TODO
-%%%----------------------------------------------------------------------------
-%%% * write docs into README
-%%% * handle errors
-%%%----------------------------------------------------------------------------
 -module(ybot_brain_api).
 
 -include("ybot.hrl").
@@ -62,8 +57,6 @@ create_json(Req, Id) ->
         {Method, Req1} = cowboy_req:method(Req),
         {ok, Body, Req2} = cowboy_req:body(Req1),
         Json = from_json(Body),
-        lager:info("debug:create_json: method=~p, id=~p, json=~p",
-                   [Method, Id, Json]),
         store(Method, Id, deserialize(Json)),
         {true, Req2, Id}
     catch
@@ -76,13 +69,11 @@ create_json(Req, Id) ->
 
 get_json(Req, all) ->
     {Params, Req1} = cowboy_req:qs_vals(Req),
-    lager:info("debug:get_json: params=~p", [Params]),
     {get_by_params(Params), Req1, all};
 get_json(Req, Id) ->
     {get_by_id(Id), Req, Id}.
 
 delete_resource(Req, Id) ->
-    lager:info("api:delete id=~p", [Id]),
     ybot_brain:delete(Id),
     {true, Req, Id}.
 
@@ -137,14 +128,10 @@ get_by_params([{<<"plugin">>, Plugin}, {<<"key">>, Key}]) ->
 from_json(Input) ->
     mochijson2:decode(ybot_utils:to_list(Input)).
 
-%TODO - check how mochijson handles arrays
-%% deserialize(Collection) when is_list(Collection) ->
-%%     [deserialize(I) || I <- Collection];
 deserialize(Item) ->
     case validate_json(Item) of
         true  ->
             {struct, List} = Item,
-            lager:info("debug: ~p", [List]),
             List;
         false ->
             throw({invalid_json, Item})

@@ -1,7 +1,7 @@
 %%%----------------------------------------------------------------------
 %%% File    : ybot_brain_mnesia.erl
 %%% Author  : tgrk <tajgur@gmail.com>
-%%% Purpose : Ybot Mnesia brain storage
+%%% Purpose : Ybot Mnesia brain API storage
 %%%----------------------------------------------------------------------
 -module(ybot_brain_mnesia).
 

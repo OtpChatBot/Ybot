@@ -50,6 +50,7 @@ handle_cast(_Msg, State) ->
 handle_info({check_new_plugins, PluginsDirectory, CurrentPlugins}, State) ->
     % Get all plugins
     AllPlugins = ybot_utils:get_all_files(PluginsDirectory),
+    lager:warning("debug: plugins=~p", [AllPlugins]),
     % Try to get difference between plugins
     case AllPlugins -- CurrentPlugins of
         % no new plugins

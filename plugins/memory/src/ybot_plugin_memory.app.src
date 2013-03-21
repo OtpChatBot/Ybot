@@ -1,0 +1,14 @@
+{application, ybot_plugin_memory,
+ [
+  {description, "Ybot plugin for memory command"},
+  {vsn, "0.1alfa"},
+  {registered, []},
+  {modules, [ybot_plugin_memory_app]},
+  {applications, [
+            kernel,
+            stdlib,
+            compiler
+        ]},
+        {mod, {ybot_plugin_memory_app, []}},
+        {env, []}
+ ]}.
