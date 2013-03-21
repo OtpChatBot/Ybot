@@ -24,6 +24,7 @@ Features
     * Ruby plugins;
     * Shell plugins;
     * Perl plugins;
+    * Erlang/OTP plugins;
     * Elixir plugins;
     * Scala plugins;
   * Command history with tunable limit;
@@ -129,6 +130,7 @@ Here are a few simple rules for structuring Ybot plugins.
     * .py
     * .rb
     * .shell
+  * Erlang/OTP plugin - see example memory plugin
 
 Containing Python, Ruby or shell code.
 
