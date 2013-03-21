@@ -93,11 +93,12 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
     case filelib:is_dir(PluginsDirectory) of
         true ->
             % Get all plugins
-            PluginsPaths = ybot_utils:get_all_files(PluginsDirectory),
-            OtpPluginsPaths = ybot_utils:get_all_directories(PluginsDirectory),
+            PluginsPaths = lists:append(
+                             ybot_utils:get_all_files(PluginsDirectory),
+                             ybot_utils:get_all_directories(PluginsDirectory)
+                            ),
             % Parse plugins and load to state
             Plugins = lists:flatten(lists:map(fun load_plugin/1, PluginsPaths)),
-            OtpPlugins = lists:flatten(lists:map(fun load_otp_plugin/1, OtpPluginsPaths)),
             % Get checking_new_plugins parameter from config
             {ok, UseNewPlugins} = application:get_env(ybot, checking_new_plugins),
             % Check checking_new_plugins
@@ -106,13 +107,16 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                     % Get new plugins checking timeout
                     {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
                     % Start new plugins observer
-                    ybot_plugins_observer:start_link(PluginsDirectory, PluginsPaths, NewPluginsCheckingTimeout);
+                    ybot_plugins_observer:start_link(PluginsDirectory,
+                                                     PluginsPaths,
+                                                     NewPluginsCheckingTimeout
+                                                    );
                 _ ->
                     % don't use new plugins
                     pass
             end,
             % return plugins
-            {noreply, State#state{plugins = lists:append(Plugins, OtpPlugins)}};
+            {noreply, State#state{plugins = Plugins}};
         false ->
             % some log
             lager:error("Unable to load plugins. Invalid directory ~s", [PluginsDirectory]),
@@ -339,16 +343,16 @@ load_plugin(Plugin) ->
             % scala plugin
             lager:info("Loading plugin(Scala) ~s", [Name]),
             {plugin, "scala", Name, Plugin};
+        [] ->
+            % Erlang/OTP plugin
+            [AppFile] = filelib:wildcard(Plugin ++ "/ebin/*.app"),
+            AppName = list_to_atom(filename:basename(AppFile, ".app")),
+            [_, Name] = string:tokens(Plugin, "/"),
+            lager:info("Loading plugin(Erlang) ~s", [Name]),
+            application:start(AppName),
+            {plugin, "erlang", Name, AppName};
         _ ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
     end.
-
-load_otp_plugin(Plugin) ->
-    [AppFile] = filelib:wildcard(Plugin ++ "/ebin/*.app"),
-    AppName = list_to_atom(filename:basename(AppFile, ".app")),
-    [_, Name] = string:tokens(Plugin, "/"),
-    lager:info("Loading plugin(Erlang) ~s", [Name]),
-    application:start(AppName),
-    {plugin, "erlang", Name, AppName}.

@@ -49,20 +49,22 @@ handle_cast(_Msg, State) ->
 %% @doc check new plugins
 handle_info({check_new_plugins, PluginsDirectory, CurrentPlugins}, State) ->
     % Get all plugins
-    AllPlugins = ybot_utils:get_all_files(PluginsDirectory),
-    lager:warning("debug: plugins=~p", [AllPlugins]),
+    Plugins = lists:append(
+                ybot_utils:get_all_files(PluginsDirectory),
+                ybot_utils:get_all_directories(PluginsDirectory)
+               ),
     % Try to get difference between plugins
-    case AllPlugins -- CurrentPlugins of
+    case Plugins -- CurrentPlugins of
         % no new plugins
         [] ->
-            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, AllPlugins});
-        NewPlugs ->
+            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, Plugins});
+        NewPluginsPaths ->
             % Make new plugins
-            NewPlugins = lists:flatten(lists:map(fun ybot_manager:load_plugin/1, NewPlugs)),
+            NewPlugins = lists:flatten(lists:map(fun ybot_manager:load_plugin/1, NewPluginsPaths)),
             % update manager's plugins list
             gen_server:cast(ybot_manager, {update_plugins, NewPlugins}),
             % Start new timer
-            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, AllPlugins})
+            erlang:send_after(State#state.timeout, self(), {check_new_plugins, State#state.plugins_directory, Plugins})
     end,
     % return
     {noreply, State#state{current_plugins = CurrentPlugins}};
