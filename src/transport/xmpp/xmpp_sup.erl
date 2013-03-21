@@ -8,7 +8,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_xmpp_client/8]).
+-export([start_link/0, start_xmpp_client/9]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -27,9 +27,10 @@ start_link() ->
                         Port :: integer(),
                         Room :: binary(), 
                         Resource :: binary(),
-                        UseSsl :: boolean()) 
+                        UseSsl :: boolean(),
+                        ReconnectTimeout :: integer()) 
                        -> {ok, Pid :: pid()} | {error, Reason :: term()}.
-start_xmpp_client(CallbackModule, Login, Password, Server, Port, Room, Resource, UseSsl) ->
+start_xmpp_client(CallbackModule, Login, Password, Server, Port, Room, Resource, UseSsl, ReconnectTimeout ) ->
     % Match socket mode
     SocketMode = case UseSsl of
                     true -> 
@@ -39,7 +40,7 @@ start_xmpp_client(CallbackModule, Login, Password, Server, Port, Room, Resource,
                  end,
     % Xmpp child
     Child = {xmpp_client, 
-                {xmpp_client, start_link, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode]},
+                {xmpp_client, start_link, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout]},
                 temporary, 2000, worker, []
             },
 

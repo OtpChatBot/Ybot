@@ -7,6 +7,8 @@ don't like JavaScript and I don't know coffescript. Ybot is completely
 written in Erlang/OTP and you can write plugins in Python, Perl, Ruby,
 or even in shell.
 
+![Ybot](http://s7.postimage.org/5hiyut7ff/logo79187921.png "Ybot logo")
+
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
@@ -16,21 +18,27 @@ Features
 
   * Completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
-  * Supports plugins in different technology;
+  * You don't need to know Erlang to write a plugin;
+  * Supports plugins in different technology:
     * Python plugins;
     * Ruby plugins;
     * Shell plugins;
     * Perl plugins;
+    * Erlang/OTP plugins;
     * Elixir plugins;
-  * You don't need to know Erlang to write a plugin;
+    * Scala plugins;
   * Command history with tunable limit;
-  * Dynamic loading of plugins;
-  * Very easily extensible;
+  * Dynamic search and loading of plugins;
+  * Very easily extensible, just put plugin to plugin directory;
   * Supports IRC and IRC via SSL;
   * Supports XMPP and XMPP via ssl;
   * Supports Campfire
   * HTTP interface;
   * GTalk supporting;
+  * HipChat supporting;
+  * Flowdock supporting;
+  * Skype supporting;
+  * Talkerapp supporting;
 
 Building and Running
 =====================
@@ -58,7 +66,6 @@ Then edit the `ybot.config` configuration file and you can run your Ybot copy:
 Run on heroku
 ===============
 
-
   * Get you ybot and configure it.
   * Download heroku
 
@@ -76,6 +83,8 @@ Dependencies
   * [reloader](https://github.com/bjnortier/reloader) - Mochiweb's reloader.
   * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
   * [mochijson2](https://github.com/bjnortier/mochijson2) - Erlang json encoder/decoder.
+  * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
+  * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
 
 Transport
 ==========
@@ -90,6 +99,10 @@ supports:
   * Campfire.
   * HTTP.
   * Gtalk.
+  * HipChat.
+  * Flowdock.
+  * Skype.
+  * Talkerapp.
 
 Plugins
 ==========
@@ -108,7 +121,7 @@ Here are a few simple rules for structuring Ybot plugins.
 
   * After addressing the bot you specify the command to be executed, for example `math` or `ping`. Every command consists from one word.
 
-  * After the command you can specify arguments. Ybot sends all arguments in '' and it turns them into one argument. 
+  * After the command you can specify arguments. Ybot sends all arguments in '' and it turns them into one argument.
 
   * One command = One plugin. Plugins must live in the `plugins` directory.
 
@@ -117,6 +130,7 @@ Here are a few simple rules for structuring Ybot plugins.
     * .py
     * .rb
     * .shell
+  * Erlang/OTP plugin - see example memory plugin
 
 Containing Python, Ruby or shell code.
 
@@ -140,6 +154,7 @@ Current plugins
   * chuck - Chuck Norris quotes :)
   * decide - Ybot try to help make decisions for you.
   * github_status - Github status state.
+  * echo - simple echo plugin.
   * help - Ybot help.
   * ping - Ybot simple ping/pong.
   * math - Ybot calculate math expressions.
@@ -154,8 +169,40 @@ Current plugins
   * ruby - Ybot eval simple ruby expression
   * ip - Ybot external ip
   * hacker_help - Ybot search in stackoverflow.
+  * translate - use google translate from Ybot.
+  * url - url encode/decode plugin.
 
-These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib)
+These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib) or see at [ybot plugins catalog](http://0xax.github.com/ybot-plugins.html).
+
+Ybot brain REST API
+============
+Ybot brain allows to persist data using REST API. It is designed to support multiple storage engines, but the default is based on Mnesia.
+
+REST API endpoint: `http://localhost:8090/memories` (port and host is configurable). Currently supported Content Type is `application/json`.
+
+An example JSON memory object:
+```
+{
+ "id":"88DAF3FFB0419E0A8368036200000553620002B99862000429C1",
+ "plugin":"foo",
+ "key":"key1",
+ "value":"foo1",
+ "created":"2013-03-13 23:45:00"
+ }
+```
+
+Operations using brain API:
+
+Operation       | HTTP Verb | Url                     | Description
+----------------|-----------|-------------------------|-------------------------------------------------
+Insert new      | POST      | /memories               | Pass memory object without id and created field
+Update existing | PUT       | /memories/id            | Pass memory object without id and created field
+Remove by id    | DELETE    | /memories/id            |
+Get all         | GET       | /memories               |
+Get by id       | GET       | /memories/id            |
+Get by plugin   | GET       | /memories/?plugin=foo   |
+Get by key      | GET       | /memories/?key=bar      |
+Get by value    | GET       | /memories/?value=foobar |
 
 Contribute
 ============
@@ -173,6 +220,6 @@ pull and merge Ybot master to avoid conflicts.
 Author
 ========
 
-Create of Ybot [@0xAX](https://twitter.com/0xAX). 
+Creator of Ybot [@0xAX](https://twitter.com/0xAX).
 
 Thank you all who participating in Ybot developing. Names and contact information of those who helped Yubotu, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)

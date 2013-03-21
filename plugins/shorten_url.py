@@ -12,6 +12,10 @@ import urllib
 import urllib2
 import simplejson as json
 
+if len(sys.argv) != 2:
+	print 'Wrong arguments\nUsage: Ybot short_url https://twitter.com/'
+	exit(0)
+
 # Get url from command args
 url = sys.argv[1]
 # Google api url

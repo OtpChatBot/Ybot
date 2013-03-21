@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/4, stop/0]).
+-export([start_link/4, stop/0, handle_command/4]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -41,13 +41,18 @@ handle_call(_Request, _From, State) ->
 
 %% @doc Try to execute command
 handle_cast({execute, TransportPid, From, Command, Args}, State) ->
-    % Log
-    lager:info("Command: ~s, ~p", [Command, Args]),
-    % Handle received command
-    handle_command(From, Command, Args, TransportPid),
-    % stop actor
-    stop(),
-    % return
+    try
+        % Log
+        lager:info("Command: ~s, ~p", [Command, Args]),
+        % Handle received command
+        handle_command(From, Command, Args, TransportPid),
+        % stop actor
+        stop()
+    catch
+        _:Reason ->
+            lager:error("Unable to execute plugin! Error=~p, Stack=~p",
+                        [Reason, erlang:get_stacktrace()])
+    end,
     {noreply, State};
 
 handle_cast(stop, State) ->
@@ -77,7 +82,14 @@ handle_command(From, Command, Args, TransportPid) ->
     case TryToFindPlugin of
         wrong_plugin ->
             % plugin not found
-            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :(", From});
+            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :("});
+        {plugin, "erlang", PluginName, AppModule} ->
+            % execute plugin
+            Result = AppModule:execute(Args),
+            % Save command to history
+            ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ PluginName ++ " " ++ Args ++ "\n"}),
+            % send result to chat
+            gen_server:cast(TransportPid, {send_message, From, Result});
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),

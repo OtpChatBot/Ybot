@@ -11,6 +11,10 @@ import sys
 import urllib
 import urllib2
 
+if len(sys.argv) != 2:
+	print 'Wrong arguments\nUsage: Ybot checkk-site http://example.com'
+	exit(0)
+
 # Get url for checking
 url = sys.argv[1]
 # Send request
@@ -21,6 +25,6 @@ check_site = 'It\'s just you' in response
 # Return
 if check_site == True:
 	print "Site is up"
-else
+else:
 	print "Site is down"
 

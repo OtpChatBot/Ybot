@@ -1,6 +1,50 @@
 # Ybot news & changelog
 
-## Ybot-0.3 --> In development
+## Ybot-0.3.3 --> in development
+
+  * #47. HipChat config moved to separte config from XMPP transport.
+  * XMPP 'is_hipchat' option was removed.
+  * XMPP 'hipchat_nick' option was removed.
+  
+## Ybot-0.3.2 --> released
+
+  * Fixed #42 issue. Unable to connect to IRC bug.
+  * Fixed #44 issue. Fixed internal Ybot commands.
+  * #42. If bot nickname already in use, generate new name and try to reconnect.
+  * #45 fixed. Timeout error from IRC transport.
+  * #43 fixed. Unable to compile using rebar.
+  * Help plugin improved.
+  * #44 Internal commands tested and fixed.
+  * To all plugins added checks arguments.
+  * New internal command 'announce' added.
+  * New api ybot:act/1 added
+  * New api ybot:plugins/0 added
+  * All plugins argumets checking added.
+  * Fixed campfire image/video posting.
+  * Scala plugins support added.
+  * Url decode/encode new plugin added.
+  * math.rb plugin result output fixed.
+  * New core plugin translate.rb added. tranlate text with google translate plugin added.
+
+## Ybot-0.3.1 --> released
+
+  * Added reconnect timeout option and reconnect ability to irc client --> #33.
+  * hacker_help plugin fixed --> #35
+  * Added reconnect timeout option to xmpp and campfire.
+  * Added supporting of HipChat.
+  * HTTP transport imrpoved. JSON request support added.
+  * HTTP transport bot-nick parameter added to config.
+  * ybot_manager get_all_transports_pid api added.
+  * Use cowboy web server instead inets httpd for http serving.
+  * Added http `PUT` request support. Resend request body from http to all runned transports.
+  * echo plugin added.
+  * Flowdock support added.
+  * Skype support added.
+  * Removed http PUT request supporting. Now only POST.
+  * New transport - Talkerapp (http://talkerapp.com/rooms).
+  * Message parsers moved to ybot_parser module.
+
+## Ybot-0.3 --> released
 
   * New wat plugin
   * Irc ssl supporting --> #16
@@ -26,6 +70,8 @@
   * New option xmpp port added. 
   * New option xmpp use_ssl added.
   * Transport options validating added.
+  * Procfile added for Heroku deploying support.
+  * Added experemental message parser to irc handler --> #23
 
 ## Ybot-0.2 --> released
 
