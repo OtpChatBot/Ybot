@@ -28,16 +28,18 @@ execute(Input) ->
     case re:split(Input, " ", [{return, list}]) of
         [] ->
             "No input";
-        [[], Cmd] ->
-            handle_command(list_to_atom(Cmd), [], []);
+        [[], "help"] ->
+            handle_command(help, [], []);
+        [[], "list"] ->
+            handle_command(list, [], []);
+        [[], Key] ->
+            handle_command(list, Key, []);
         [[], Cmd, Key] ->
             handle_command(list_to_atom(Cmd), Key, []);
         [[], Cmd, Key | Value] ->
-            Value1 = string:join(Value, " "),
-            handle_command(list_to_atom(Cmd), Key, Value1);
+            handle_command(list_to_atom(Cmd), Key, string:join(Value, " "));
         [[], Key | Value] ->
-            Value1 = string:join(Value, " "),
-            handle_command(add, Key, Value1)
+            handle_command(add, Key, string:join(Value, " "))
     end.
 
 %%%=============================================================================
@@ -61,13 +63,23 @@ handle_command(add, Key, Value) ->
     ybot_brain:post(<<"memory">>, to_bin(Key), to_bin(Value)),
     "New memory added.";
 handle_command(list, [], []) ->
-    Memories = ybot_brain:get_by_plugin(<<"memory">>),
-    lists:flatten(
-      lists:map(fun({memory, _Id, _Plugin, Key, Value, _Created}) ->
-                      to_list(Key) ++ " = " ++ to_list(Value) ++ "\n"
-              end, Memories)
-     ).
+    memories_to_list(
+        ybot_brain:get_by_plugin(<<"memory">>)
+    );
+handle_command(list, Key, []) ->
+    memories_to_list(
+        ybot_brain:get_by_key(to_bin(Key))
+    ).
 
+memories_to_list(Memories) ->
+     lists:flatten(
+      lists:map(fun memory_to_list/1, Memories)
+     ).
+memory_to_list({memory, _Id, _Plugin, Key, Value, _Created}) ->
+     to_list(Key) ++ " = " ++ to_list(Value) ++ "\n".
+
+to_list(List) when is_list(List) ->
+    List;
 to_list(Bin) ->
     binary_to_list(Bin).
 
