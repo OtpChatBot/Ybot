@@ -23,7 +23,9 @@
        % Example : [{irc, ClientPid, HandlerPid, Nick, Channel, Host}]
        transports = [],
        % Ybot active plugins list
-       plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}]
+       plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}],
+       % Runned transports pid list
+       runned_transports = [] :: [pid()] 
     }).
 
 start_link(PluginsDirectory, Transports) ->
@@ -50,8 +52,14 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             {reply, Plugin, State}
     end;
 
+%% @doc get all runned transports pid
+handle_call(get_runnned_transports, _From, State) ->
+    % Return all runned transports
+    {reply, State#state.runned_transports, State};
+
 %% @doc Return all plugins
 handle_call(get_plugins, _From, State) ->
+    % Return all plugins
     {reply, State#state.plugins, State};
 
 handle_call(_Request, _From, State) ->
@@ -85,7 +93,10 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
     case filelib:is_dir(PluginsDirectory) of
         true ->
             % Get all plugins
-            PluginsPaths = ybot_utils:get_all_files(PluginsDirectory),
+            PluginsPaths = lists:append(
+                             ybot_utils:get_all_files(PluginsDirectory),
+                             ybot_utils:get_all_directories(PluginsDirectory)
+                            ),
             % Parse plugins and load to state
             Plugins = lists:flatten(lists:map(fun load_plugin/1, PluginsPaths)),
             % Get checking_new_plugins parameter from config
@@ -96,7 +107,10 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                     % Get new plugins checking timeout
                     {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
                     % Start new plugins observer
-                    ybot_plugins_observer:start_link(PluginsDirectory, PluginsPaths, NewPluginsCheckingTimeout);
+                    ybot_plugins_observer:start_link(PluginsDirectory,
+                                                     PluginsPaths,
+                                                     NewPluginsCheckingTimeout
+                                                    );
                 _ ->
                     % don't use new plugins
                     pass
@@ -114,7 +128,17 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
 handle_cast({start_transports, Transports}, State) ->
     % Review supported mode of transportation
     TransportList = lists:flatten(lists:map(fun load_transport/1, Transports)),
-    {noreply, State#state{transports = TransportList}};
+    % Get runned transports pid list
+    RunnedTransport = lists:flatten(lists:map(fun(Transport) -> 
+                                                  if erlang:element(1, Transport) == http ->
+                                                      % we no need in http transport
+                                                      [];
+                                                  true ->
+                                                      erlang:element(2, Transport) 
+                                                  end 
+                                              end, TransportList)),
+    % Init transports
+    {noreply, State#state{transports = TransportList, runned_transports = RunnedTransport}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -130,7 +154,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% Internal functions
 
-%% @doc Start irc clients
+%% @doc Start irc client
 load_transport({irc, Nick, Channel, Host, Options}) ->
     % Validate transport options
     case ybot_validators:validate_transport_opts(Options) of
@@ -139,13 +163,18 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
             {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Get reconnect timeout
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start irc handler
             {ok, HandlerPid} = irc_handler:start_link(),
             % Run new irc client
-            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl),
+            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl, ReconnectTimeout),
+            % Start parser process
+            {ok, ParserPid} = ybot_parser:start_link(),
+            % Log
             lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
             % send client pid to handler
-            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, Nick}),
+            ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, ParserPid, Nick}),
             % return correct transport
             {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
         % wrong transport
@@ -153,8 +182,10 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             []
     end;
 
-%% @doc start xmpp clients
+%% @doc start xmpp client
 load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
     % Validate transport options
     case ybot_validators:validate_transport_opts(Options) of
         ok ->
@@ -162,14 +193,18 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             {port, Port} = lists:keyfind(port, 1, Options),
             % SSL?
             {use_ssl, UseSsl} = lists:keyfind(use_ssl, 1, Options),
+            % Get reconnect timeout
+            {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
-             % Run new xmpp client
-            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, Room, Resource, UseSsl),
+            % Make room
+            XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
             % Log
             lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+            % Start new xmpp transport
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
             % Send client pid to handler
-            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, Login}),
+            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, Login}),
             % return correct transport
             {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
         % wrong options
@@ -177,27 +212,106 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             []
     end;
 
-%% @doc start campfire clients
-load_transport({campfire, Login, Token, RoomId, CampfireSubDomain}) ->
+%% @doc start hipchat client
+load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick, Options}) ->
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
+    % HipChat port
+    Port = 5223,
+    % Use ssl for hipchat
+    UseSsl = true,
+    % Get reconnect timeout
+    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
+    % Start xmpp handler
+    {ok, HandlerPid} = xmpp_handler:start_link(),
+    % Make room
+    XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
+    % Run new xmpp client
+    {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+    % Log
+    lager:info("Starting HipChat transport: ~s, ~s, ~s", [Host, Room, Resource]),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
+    % return correct transport
+    {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+
+%% @doc start campfire client
+load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
+    % Get reconnect timeout
+    {reconnect_timeout, ReconnectTimeout} = lists:keyfind(reconnect_timeout, 1, Options),
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
-    {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain),
+    {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain, ReconnectTimeout),
     % Log
     lager:info("Starting Campfire transport: ~p, ~s", [RoomId, CampfireSubDomain]),
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
     % Send client pid to handler
-    ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, Login}),
+    ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, ParserPid, Login}),
     % return correct transport
     {campfire, ClientPid, HandlerPid};
 
 %% @doc Ybot http interface
-load_transport({http, Host, Port}) ->
+load_transport({http, Host, Port, BotNick}) ->
     % Start http server
     {ok, HttpPid} = http_sup:start_http(Host, Port),
     % Log
     lager:info("Starting http transport ~p:~p", [Host, Port]),
+    % Send bot nick to http server
+    ok = gen_server:cast(HttpPid, {bot_nick, BotNick}),
     % return correct transport
-    {http, HttpPid}.
+    {http, HttpPid};
+
+%% @doc start flowdock client
+load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
+    % Start flowdock handler
+    {ok, HandlerPid} = flowdock_handler:start_link(),
+    % Start flowdock client
+    {ok, ClientPid} = flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow, Login, Password),
+    % Log
+    lager:info("Starting flowdock transport ~p:~p", [FlowdockOrg, Flow]),
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, ParserPid, NickInChat}),
+    % return correct transport
+    {flowdock, ClientPid, HandlerPid};
+
+%% @doc Use skype or not
+load_transport({skype, UseSkype, Host, Port}) ->
+    % Check use skype or not
+    case UseSkype of
+        true ->
+            % Get skype script from priv dir
+            Skype = ybot_utils:get_priv_dir() ++ "skype.py",
+            % Skype command
+            Command = "python " ++ Skype ++ " " ++ binary_to_list(Host) ++ " " ++ integer_to_list(Port), 
+            % Start skype
+            skype:start_link(Command),
+            % Log
+            lager:info("Starting skype ..."),
+            % return correct transport
+            {skype, UseSkype, Host, Port};
+        _ ->
+            % do nothing
+            []
+    end;
+
+%% @doc start talkerapp client
+load_transport({talkerapp, Nick, Room, Token}) ->
+    % Start handler
+    {ok, HandlerPid} = talkerapp_handler:start_link(),
+    % Start talker app client
+    {ok, ClientPid} = talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token),
+    % Start parser process
+    {ok, ParserPid} = ybot_parser:start_link(),
+    % Send client pid to handler
+    ok = gen_server:cast(HandlerPid, {talkerapp_client, ClientPid, ParserPid, Nick}),
+    % Log
+    lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
+    % return correct transport
+    {talkerapp, ClientPid, HandlerPid}.
 
 load_plugin(Plugin) ->
     % Get plugin extension
@@ -220,11 +334,23 @@ load_plugin(Plugin) ->
         ".pl" ->
             % perl plugin
             lager:info("Loading plugin(Perl) ~s", [Name]),
-            {plugins, "perl", Name, Plugin};
+            {plugin, "perl", Name, Plugin};
         ".ex" ->
             % elixir plugin
             lager:info("Loading plugin(Elixir) ~s", [Name]),
-            {plugins, "elixir", Name, Plugin};
+            {plugin, "elixir", Name, Plugin};
+        ".scala" ->
+            % scala plugin
+            lager:info("Loading plugin(Scala) ~s", [Name]),
+            {plugin, "scala", Name, Plugin};
+        [] ->
+            % Erlang/OTP plugin
+            [AppFile] = filelib:wildcard(Plugin ++ "/ebin/*.app"),
+            AppName = list_to_atom(filename:basename(AppFile, ".app")),
+            [_, Name] = string:tokens(Plugin, "/"),
+            lager:info("Loading plugin(Erlang) ~s", [Name]),
+            application:start(AppName),
+            {plugin, "erlang", Name, AppName};
         _ ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),

@@ -7,7 +7,7 @@
 
 -behaviour(gen_server).
  
--export([start_link/4]).
+-export([start_link/5]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -27,17 +27,19 @@
         % campfire sub_domain
         domain = <<>>,
         % request id
-        req_id = null
+        req_id = null,
+        % reconnect timeout
+        reconnect_timeout = 0 :: integer()
     }).
 
-start_link(CallbackModule, Room, Token, Domain) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Room, Token, Domain], []).
+start_link(CallbackModule, Room, Token, Domain, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Room, Token, Domain, ReconnectTimeout], []).
  
-init([CallbackModule, Room, Token, Domain]) ->
+init([CallbackModule, Room, Token, Domain, ReconnectTimeout]) ->
     % Start http stream
     gen_server:cast(self(), stream),
     % init state
-    {ok, #state{callback = CallbackModule, room = Room, token = Token, domain = Domain}}.
+    {ok, #state{callback = CallbackModule, room = Room, token = Token, domain = Domain, reconnect_timeout = ReconnectTimeout}}.
  
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -46,7 +48,7 @@ handle_cast({send_message, _From, Message}, State) ->
     % Make url
     Url = "https://" ++ binary_to_list(State#state.domain) ++ ".campfirenow.com/room/" ++ integer_to_list(State#state.room) ++ "/speak.xml",
     % Make message
-    Mes = "<message><body>" ++ Message ++ "</body></message>",
+    Mes = "<message><type>TextMessage</type><body>" ++ Message ++ "</body></message>",
     % Send message
     ibrowse:send_req(Url, [{"Content-Type", "application/xml"}, {basic_auth, {binary_to_list(State#state.token), "x"}}], post, Mes),
     % return
@@ -109,7 +111,7 @@ handle_info({ibrowse_async_response_end, _ReqId}, State) ->
 
 %% @doc connection timeout
 handle_info({error, {conn_failed, {error, _}}}, State) ->
-    {noreply, State};
+    try_reconnect(State);
 
 handle_info(_Info, State) ->
     {noreply, State}.
@@ -142,3 +144,18 @@ join_room(Domain, Room, Token) ->
     % return
     ok.
    
+%% @doc try reconnect
+-spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
+try_reconnect(#state{reconnect_timeout = Timeout} = State) ->
+    case Timeout > 0 of
+        true ->
+            % no need in reconnect
+            {normal, stop, State};
+        false ->
+            % sleep
+            timer:sleep(Timeout),
+            % Try reconnect
+            gen_server:cast(self(), stream),
+            % return
+            {noreply, State}
+    end.

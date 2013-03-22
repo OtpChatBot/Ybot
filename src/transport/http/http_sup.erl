@@ -31,6 +31,11 @@ start_http(Host, Port) ->
     supervisor:start_child(?MODULE, [Host, Port]).
 
 init([]) ->
+    % start ranch application
+    application:start(ranch),
+    % start cowboy application
+    application:start(cowboy),
+
     % http server child process
     ChildSpec = [
 

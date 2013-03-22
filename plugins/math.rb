@@ -11,6 +11,11 @@ require 'cgi'
 # New math expression
 expr = ''
 
+if ARGV.length != 1
+	puts 'Wrong argument\nUsage: Ybot math 1 + 1'
+	exit
+end
+
 # Collect math expr in one string
 ARGV.each do |arg|
 	expr += arg
@@ -25,5 +30,5 @@ if result == " \"\""
 	puts 'Wrong expression'
 else
 	# print result
-	puts 'Answer:' + result
+	puts 'Answer:' + result.gsub(/\"+/, "")
 end

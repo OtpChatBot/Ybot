@@ -61,7 +61,7 @@ bind(Resource) ->
 -spec create_session() -> string().
 create_session() ->
     % xml structure data
-    XmlData = [{'iq', [{'type', 'set'}, {'id', '10000'}], 
+    XmlData = [{'iq', [{'type', 'set'}, {'id', '9746'}], 
                 [{'session', 
                     [{'xmlns', 'urn:ietf:params:xml:ns:xmpp-session'}], []
                 }]

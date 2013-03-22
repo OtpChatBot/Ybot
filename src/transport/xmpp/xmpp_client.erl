@@ -1,7 +1,7 @@
 %%%----------------------------------------------------------------------
 %%% File    : transport/xmpp/xmpp_client.erl
 %%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Xmpp client
+%%% Purpose : Xmpp client with ssl support
 %%%----------------------------------------------------------------------
 -module(xmpp_client).
 
@@ -10,7 +10,7 @@
 -include("xmpp.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
--export([start_link/8]).
+-export([start_link/9]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -41,13 +41,15 @@
         % Xmpp server port
         port = 5222,
         % socket mode
-        socket_mod = null
+        socket_mod = null,
+        % reconnect timeout
+        reconnect_timeout = 0
     }).
 
-start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode], []).
+start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout], []).
 
-init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode]) ->
+init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout ]) ->
     % try to connect
     gen_server:cast(self(), {connect, Server, Port}),
     % init process internal state
@@ -55,10 +57,11 @@ init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode]
                 login = Login,
                 password = Password,
                 host = Server,
-                room = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
+                room = Room,
                 resource = Resource,
                 port = Port,
-                socket_mod = SocketMode
+                socket_mod = SocketMode,
+                reconnect_timeout = ReconnectTimeout
                }
     }.
 
@@ -90,7 +93,8 @@ handle_cast({connect, Host, Port}, State) ->
         {error, Reason} ->
             % Some log
             lager:error("Unable to connect to xmpp server with reason ~p", [Reason]),
-            {noreply, State}
+            % try to reconnect
+            try_reconnect(State)
     end;
 
 %% @doc send message to jabber
@@ -114,41 +118,45 @@ handle_cast({send_message, From, Message}, State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
+handle_info({ssl_closed, Reason}, State) ->
+    % Some log
+    lager:info("ssl_closed with reason: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
+
+handle_info({ssl_error, _Socket, Reason}, State) ->
+    % Some log
+    lager:error("tcp_error: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
+
+handle_info({tcp_closed, Reason}, State) ->
+    % Some log
+    lager:info("tcp_closed with reason: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
+
+handle_info({tcp_error, _Socket, Reason}, State) ->
+    % Some log
+    lager:error("tcp_error: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
+    
 %% @doc Incoming message
 handle_info({_, _Socket, Data}, State) ->
     try
-        % Parse incoming xml
+        % Try to parse incoming xml
         {Xml, _} = xmerl_scan:string(Data),
         % Check auth state
         case State#state.is_auth of
             % Authorized
             true ->
                 % try to send presence
-                send_presence(Xml, State#state.socket, State#state.socket_mod),
-                % Catch incoming jabber message
-                case xmerl_xpath:string("/message", Xml) of
-                    [] ->
-                        % Not find
-                        {noreply, State};
-                    _ ->
-                        % Get message body
-                        [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
-                        % Try to get message type
-                        case xmerl_xpath:string("/message/@type", Xml) of
-                            % this is group-chat
-                            [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
-                                % Send public message to callback
-                                State#state.callback ! {incoming_message, "", IncomingMessage};
-                            % This is private message
-                            [{_,_,_,_, _, _, _, _,"chat", _}] ->
-                                % Get From parameter
-                                [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
-                                % Send private message to callback
-                                State#state.callback ! {incoming_message, From, IncomingMessage}
-                        end,
-                        % return
-                        {noreply, State}
-                end;
+                ok = send_presence(Xml, State#state.socket, State#state.socket_mod),
+                % Try to catch incoming xmpp message and send it to hander
+                ok = is_xmpp_message(Xml, State#state.callback),
+                % return
+                {noreply, State};
             % Not authorized
             false ->
                 % Got success authorization
@@ -165,8 +173,10 @@ handle_info({_, _Socket, Data}, State) ->
                         (State#state.socket_mod):send(State#state.socket, xmpp_xml:create_session()),
                         % send presence
                         (State#state.socket_mod):send(State#state.socket, xmpp_xml:presence()),
+                        % Little timer
+                        timer:sleep(1000),
                         % Join to muc
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(binary_to_list(State#state.room))),
+                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(State#state.room)),
                         % set is_auth = true and return
                         {noreply, State#state{is_auth = true}}
                 end
@@ -205,5 +215,56 @@ send_presence(Xml, Socket, M) ->
         % do nothing
         _ ->
             pass
+    end,
+    % return
+    ok.
+
+%% @doc try reconnect
+-spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
+try_reconnect(#state{reconnect_timeout = Timeout, host = Host, port = Port} = State) ->
+    case Timeout > 0 of
+        true ->
+            % no need in reconnect
+            {normal, stop, State};
+        false ->
+            % sleep
+            timer:sleep(Timeout),
+            % Try reconnect
+            gen_server:cast(self(), {connect, Host, Port}),
+            % return
+            {noreply, State}
     end.
-    
+
+%% @doc Check incomming message type and send it to handler
+-spec send_message_to_handler(Xml :: #xmlDocument{}, Callback :: pid(), IncomingMessage :: binary()) -> ok.
+send_message_to_handler(Xml, Callback, IncomingMessage) ->
+    % Try to get message type
+    case xmerl_xpath:string("/message/@type", Xml) of
+        % this is group-chat
+        [{_,_,_,_, _, _, _, _,"groupchat", _}] ->
+            % Send public message to callback
+            Callback ! {incoming_message, "", IncomingMessage};
+            % This is private message
+        [{_,_,_,_, _, _, _, _,"chat", _}] ->
+            % Get From parameter
+            [{_,_,_,_, _, _, _, _, From, _}] = xmerl_xpath:string("/message/@from", Xml),
+            % Send private message to callback
+            Callback ! {incoming_message, From, IncomingMessage}
+    end,
+    % return
+    ok.
+
+%% @doc Check is it incoming message
+-spec is_xmpp_message(Xml :: #xmlDocument{}, Callback :: pid()) -> ok.
+is_xmpp_message(Xml, Callback) ->
+    case xmerl_xpath:string("/message", Xml) of
+        [] ->
+            % this is not xmpp message. do nothing
+            pass;
+        _ ->
+            % Get message body
+            [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
+            % Check message type and send it to handler
+            ok = send_message_to_handler(Xml, Callback, IncomingMessage)
+    end,
+    ok.

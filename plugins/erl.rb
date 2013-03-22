@@ -12,6 +12,11 @@ require 'json'
 # new erlang expression 
 expr = ''
 
+if ARGV.length != 1
+	puts 'Wrong argument\nUsage: Ybot erl 1 + 1.'
+	exit
+end
+
 # collect arguments in expression
 ARGV.each do |arg|
 	expr += arg
