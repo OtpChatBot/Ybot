@@ -22,8 +22,10 @@ start() ->
 stop() ->
     application:stop(ybot_plugin_memory).
 
+%% @doc execute plugin action
 execute([]) ->
     handle_command(list, [], []);
+
 execute(Input) ->
     case re:split(Input, " ", [{return, list}]) of
         [] ->
@@ -45,39 +47,54 @@ execute(Input) ->
 %%%=============================================================================
 %%% Internal functionality
 %%%=============================================================================
+
+%% @doc handle plugin command
 handle_command(help, [], []) ->
     "Usage: memory add key value\n"
         "       memory list\n"
         "       memory delete key\n";
+
 handle_command(delete, Key, []) ->
     case ybot_brain:get_by_key(to_bin(Key)) of
         [] ->
-            "Not found";
+            "Key is not found";
         [{memory, Id, _, _, _, _} | _Rest] ->
             ybot_brain:delete(Id),
             "Memory deleted."
     end;
+
 handle_command(add, _Key, []) ->
     "Not complete memory";
+
 handle_command(add, Key, Value) ->
     ybot_brain:post(<<"memory">>, to_bin(Key), to_bin(Value)),
     "New memory added.";
+
 handle_command(list, [], []) ->
-    memories_to_list(
-        ybot_brain:get_by_plugin(<<"memory">>)
-    );
+    case memories_to_list(ybot_brain:get_by_plugin(<<"memory">>)) of
+        [] ->
+            % memory empty
+            "My memory is empty.";
+        Mem ->
+            Mem
+    end;
+
 handle_command(list, Key, []) ->
-    memories_to_list(
-        ybot_brain:get_by_key(to_bin(Key))
-    ).
+    case memories_to_list(ybot_brain:get_by_key(to_bin(Key))) of
+        [] ->
+            % memory empty
+            "There is nothing about " ++ Key ++ " in memory";
+        Mem ->
+            Mem
+    end.
 
 memories_to_list(Memories) ->
-     lists:flatten(
-      lists:map(fun memory_to_list/1, Memories)
-     ).
+     lists:flatten(lists:map(fun memory_to_list/1, Memories)).
+
 memory_to_list({memory, _Id, _Plugin, Key, Value, _Created}) ->
      to_list(Key) ++ " = " ++ to_list(Value) ++ "\n".
 
+%% @doc utils functions
 to_list(List) when is_list(List) ->
     List;
 to_list(Bin) ->

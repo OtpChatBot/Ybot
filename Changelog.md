@@ -5,6 +5,12 @@
   * #47. HipChat config moved to separte config from XMPP transport.
   * XMPP 'is_hipchat' option was removed.
   * XMPP 'hipchat_nick' option was removed.
+  * #48. Mnesia backend storage added.
+  * Erlang/otp application as plugin support added.
+  * New core plugin - memory.
+  * New config option - brain_storage.
+  * New config option - brain_api_host.
+  * New config option - brain_api_port.
   
 ## Ybot-0.3.2 --> released
 

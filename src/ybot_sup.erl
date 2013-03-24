@@ -90,4 +90,4 @@ init([]) ->
     ],
 
     % init
-    {ok, { {one_for_one, 5, 10}, Childrens} }.
+    {ok, { {one_for_one, 1, 10}, Childrens} }.

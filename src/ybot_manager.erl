@@ -344,13 +344,17 @@ load_plugin(Plugin) ->
             lager:info("Loading plugin(Scala) ~s", [Name]),
             {plugin, "scala", Name, Plugin};
         [] ->
-            % Erlang/OTP plugin
-            [AppFile] = filelib:wildcard(Plugin ++ "/ebin/*.app"),
-            AppName = list_to_atom(filename:basename(AppFile, ".app")),
-            [_, Name] = string:tokens(Plugin, "/"),
-            lager:info("Loading plugin(Erlang) ~s", [Name]),
-            application:start(AppName),
-            {plugin, "erlang", Name, AppName};
+            % Check Erlang/OTP plugin
+            case filelib:wildcard(Plugin ++ "/ebin/*.app") of
+                [AppFile] ->
+                    AppName = list_to_atom(filename:basename(AppFile, ".app")),
+                    [_, Name] = string:tokens(Plugin, "/"),
+                    lager:info("Loading plugin(Erlang) ~s", [Name]),
+                    application:start(AppName),
+                    {plugin, "erlang", Name, AppName};
+                _ ->
+                    []
+            end;
         _ ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),
