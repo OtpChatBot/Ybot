@@ -40,8 +40,8 @@ stop() ->
 
 %% Internal functions
 deps() ->
-    [compiler, syntax_tools, lager, inets, public_key, ibrowse,
-     reloader].
+    [compiler, syntax_tools, lager, inets, crypto, public_key, ssl,
+     mnesia, ranch, cowboy, ibrowse, reloader].
  
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).

@@ -7,10 +7,18 @@
                   kernel,
                   stdlib,
                   syntax_tools,
+                  crypto,
+                  public_key,
+                  ssl,
+                  mnesia,
                   compiler,
                   lager,
+                  inets,
+                  ranch,
+                  cowboy,
+                  ibrowse,
                   reloader
                  ]},
-  {mod, { ybot_app, []}},
+  {mod, {ybot_app, []}},
   {env, [{config, "ybot.config"}]}
  ]}.

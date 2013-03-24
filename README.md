@@ -24,6 +24,7 @@ Features
     * Ruby plugins;
     * Shell plugins;
     * Perl plugins;
+    * Erlang/OTP plugins;
     * Elixir plugins;
     * Scala plugins;
   * Command history with tunable limit;
@@ -129,6 +130,7 @@ Here are a few simple rules for structuring Ybot plugins.
     * .py
     * .rb
     * .shell
+  * Erlang/OTP plugin - see example memory plugin
 
 Containing Python, Ruby or shell code.
 
@@ -171,6 +173,36 @@ Current plugins
   * url - url encode/decode plugin.
 
 These are Ybot's core plugins. You can find other plugins at [ybot-contrib](https://github.com/0xAX/ybot-contrib) or see at [ybot plugins catalog](http://0xax.github.com/ybot-plugins.html).
+
+Ybot brain REST API
+============
+Ybot brain allows to persist data using REST API. It is designed to support multiple storage engines, but the default is based on Mnesia.
+
+REST API endpoint: `http://localhost:8090/memories` (port and host is configurable). Currently supported Content Type is `application/json`.
+
+An example JSON memory object:
+```
+{
+ "id":"88DAF3FFB0419E0A8368036200000553620002B99862000429C1",
+ "plugin":"foo",
+ "key":"key1",
+ "value":"foo1",
+ "created":"2013-03-13 23:45:00"
+ }
+```
+
+Operations using brain API:
+
+Operation       | HTTP Verb | Url                     | Description
+----------------|-----------|-------------------------|-------------------------------------------------
+Insert new      | POST      | /memories               | Pass memory object without id and created field
+Update existing | PUT       | /memories/id            | Pass memory object without id and created field
+Remove by id    | DELETE    | /memories/id            |
+Get all         | GET       | /memories               |
+Get by id       | GET       | /memories/id            |
+Get by plugin   | GET       | /memories/?plugin=foo   |
+Get by key      | GET       | /memories/?key=bar      |
+Get by value    | GET       | /memories/?value=foobar |
 
 Contribute
 ============
