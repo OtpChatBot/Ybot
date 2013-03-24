@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/campfire/capfire_handler.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot campfire incoming message handler.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot campfire incoming message handler.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(campfire_handler).
 
 -behaviour(gen_server).

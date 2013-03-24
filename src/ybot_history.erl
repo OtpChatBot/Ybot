@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_history.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Provides Ybot history storage.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Provides Ybot history storage.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_history).
  
 -behaviour(gen_server).
@@ -24,10 +25,18 @@
     % command history list
     history = []
     }).
- 
+
+%%%=============================================================================
+%%% API
+%%%============================================================================= 
+
 start_link(HistoryLimit) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [HistoryLimit], []).
- 
+
+%%%=============================================================================
+%%% ybot_history callbacks
+%%%=============================================================================
+
 init([HistoryLimit]) ->
     % init state
     {ok, #state{limit = HistoryLimit}}.
@@ -64,5 +73,7 @@ terminate(_Reason, _State) ->
  
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
- 
-%% Internal functions
+
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================

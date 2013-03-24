@@ -1,9 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_plugins_observer.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot new plugins observer
-%%%----------------------------------------------------------------------
-
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot new plugins observer.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_plugins_observer).
  
 -behaviour(gen_server).
@@ -18,9 +18,10 @@
          terminate/2,
          code_change/3]).
 
-%% @doc api
+%% Public api
 -export([observe_new_plugins/2]).
- 
+
+%% Internal state 
 -record(state, {
     % current loaded plugins
     current_plugins = [],
@@ -30,12 +31,22 @@
     plugins_directory = ""
     }).
 
-%% @doc plugins directory observer
+%%=============================================================================
+%% API functions
+%%=============================================================================
+
+%%
+%% @doc Plugins directory observer
 %% PluginsDirectory - Directory with plugins
 %% Plugins - current plugins
 %% Timeout - observe timeout
+%%
 start_link(PluginsDirectory, Plugins, Timeout) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Plugins, Timeout], []).
+
+%%%============================================================================
+%%% Observer callbacks
+%%%============================================================================
  
 init([PluginsDirectory, Plugins, Timeout]) ->
     % start observer
@@ -81,9 +92,11 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
-%% Internal functions
+%%%============================================================================
+%%% Internal functions
+%%%============================================================================
 
-%% check observe new plugins after start or not.
+%% @doc check observe new plugins after start or not.
 observe_new_plugins(PluginsDirectory, PluginsPaths) ->
      % Try to get checking_new_plugins parameter from config
     UseNewPlugins = case application:get_env(ybot, checking_new_plugins) of

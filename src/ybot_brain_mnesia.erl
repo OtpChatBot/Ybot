@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_brain_mnesia.erl
-%%% Author  : tgrk <tajgur@gmail.com>
-%%% Purpose : Ybot Mnesia brain API storage
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author tgrk <tajgur@gmail.com>
+%%% @doc
+%%% Ybot Mnesia brain API storage.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_brain_mnesia).
 
 -include("ybot.hrl").

@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/talkerapp/talker_app_client.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Talkerapp transport client.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Talkerapp transport client.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(talker_app_client).
 
 -behaviour(gen_server).
@@ -16,9 +17,11 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
- 
+
+%% @doc Default port for Talkerapp. 
 -define(PORT, 8500).
 
+%% @doc Internal state.
 -record(state, {
         % callback module with handler
         callback :: pid(),
@@ -32,8 +35,16 @@
         room = <<>> :: binary()
     }).
 
+%%%=============================================================================
+%%% API
+%%%=============================================================================
+
 start_link(Callback, BotNick, Room, Token) ->
     gen_server:start_link(?MODULE, [Callback, BotNick, Room, Token], []).
+
+%%%=============================================================================
+%%% talker_app client callback
+%%%=============================================================================
  
 init([Callback, BotNick, Room, Token]) ->
     % start connection
@@ -129,4 +140,6 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
-%% Internal functions
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================

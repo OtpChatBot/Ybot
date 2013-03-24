@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/talkerapp/talkerapp_handler.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot talkerapp incoming message handler.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot talkerapp incoming message handler.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(talkerapp_handler).
 
 -behaviour(gen_server).
@@ -25,10 +26,18 @@
         % parser process pid
         parser_pid :: pid()
     }).
- 
+
+%%%=============================================================================
+%%% API
+%%%=============================================================================
+
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
- 
+
+%%%=============================================================================
+%%% talker_app handler callbacks
+%%%=============================================================================
+
 init([]) ->
     {ok, #state{}}.
  
@@ -58,4 +67,6 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
-%% Internal functions
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================

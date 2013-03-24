@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/campfire/capfire_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot campfire client root supervisor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot campfire client root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(campfire_sup).
 
 -behaviour(supervisor).

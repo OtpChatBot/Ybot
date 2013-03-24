@@ -1,8 +1,10 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot root supervisor
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
+
 -module(ybot_sup).
 
 -behaviour(supervisor).
@@ -16,14 +18,12 @@
 %% ===================================================================
 %% API functions
 %% ===================================================================
-
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 %% ===================================================================
 %% Supervisor callbacks
 %% ===================================================================
-
 init([]) ->
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
@@ -88,6 +88,6 @@ init([]) ->
             permanent, brutal_kill, worker, []
         }
     ],
-
+    
     % init
     {ok, { {one_for_one, 1, 60}, Childrens} }.

@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/http/http_handler.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot http requests handler.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot http requests handler.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(http_handler).
 
 -export([init/3]).

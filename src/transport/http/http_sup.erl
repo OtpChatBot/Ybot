@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/http/http_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot http root supervisor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot http root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(http_sup).
 
 -behaviour(supervisor).

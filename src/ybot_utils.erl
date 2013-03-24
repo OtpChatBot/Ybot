@@ -1,19 +1,19 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_utils.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot utils functions
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot utils functions.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_utils).
 
+%% Public API
 -export([get_all_files/1,
          get_all_directories/1,
          get_priv_dir/0,
          split_at_end/2,
-
          to_binary/1,
          to_atom/1,
          to_list/1,
-
          broadcast/1
         ]).
 

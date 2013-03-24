@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/flowdock/flowdock_client.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot flowdock chat client.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot flowdock chat client.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module (flowdock_client).
 
 -behaviour(gen_server).

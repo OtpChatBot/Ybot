@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_manager.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot main manager. Run transport, load plugins.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot main manager. Run transport, load plugins.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_manager).
 
 -behaviour(gen_server).
@@ -18,6 +19,7 @@
          code_change/3
         ]).
 
+%% Internal state
 -record(state, {
        % ybot transports list (irc, xmpp and etc..)
        % Example : [{irc, ClientPid, HandlerPid, Nick, Channel, Host}]
@@ -28,8 +30,16 @@
        runned_transports = [] :: [pid()] 
     }).
 
+%%%=============================================================================
+%%% API
+%%%=============================================================================
+
 start_link(PluginsDirectory, Transports) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Transports], []).
+
+%%%=============================================================================
+%%% ybot_manager callbacks
+%%%=============================================================================
 
 init([PluginsDirectory, Transports]) ->
     % init plugins
@@ -145,7 +155,9 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-%% Internal functions
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================
 
 %% @doc Start irc client
 load_transport({irc, Nick, Channel, Host, Options}) ->

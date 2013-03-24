@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_brain_server.erl
-%%% Author  : tgrk <tajgur@gmail.com>
-%%% Purpose : Ybot brain HTTP API server.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author tgrk <tajgur@gmail.com>
+%%% @doc
+%%% Ybot brain HTTP API server.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_brain_api_server).
 
 -behaviour(gen_server).

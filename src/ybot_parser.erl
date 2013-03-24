@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_parser.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot incoming message parser.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot incoming message parser.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_parser).
  
 -behaviour(gen_server).
@@ -16,11 +17,20 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
- 
+
+%% Internal state 
 -record(state, {}).
- 
+
+%%%=============================================================================
+%%% API
+%%%=============================================================================
+
 start_link() ->
     gen_server:start_link(?MODULE, [], []).
+
+%%%=============================================================================
+%%% ybot_parser callbacks
+%%%=============================================================================
  
 init([]) ->
     {ok, #state{}}.
@@ -111,7 +121,11 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
-%% Internal functions
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================
+
+%% @doc parser helper
 maybe_respond({FirstWord, YNick}, F) when is_list(YNick) and is_list(FirstWord) and is_function(F) ->
     if
         YNick == FirstWord ->

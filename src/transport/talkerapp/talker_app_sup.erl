@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/talkerapp/talker_app_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Talkerapp transport root supervisor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Talkerapp transport root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(talker_app_sup).
 
 -behaviour(supervisor).

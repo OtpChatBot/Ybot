@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/irc/irc_lib_client.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Irc client with ssl support.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Irc client with ssl support.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(irc_lib_client).
 
 -behaviour(gen_server).

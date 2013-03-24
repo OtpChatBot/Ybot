@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/flowdock/flowdock_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot flowdock root supervisor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot flowdock root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(flowdock_sup).
 
 -behaviour(supervisor).

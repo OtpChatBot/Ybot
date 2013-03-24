@@ -1,10 +1,12 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_validators.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot's validators functions, for options and etc...
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot transports options validator.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_validators).
 
+%% Public API
 -export([validate_transport_opts/1]).
 
 -type opt() :: integer() | binary() | string() | [].

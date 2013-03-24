@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/xmpp/xmpp_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Xmpp root supervisor
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Xmpp root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(xmpp_sup).
 
 -behaviour(supervisor).

@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Start Ybot.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot entry point.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot).
 
 -export([start/0, stop/0]).
@@ -81,7 +82,10 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
+%%=============================================================================
 %% Internal functions
+%%=============================================================================
+
 %% @doc Print all plugins
 plugins() ->
 	case whereis(ybot_manager) of
@@ -101,7 +105,7 @@ plugins() ->
 %% @doc Ybot execute command
 %% Example:
 %%     ybot:act("Ybot math 1 + 1").
-%%
+%% @end
 act(Command) ->
 	% Send command to ybot
 	gen_server:cast(ybot, {command, Command}),

@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : ybot_actor.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot main plugin executor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot main plugin executor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(ybot_actor).
 
 -behaviour(gen_server).
@@ -24,11 +25,19 @@
 
 -record(state, {}).
 
+%%=============================================================================
+%% API functions
+%%=============================================================================
+
 start_link(TransportPid, From, Command, Args) ->
     gen_server:start_link(?MODULE, [TransportPid, From, Command, Args], []).
 
 stop() ->
     gen_server:cast(?MODULE, stop).
+
+%%=============================================================================
+%% ybot_actor callbacks
+%%=============================================================================
 
 init([TransportPid, From, Command, Args]) ->
     % execute plugin
@@ -70,8 +79,9 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-
+%%=============================================================================
 %% Internal functions
+%%=============================================================================
 
 %% @doc Try to find plugin and execute it
 -spec handle_command(string(), cmd(), cmd_args(), transport()) -> ok | pass.

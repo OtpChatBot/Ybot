@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/irc/irc_lib_sup.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Irc transport root supervisor.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Irc transport root supervisor.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(irc_lib_sup).
 
 -behaviour(supervisor).

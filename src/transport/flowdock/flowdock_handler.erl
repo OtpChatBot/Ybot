@@ -1,8 +1,10 @@
-%%%----------------------------------------------------------------------
-%%% File    : ../transport/flowdock/flowdock_handler.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Ybot flowdock incoming message handler.
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Ybot flowdock incoming message handler.
+%%% @end
+%%%-----------------------------------------------------------------------------
+
 -module(flowdock_handler).
 
 -behaviour(gen_server).

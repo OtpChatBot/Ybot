@@ -1,8 +1,9 @@
-%%%----------------------------------------------------------------------
-%%% File    : transport/xmpp/xmpp_client.erl
-%%% Author  : 0xAX <anotherworldofworld@gmail.com>
-%%% Purpose : Xmpp client with ssl support
-%%%----------------------------------------------------------------------
+%%%-----------------------------------------------------------------------------
+%%% @author 0xAX <anotherworldofworld@gmail.com>
+%%% @doc
+%%% Xmpp client with ssl support.
+%%% @end
+%%%-----------------------------------------------------------------------------
 -module(xmpp_client).
 
 -behaviour(gen_server).
@@ -46,8 +47,16 @@
         reconnect_timeout = 0
     }).
 
+%%%=============================================================================
+%%% API
+%%%=============================================================================
+
 start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout) ->
     gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout], []).
+
+%%%=============================================================================
+%%% xmpp_client callbacks
+%%%=============================================================================
 
 init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout ]) ->
     % try to connect
@@ -194,7 +203,9 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-%% internal functions
+%%%=============================================================================
+%%% Internal functions
+%%%=============================================================================
 
 %% @doc send online status to single user chat
 send_presence(Xml, Socket, M) ->
