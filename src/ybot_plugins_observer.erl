@@ -17,6 +17,9 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
+
+%% @doc api
+-export([observe_new_plugins/2]).
  
 -record(state, {
     % current loaded plugins
@@ -79,3 +82,28 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
+
+%% check observe new plugins after start or not.
+observe_new_plugins(PluginsDirectory, PluginsPaths) ->
+     % Try to get checking_new_plugins parameter from config
+    UseNewPlugins = case application:get_env(ybot, checking_new_plugins) of
+                        {ok, true} ->
+                            true;
+                        {ok, false} ->
+                            false;
+                        _ ->
+                            false
+                    end,
+            
+    % Check checking_new_plugins
+    case UseNewPlugins of
+        true ->
+            % Get new plugins checking timeout
+            {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
+            % Start new plugins observer
+            ybot_plugins_observer:start_link(PluginsDirectory, PluginsPaths, NewPluginsCheckingTimeout);
+        _ ->
+            % don't use new plugins
+            pass
+    end.
+           

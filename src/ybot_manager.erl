@@ -68,7 +68,14 @@ handle_call(_Request, _From, State) ->
 %% @doc Init command history process
 handle_cast(init_history, State) ->
     % Get 
-    {ok, NeedCommandHistory} = application:get_env(ybot, commands_history),
+    NeedCommandHistory = case application:get_env(ybot, commands_history) of
+                            {ok, true} ->
+                                true;
+                            {ok, false} ->
+                                false;
+                            _ ->
+                                false
+                         end,
     % Check need command history or not
     case NeedCommandHistory of
         true ->
@@ -99,22 +106,8 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
                             ),
             % Parse plugins and load to state
             Plugins = lists:flatten(lists:map(fun load_plugin/1, PluginsPaths)),
-            % Get checking_new_plugins parameter from config
-            {ok, UseNewPlugins} = application:get_env(ybot, checking_new_plugins),
-            % Check checking_new_plugins
-            case UseNewPlugins of
-                true ->
-                    % Get new plugins checking timeout
-                    {ok, NewPluginsCheckingTimeout} = application:get_env(ybot, checking_new_plugins_timeout),
-                    % Start new plugins observer
-                    ybot_plugins_observer:start_link(PluginsDirectory,
-                                                     PluginsPaths,
-                                                     NewPluginsCheckingTimeout
-                                                    );
-                _ ->
-                    % don't use new plugins
-                    pass
-            end,
+            % observe new plugins after start
+            ok = ybot_plugins_observer:observe_new_plugins(PluginsDirectory, PluginsPaths),
             % return plugins
             {noreply, State#state{plugins = Plugins}};
         false ->

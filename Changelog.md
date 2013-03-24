@@ -11,6 +11,7 @@
   * New config option - brain_storage.
   * New config option - brain_api_host.
   * New config option - brain_api_port.
+  * checking_new_plugins, checking_new_plugins_timeout, commands_history and history_command_limit_count aren't required parametes now.
   
 ## Ybot-0.3.2 --> released
 
