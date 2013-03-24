@@ -118,5 +118,7 @@ observe_new_plugins(PluginsDirectory, PluginsPaths) ->
         _ ->
             % don't use new plugins
             pass
-    end.
+    end,
+    % return
+    ok.
            
