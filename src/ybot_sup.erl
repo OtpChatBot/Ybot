@@ -25,15 +25,9 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    % Start crypto        
-    ok = application:start(crypto),
-    % Start public key
-    ok = application:start(public_key),
-    % Start ssl
-    ok = application:start(ssl),
-
     % Get plugins directory
     {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
+
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
@@ -43,6 +37,12 @@ init([]) ->
         % start http supervisor
         {http_sup,
             {http_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
+        % start brain http api supervisor
+        {ybot_brain_sup,
+            {ybot_brain_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
         },
 
