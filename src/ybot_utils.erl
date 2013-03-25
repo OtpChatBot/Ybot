@@ -14,7 +14,8 @@
          to_binary/1,
          to_atom/1,
          to_list/1,
-         broadcast/1
+         broadcast/1,
+         get_config_val/2
         ]).
 
 %% @doc get all files from directory
@@ -82,3 +83,12 @@ broadcast(Body) ->
                                    )
                   end,
                   Transports).
+
+%% get parameter value from config
+get_config_val(Param, DefaultValue) ->
+    case application:get_env(ybot, Param) of
+        {_, HistoryLimit} ->
+            HistoryLimit;
+        _ ->
+            DefaultValue
+    end.
