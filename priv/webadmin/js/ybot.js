@@ -4,26 +4,12 @@ var app = angular.module('ybot', []);
  * This is main angular controller for Ybot web interface
  */
 function YbotController ($scope) {
-    $scope.start = function(){
-        $scope.header = "Ybot web interface";
-    }
-
-    // click on ybot configuration side bar
-    $scope.active_ybot_configuration = function(){
-        // setup header
-        $scope.header = $('a_ybot_configuration').innerHTML;
-        // active current li
-        activate_li('li_ybot_configuration');
-        // return
-        return true;
-    }
-
     // click on ybot plugins side bar
     $scope.acive_ybot_plugins = function(){
         // setup header
         $scope.header = $('a_ybot_plugins').innerHTML;
         // active current li
-        activate_li('li_ybot_plugins');
+        activate_li('li_ybot_plugins', 'div_ybot_plugins');
         // return
         return true;
     }
@@ -33,7 +19,7 @@ function YbotController ($scope) {
         // setup header
         $scope.header = $('a_ybot_upload_plugin').innerHTML;
         // active current li
-        activate_li('li_ybot_upload_plugin');
+        activate_li('li_ybot_upload_plugin', 'div_ybot_upload');
         // return
         return true;
     }
@@ -43,7 +29,7 @@ function YbotController ($scope) {
         // setup header
         $scope.header = $('a_ybot_runned_transports').innerHTML;
         // active current li
-        activate_li('li_runned_transports');
+        activate_li('li_runned_transports', 'div_ybot_transports');
         // return
         return true;
     }
@@ -53,7 +39,7 @@ function YbotController ($scope) {
         // setup header
         $scope.header = $('a_ybot_new_transport').innerHTML;
         // active current li
-        activate_li('li_start_new_transport');
+        activate_li('li_start_new_transport', 'div_ybot_runned_transports');
         // return
         return true;
     }
@@ -63,7 +49,7 @@ function YbotController ($scope) {
         // setup header
         $scope.header = $('a_ybot_storage_opts').innerHTML;
         // active current li
-        activate_li('li_storage_option');
+        activate_li('li_storage_option', 'div_ybot_storage');
         // return
         return true;
     }
@@ -71,11 +57,20 @@ function YbotController ($scope) {
     /*
      * Handle main page
      */
-    $scope.header = "Ybot web interface";
-
+    // put main header in content div
+    $scope.header = 'Ybot web interface';
+    // activate li
+    activate_li('li_web_interface', 'div_ybot_web_interface');
 };
 
-function activate_li(li_id){
+function activate_li(li_id, div_id){
+    var divs = new Array('div_ybot_web_interface', 'div_ybot_plugins', 'div_ybot_upload', 
+                         'div_ybot_transports', 'div_ybot_runned_transports', 'div_ybot_storage');
+    // hide all divs
+    divs.each(function(div){
+        $(div).style.visibility = "hidden";
+    });
+    // activate li with id == li_id
     $$('li').each(function(li){     
         if (li.className == "active")
             li.className = "";
@@ -83,5 +78,8 @@ function activate_li(li_id){
         if (li.id == li_id)
             $(li_id).className = "active";
     });
+
+    // show main content
+    $(div_id).style.visibility = "visible";
 }
 
