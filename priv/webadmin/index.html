@@ -11,6 +11,12 @@
       a{
         cursor: pointer;
       }
+      label{
+        font-size: 17px;
+      }
+      li{
+        font-size: 17px;
+      }
       .hero-unit{
         position: fixed;
         left: 340px;
@@ -65,18 +71,33 @@
                   </div>
                   
                   <!-- Main div -->
-                  <div id="main_div" class="hero-unit">
+                  <div id="main_div" class="hero-unit" style="overflow:auto;">
                     <h2>{{header}}</h2>
 
-                    <div id="div_ybot_web_interface" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
-                      <h3>Transports<h3>
+                    <div id="div_ybot_web_interface" style="overflow:auto; top:20%; right:0%; left:21%; bottom:0%;">
+                      <h3>Transports</h3>
+                        <ul>
+                           <li ng-repeat="transport in transports">
+                              {{transport}}
+                           </li>
+                        </ul>
                       <hr/>
                       <h3>Plugins</h3>
+                        <ul>
+                          <li ng-repeat="plugin in plugins">
+                            {{plugin}}
+                          </li>
+                        </ul>
+                      <label>Ybot plugins directory - {{plugins_directory}}</label>
                       <hr/>
                       <h3>History and Plugin observer</h3>
+                      <label>Ybot history turn on - {{is_history}}</label>
+                      <label>Ybot history limit is - {{history_limit}}</label>
+                      <label>Ybot plugin observer turn on - {{is_observer}}</label>
+                      <label>Ybot plugin observer timeout - {{observer_timeout}}</label>
                       <hr/>
                       <h3>Ybot storage</h3>
-                      <hr/>
+                      <label>Ybot storage backend - {{storage_type}}</label>
                     </div>
 
                     <div id="div_ybot_plugins" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">

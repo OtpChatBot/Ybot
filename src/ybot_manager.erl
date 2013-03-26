@@ -362,7 +362,7 @@ load_plugin(Plugin) ->
                     [_, Name] = string:tokens(Plugin, "/"),
                     lager:info("Loading plugin(Erlang) ~s", [Name]),
                     application:start(AppName),
-                    {plugin, "erlang", Name, AppName};
+                    {plugin, "erlang", Name, atom_to_list(AppName)};
                 _ ->
                     []
             end;
