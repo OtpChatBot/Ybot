@@ -12,29 +12,29 @@ host = sys.argv[1]
 port = sys.argv[2]
 
 """
-	Init skype bot
+    Init skype bot
 """
 class SkypeBot(object):
-	# init skype connection
-	def __init__(self):
-		self.Skype = Skype4Py.Skype()
-		self.Skype.Attach()
-		self.Skype.OnMessageStatus = self.MessageStatus
-		
-	# get incoming message
-	def MessageStatus(self, msg, status):
-		if status == Skype4Py.cmsReceived:
-			try:
-				# Check message
-				if msg.Body.split(' ')[0] == self.Skype.CurrentUser.Handle:
-					# send request to Ybot
-					response = urllib2.urlopen(host + ':' + str(port), data = urllib.urlencode({msg.Body : msg.Body}))
-					# send response
-					msg.Chat.SendMessage(response.read())
-			except URLError:
-				exit(0)
+    # init skype connection
+    def __init__(self):
+        self.Skype = Skype4Py.Skype()
+        self.Skype.Attach()
+        self.Skype.OnMessageStatus = self.MessageStatus
+        
+    # get incoming message
+    def MessageStatus(self, msg, status):
+        if status == Skype4Py.cmsReceived:
+            try:
+                # Check message
+                if msg.Body.split(' ')[0] == self.Skype.CurrentUser.Handle:
+                    # send request to Ybot
+                    response = urllib2.urlopen(host + ':' + str(port), data = urllib.urlencode({msg.Body : msg.Body}))
+                    # send response
+                    msg.Chat.SendMessage(response.read())
+            except URLError:
+                exit(0)
 
 bot = SkypeBot()
 
 while True:
-	time.sleep(1)
+    time.sleep(1)
