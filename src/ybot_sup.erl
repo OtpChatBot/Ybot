@@ -40,6 +40,11 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        {ybot_web_admin_sup,
+            {ybot_web_admin_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start brain http api supervisor
         {ybot_brain_sup,
             {ybot_brain_sup, start_link, []},

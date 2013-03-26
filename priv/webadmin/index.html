@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html ng-app>
+	<head>
+		<title>Ybot web interface</title>
+		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" media="screen"/>
+    <script language="javascript" src="/js/prototype.js" type="text/javascript"></script>
+		<script language="javascript" src="/js/angular.js" type="text/javascript"></script>
+		<script language="javascript" src="/js/ybot.js" type="text/javascript"></script>
+		<!-- Custom css -->
+		<style media="screen" type="text/css">
+			a{
+				cursor: pointer;
+			}
+			.hero-unit{
+				position: fixed;
+				left: 340px;
+				top : 4%;
+				right: 0%;
+				bottom: 0%;
+				margin-bottom:0%;
+			}
+		</style>
+		<!-- End of custom css -->
+	</head>
+		<body>
+
+			<!-- Page header -->
+			<div class="navbar navbar-inverse navbar-fixed-top">
+      			<div class="navbar-inner">
+                    <div class="container-fluid">
+                    <a class="brand" href="/">Ybot web interface</a>
+
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                        	<li><a href="https://github.com/0xAX/Ybot">Source Code</a></li>
+                            <li><a href="http://0xax.github.com/Ybot.html">Documentation</a></li>
+                            <li><a href="http://0xax.github.com/ybot-plugins.html">Plugin catalog</a></li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <!-- End header -->
+
+            <!-- Side bar -->
+             <div ng-app='ybot' id="side_bar_div" class="container-fluid" ng-controller="YbotController" ng-load="start()">
+             	  <div class="well sidebar-nav" style="width: 300px; top: 4%; left:0px; position:fixed;">
+                      <ul class="nav nav-list">
+                          <li class="nav-header"><strong>Ybot options<strong></li>
+                          <li id="li_web_interface" class="active"><a id="a_web_interface" href="/">Ybot web interface</a></li>
+                          <li id= "li_ybot_configuration" ng-click="active_ybot_configuration()">
+                          <a id="a_ybot_configuration">Current Ybot configuration</a></li>
+                          <li class="divider"></li>
+                          <li class="nav-header"><strong>Ybot plugins<strong></li>
+                          <li id="li_ybot_plugins" ng-click="acive_ybot_plugins()"><a id="a_ybot_plugins">Ybot plugins</a></li>
+                          <li id="li_ybot_upload_plugin" ng-click="active_upload_plugin()">
+                          <a id="a_ybot_upload_plugin">Ybot upload and start new plugin</a></li>
+                          <li class="divider"></li>
+                          <li class="nav-header"><strong>Ybot transports<strong></li>
+                          <li id="li_runned_transports" ng-click="active_runned_transport()"><a id="a_ybot_runned_transports">Ybot runned trannsports</a></li>
+                          
+                          <li id="li_start_new_transport" ng-click="active_new_transport()"><a id="a_ybot_new_transport">Ybot start new transport</a></li>
+                          
+                          <li class="divider"></li>
+                          <li class="nav-header"><strong>Ybot storage backend<strong></li>
+                          <li id="li_storage_option" ng-click="active_ybot_storage()"><a id="a_ybot_storage_opts">Ybot storage options</a></li>
+                      </ul>
+                  </div>
+                  
+                  <!-- Main div -->
+                  <div id="main_div" class="hero-unit">
+            	      <h2>{{header}}</h2>
+                  <div>
+                  <!-- End of main div -->
+            </div>
+            <!-- End side bar-->
+            
+           
+		</body>
+</html>
