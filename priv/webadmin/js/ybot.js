@@ -3,7 +3,9 @@ var app = angular.module('ybot', []);
 /*
  * This is main angular controller for Ybot web interface
  */
-function YbotController ($scope) {
+function YbotController ($scope, $http) {
+    var req_url = window.location.pathname + 'admin';
+
     // click on ybot plugins side bar
     $scope.acive_ybot_plugins = function(){
         // setup header
@@ -57,6 +59,10 @@ function YbotController ($scope) {
     /*
      * Handle main page
      */
+    // Send request for front page
+    $http.get(req_url + "?req=main_web_interface_req").success(function (data) {
+    });
+
     // put main header in content div
     $scope.header = 'Ybot web interface';
     // activate li

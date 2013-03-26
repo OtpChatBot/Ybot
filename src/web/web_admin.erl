@@ -57,11 +57,12 @@ handle_cast(start_serve, State) ->
                 {file, <<"index.html">>},
                 {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
             ]},
+            {"/admin", web_admin_req_handler, []},
             {'_', not_found_handler, []}
         ]}
     ]),
     % start serving
-    {ok, _} = cowboy:start_http(web_http_listener, 10, [{port, 8000}], [{env, [{dispatch, Dispatch}]}]),
+    {ok, _} = cowboy:start_http(web_http_listener, 100, [{port, 8000}], [{env, [{dispatch, Dispatch}]}]),
     % return
     {noreply, State};
 

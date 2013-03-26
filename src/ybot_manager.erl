@@ -64,6 +64,10 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             {reply, Plugin, State}
     end;
 
+%% @doc get transports info
+handle_call(get_transports, _From, State) ->
+    {reply, State#state.transports, State};
+
 %% @doc get all runned transports pid
 handle_call(get_runnned_transports, _From, State) ->
     % Return all runned transports

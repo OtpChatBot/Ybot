@@ -133,7 +133,7 @@ get_plugins_directory() ->
 
 %% @doc get runned transports
 get_runned_transports() ->
-    gen_server:call(ybot_manager, get_runnned_transports).
+    gen_server:call(ybot_manager, get_transports).
 
 %% @doc get plugins
 get_plugins() ->
