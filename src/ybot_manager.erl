@@ -27,7 +27,9 @@
        % Ybot active plugins list
        plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}],
        % Runned transports pid list
-       runned_transports = [] :: [pid()] 
+       runned_transports = [] :: [pid()],
+       % plugins paths
+       plugins_paths = []
     }).
 
 %%%=============================================================================
@@ -78,6 +80,9 @@ handle_call(get_plugins, _From, State) ->
     % Return all plugins
     {reply, State#state.plugins, State};
 
+handle_call(get_plugins_paths, _From, State) ->
+    {reply, State#state.plugins_paths, State};
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
@@ -125,7 +130,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
             % observe new plugins after start
             ok = ybot_plugins_observer:observe_new_plugins(PluginsDirectory, PluginsPaths),
             % return plugins
-            {noreply, State#state{plugins = Plugins}};
+            {noreply, State#state{plugins = Plugins, plugins_paths =  PluginsPaths}};
         false ->
             % some log
             lager:error("Unable to load plugins. Invalid directory ~s", [PluginsDirectory]),

@@ -29,6 +29,7 @@ function YbotController ($scope, $http) {
         return true;
     }
 
+    // click on update observer button
     $scope.update_observer_settings = function(){
         // get observer timeout value
         var obs_timeout = $('input_observer_timeout').value;
@@ -38,9 +39,15 @@ function YbotController ($scope, $http) {
         if (isInt(obs_timeout) == false){
             $('input_observer_timeout').value = '';
             $('span_observer_error1').style.visibility = "visible";
+            return false;
         }
         else{
             $('span_observer_error1').style.visibility = "hidden";
+            // send request update observer settings
+            var data = {'is_observer' : is_observer, 'timeout' : obs_timeout};
+            $http.post(req_url + '?req=update_observer_settings', data);
+            // return
+            return true;
         }
     }
 
