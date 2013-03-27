@@ -12,8 +12,36 @@ function YbotController ($scope, $http) {
         $scope.header = $('a_ybot_plugins').innerHTML;
         // active current li
         activate_li('li_ybot_plugins', 'div_ybot_plugins');
+        
+        // Send request for getting current settings
+        $http.get(req_url + "?req=ybot_plugins_settings").success(function (data) {
+            if (data.is_observer == true){
+                $('checkbox_is_observer').checked = true;
+                $('input_observer_timeout').value = data.observer_timeout;
+            }
+                //$scope.IsObserver = 'checked';
+            else{
+                $('checkbox_is_observer').checked = false;
+                $('input_observer_timeout').value = data.observer_timeout;
+            }
+        });
         // return
         return true;
+    }
+
+    $scope.update_observer_settings = function(){
+        // get observer timeout value
+        var obs_timeout = $('input_observer_timeout').value;
+        // get using observer or not value
+        var is_observer = $('checkbox_is_observer').checked;
+        // check observer timeout
+        if (isInt(obs_timeout) == false){
+            $('input_observer_timeout').value = '';
+            $('span_observer_error1').style.visibility = "visible";
+        }
+        else{
+            $('span_observer_error1').style.visibility = "hidden";
+        }
     }
 
     // click on upload plugin side bar
@@ -59,6 +87,7 @@ function YbotController ($scope, $http) {
     /*
      * Handle main page
      */
+
     // Send request for front page
     $http.get(req_url + "?req=main_web_interface_req").success(function (data) {
         $scope.transports = data.transport.split('\n').splice(0, data.transport.split('\n').length - 1);
@@ -76,6 +105,10 @@ function YbotController ($scope, $http) {
     // activate li
     activate_li('li_web_interface', 'div_ybot_web_interface');
 };
+
+/*
+ * Helper functions
+ */
 
 function activate_li(li_id, div_id){
     var divs = new Array('div_ybot_web_interface', 'div_ybot_plugins', 'div_ybot_upload', 
@@ -97,11 +130,9 @@ function activate_li(li_id, div_id){
     $(div_id).style.visibility = "visible";
 }
 
-function convert(str) {  
-    var output = "";
-    for (i=0; i < str.length; i++) {
-        output += str[i].charCodeAt(0).toString(2) + " ";
-    }
-
-    return output;
+function isInt(n) {
+    if (Math.floor(n) == n)
+        return true;
+    else
+        return false;
 }

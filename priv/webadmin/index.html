@@ -57,7 +57,7 @@
                           <li id="li_web_interface" class="active"><a id="a_web_interface" href="/">Ybot web interface</a></li>
                           <li class="divider"></li>
                           <li class="nav-header"><strong>Ybot plugins<strong></li>
-                          <li id="li_ybot_plugins" ng-click="acive_ybot_plugins()"><a id="a_ybot_plugins">Ybot plugins</a></li>
+                          <li id="li_ybot_plugins" ng-click="acive_ybot_plugins()"><a id="a_ybot_plugins">Ybot plugins settings</a></li>
                           <li id="li_ybot_upload_plugin" ng-click="active_upload_plugin()">
                           <a id="a_ybot_upload_plugin">Ybot upload and start new plugin</a></li>
                           <li class="divider"></li>
@@ -71,10 +71,12 @@
                   </div>
                   
                   <!-- Main div -->
-                  <div id="main_div" class="hero-unit" style="overflow:auto;">
+                  <div id="main_div" class="hero-unit" style="overflow:auto; position:absolute;">
                     <h2>{{header}}</h2>
+                    <hr/>
 
-                    <div id="div_ybot_web_interface" style="overflow:auto; top:20%; right:0%; left:21%; bottom:0%;">
+                    <!-- Ybot web interface content -->
+                    <div id="div_ybot_web_interface" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
                       <h3>Transports</h3>
                         <ul>
                            <li ng-repeat="transport in transports">
@@ -99,10 +101,19 @@
                       <h3>Ybot storage</h3>
                       <label>Ybot storage backend - {{storage_type}}</label>
                     </div>
+                    <!-- End of Ybot web interface content -->
 
-                    <div id="div_ybot_plugins" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
-                      <strong>TODO</strong>
+                    <!-- Ybot plugins content -->
+                    <div id="div_ybot_plugins" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
+                        <h3>Plugin observer settings</h3>
+                        <label>New plugin observer timeout (in microsecond):<label>
+                        <span id="span_observer_error1" class="label label-important" style="visibility: hidden;">Observer timeout must be number</span><br/>
+                        <input type="text" id="input_observer_timeout" placeholder="Observer timeout..."></input>
+                        <label class="checkbox"><input id="checkbox_is_observer" checked="false" type="checkbox">Use plugins observer</input></label>
+                        <button class="btn btn-success" ng-model="update_observer_sett_btn" ng-click="update_observer_settings()">Update</button>
+                        <hr/>
                     </div>
+                    <!-- End of Ybot plugins content -->
 
                     <div id="div_ybot_upload" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
                       <strong>TODO</strong>

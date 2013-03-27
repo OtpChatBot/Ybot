@@ -26,7 +26,9 @@ handle(Req, State) ->
             {QS, Req3} = cowboy_req:qs(Req2),
             % Parse query string
             case string:tokens(binary_to_list(QS), "=") of
+                %
                 % Get data for front page
+                %
                 ["req", "main_web_interface_req"] ->
                     % Get runned transports
                     Transports = [atom_to_list(element(1, Transport))  ++ " " ++
@@ -61,6 +63,20 @@ handle(Req, State) ->
                     % Convert to json
                     Json = jiffy:encode(Data),
                     % Send info to Ybot webadmin
+                    cowboy_req:reply(200, [], Json, Req3);
+                %
+                % Get current plugins settings
+                %
+                ["req", "ybot_plugins_settings"] ->
+                    % Using observer or not
+                    IsObserver = {is_observer, ybot:is_new_plugins_observing()},
+                    % Observer timeout limit
+                    ObserverTimeout = {observer_timeout, ybot:plugin_observer_timeout()},
+                    % Prepara data for converting into json
+                    Data = {[IsObserver, ObserverTimeout]},
+                    % Convert into json
+                    Json = jiffy:encode(Data),
+                    % Send to webadmin
                     cowboy_req:reply(200, [], Json, Req3);
                 % Wrong requests
                 _ ->
