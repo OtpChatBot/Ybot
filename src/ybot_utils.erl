@@ -15,6 +15,7 @@
          to_atom/1,
          to_list/1,
          broadcast/1,
+         get_config_val/1,
          get_config_val/2
         ]).
 
@@ -85,6 +86,9 @@ broadcast(Body) ->
                   Transports).
 
 %% get parameter value from config
+get_config_val(Param) ->
+   get_config_val(Param, []).
+
 get_config_val(Param, DefaultValue) ->
     case application:get_env(ybot, Param) of
         {_, HistoryLimit} ->

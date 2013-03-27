@@ -140,8 +140,10 @@ deserialize(Item) ->
 serialize(Records) when is_list(Records) ->
     [serialize(R) || R <- Records];
 serialize(Record) ->
+    HexId = bin_to_hex(Record#memory.uuid),
     {struct,[
-             {id,      bin_to_hex(Record#memory.uuid)},
+             {id,      HexId},
+             {url,     get_resource_url() ++ HexId},
              {plugin,  Record#memory.plugin},
              {key,     Record#memory.key},
              {value,   Record#memory.value},
@@ -171,6 +173,13 @@ format_datetime({{Y,M,D},{H,Mi,S}}) ->
        )
      ).
 
+get_resource_url() ->
+    lists:concat(["http://",
+                  ybot_utils:get_config_val(brain_api_host),
+                  ":",
+                  ybot_utils:to_list(ybot_utils:get_config_val(brain_api_port)),
+                  "/memories/"
+                 ]).
 bin_to_hex(Bin) ->
     <<<<(binary:list_to_bin(
              case length(S = integer_to_list(I, 16)) of 1 -> [48|S]; 2 -> S end
