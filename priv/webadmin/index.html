@@ -57,7 +57,7 @@
                           <li id="li_web_interface" class="active"><a id="a_web_interface" href="/">Ybot web interface</a></li>
                           <li class="divider"></li>
                           <li class="nav-header"><strong>Ybot plugins<strong></li>
-                          <li id="li_ybot_plugins" ng-click="acive_ybot_plugins()"><a id="a_ybot_plugins">Ybot plugins observer and history</a></li>
+                          <li id="li_ybot_plugins" ng-click="acive_ybot_settings()"><a id="a_ybot_plugins">Ybot plugins observer and history</a></li>
                           <li id="li_ybot_upload_plugin" ng-click="active_upload_plugin()">
                           <a id="a_ybot_upload_plugin">Ybot upload and start new plugin</a></li>
                           <li class="divider"></li>
@@ -113,6 +113,11 @@
                         <button class="btn btn-success" ng-model="update_observer_sett_btn" ng-click="update_observer_settings()">Update</button>
                         <hr/>
                         <h3>Command history settings</h3>
+                        <label>Limit of command history:<label>
+                        <span id="span_observer_error2" class="label label-important" style="visibility: hidden;">Wrong number</span><br/>
+                        <input type="text" id="input_history_limit" placeholder="History limit..."></input>
+                        <label class="checkbox"><input id="checkbox_is_history" checked="false" type="checkbox">Use command history</input></label>
+                        <button class="btn btn-success" ng-model="update_observer_sett_btn" ng-click="update_history_settings()">Update</button>
                         <hr/>
                     </div>
                     <!-- End of Ybot plugins content -->
@@ -137,7 +142,5 @@
                   <!-- End of main div -->
             </div>
             <!-- End side bar-->
-            
-           
     </body>
 </html>

@@ -7,7 +7,7 @@ function YbotController ($scope, $http) {
     var req_url = window.location.pathname + 'admin';
 
     // click on ybot plugins side bar
-    $scope.acive_ybot_plugins = function(){
+    $scope.acive_ybot_settings = function(){
         // setup header
         $scope.header = $('a_ybot_plugins').innerHTML;
         // active current li
@@ -15,15 +15,20 @@ function YbotController ($scope, $http) {
         
         // Send request for getting current settings
         $http.get(req_url + "?req=ybot_plugins_settings").success(function (data) {
-            if (data.is_observer == true){
+            // Observer part
+            if (data.is_observer == true)
                 $('checkbox_is_observer').checked = true;
-                $('input_observer_timeout').value = data.observer_timeout;
-            }
-                //$scope.IsObserver = 'checked';
-            else{
+            else
                 $('checkbox_is_observer').checked = false;
-                $('input_observer_timeout').value = data.observer_timeout;
-            }
+
+            // History part
+            if (data.is_history == true)
+                $('checkbox_is_history').checked = true;
+            else
+                $('checkbox_is_history').checked = false;
+
+            $('input_observer_timeout').value = data.observer_timeout;
+            $('input_history_limit').value = data.history_limit;
         });
         // return
         return true;
@@ -36,7 +41,7 @@ function YbotController ($scope, $http) {
         // get using observer or not value
         var is_observer = $('checkbox_is_observer').checked;
         // check observer timeout
-        if (isInt(obs_timeout) == false){
+        if (isInt(obs_timeout) == false || obs_timeout <= 0){
             $('input_observer_timeout').value = '';
             $('span_observer_error1').style.visibility = "visible";
             return false;
@@ -46,6 +51,28 @@ function YbotController ($scope, $http) {
             // send request update observer settings
             var data = {'is_observer' : is_observer, 'timeout' : obs_timeout};
             $http.post(req_url + '?req=update_observer_settings', data);
+            // return
+            return true;
+        }
+    }
+
+    // click on update history button
+    $scope.update_history_settings = function(){
+        // get history limit value
+        var history_limit = $('input_history_limit').value;
+        // get using history or not value
+        var is_history = $('checkbox_is_history').checked;
+        // check history limit
+        if (isInt(history_limit) == false || history_limit <= 0){
+            $('input_history_limit').value = '';
+            $('span_observer_error2').style.visibility = "visible";
+            return false;
+        }
+        else{
+            $('span_observer_error2').style.visibility = "hidden";
+            // send request to update history settings
+            var data = {'is_history' : is_history, 'limit' : history_limit};
+            $http.post(req_url + '?req=update_history_settings', data);
             // return
             return true;
         }

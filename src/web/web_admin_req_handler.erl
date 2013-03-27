@@ -36,15 +36,25 @@ handle(Req, State) ->
                     Transports = [atom_to_list(element(1, Transport))  ++ " " ++
                                   pid_to_list(element(2, Transport))   ++ " " ++ 
                                   binary_to_list(element(4, Transport)) ++ "\n" || Transport <- ybot:get_runned_transports(), element(1, Transport) /= http],
-                    % Get history
-                    IsHistory = {is_history, ybot:is_command_history()},
-                    % Get history limit
-                    HistoryLimit = {history_limit, ybot:get_command_history_limit()},
                     % Get plugins
                     PluginsDirectory = {plugins_directory, list_to_binary(ybot:get_plugins_directory())},
                     % Get plugins
                     Plugins = {plugins, format_plugins_helper(ybot:get_plugins())},
 
+                    % Is history using
+                    IsHistory = case whereis(ybot_history) of
+                                    undefined ->
+                                        {is_history, false};
+                                    _ ->
+                                        {is_history, true}
+                                end,
+                    % History limit
+                    HistoryLimit = case whereis(ybot_history) of
+                                    undefined ->
+                                        {history_limit, 0};
+                                    _ ->
+                                        {history_limit, gen_server:call(ybot_history, get_history_limit),}
+                                   end,
                     % Get observer
                     IsObserver = case whereis(ybot_plugins_observer) of
                                     undefined ->
@@ -57,8 +67,7 @@ handle(Req, State) ->
                                           undefined ->
                                               {observer_timeout, 0};
                                           _ ->
-                                              ObservTimeout = gen_server:call(ybot_plugins_observer, get_observer_timeout),
-                                              {observer_timeout, ObservTimeout}
+                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout),}
                                       end,
                     % Get storage
                     Storage = {storage_type, ybot:get_brain_storage()},
@@ -93,11 +102,24 @@ handle(Req, State) ->
                                           undefined ->
                                               {observer_timeout, 0};
                                           _ ->
-                                              ObservTimeout = gen_server:call(ybot_plugins_observer, get_observer_timeout),
-                                              {observer_timeout, ObservTimeout}
+                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout)}
                                       end,
+                    % Is history using
+                    IsHistory = case whereis(ybot_history) of
+                                    undefined ->
+                                        {is_history, false};
+                                    _ ->
+                                        {is_history, true}
+                                end,
+                    % History limit
+                    HistoryLimit = case whereis(ybot_history) of
+                                    undefined ->
+                                        {history_limit, 0};
+                                    _ ->
+                                        {history_limit, gen_server:call(ybot_history, get_history_limit)}
+                                   end,
                     % Prepara data for converting into json
-                    Data = {[IsObserver, ObserverTimeout]},
+                    Data = {[IsObserver, ObserverTimeout, IsHistory, HistoryLimit]},
                     % Convert into json
                     Json = jiffy:encode(Data),
                     % Send to webadmin
@@ -114,20 +136,22 @@ handle(Req, State) ->
                 % Update observer settings
                 %
                 ["req", "update_observer_settings"] ->
-                    case cowboy_req:has_body(Req3) of
-                        true ->
-                            % Get body
-                            {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
-                            % handle request
-                            handle_request(jiffy:decode(Body)),
-                            % Send response
-                            cowboy_req:reply(200, [], <<"Ok">>, Req3);
-                        _ ->
-                            pass
-                    end;
+                    % Get body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle request
+                    handle_request(jiffy:decode(Body)),
+                    % Send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);    
                 %
-                % @TODO Update history settings
+                % Update history settings
                 %
+                ["req", "update_history_settings"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle request
+                    handle_request(jiffy:decode(Body)),
+                    % Send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
                 _ ->
                     % do nothing
                     pass
@@ -149,10 +173,33 @@ format_plugins_helper(Plugins) ->
     list_to_binary([Lang ++ " " ++ Name ++ " " ++ Path ++ "\n" || {plugin, Lang, Name, Path} <- Plugins]).
 
 %% @doc request handling helper
+handle_request({[{<<"is_history">>, IsHistory}, {<<"limit">>, History}]}) ->
+    HistoryLimit = ybot_utils:to_int(History), 
+    % Check use history or not
+    case IsHistory of
+        true ->
+            case whereis(ybot_history) of
+                undefined ->
+                    % start ybot_history process
+                    ybot_history:start_link(HistoryLimit);
+                _ ->
+                    % update history limit
+                    gen_server:cast(ybot_history, {update_history_limit, HistoryLimit})
+            end;
+        false ->
+            case whereis(ybot_history) of
+                undefined ->
+                    ok;
+                _ ->
+                    ybot_history:stop()
+            end;
+        _ ->
+            wrong_command
+    end;
+
 handle_request({[{<<"is_observer">>, UseObserver}, {<<"timeout">>, Timeout}]}) ->
-    % Check time
     Time = ybot_utils:to_int(Timeout),
-    % Check observer
+    % Check use observer or not
     case UseObserver of
         true ->
             case whereis(ybot_plugins_observer) of
