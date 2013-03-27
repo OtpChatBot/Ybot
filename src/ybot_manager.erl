@@ -48,7 +48,7 @@ init([PluginsDirectory, Transports]) ->
     ok = gen_server:cast(?MODULE, {start_transports, Transports}),
     % init command history process
     ok = gen_server:cast(?MODULE, init_history),
-    % start webadmin
+    % start webadmin interface
     ybot_web_admin_sup:start_web_admin(),
     % init
     {ok, #state{}}.

@@ -41,9 +41,13 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast(start_serve, State) ->
+    % Get Host
+    {ok, Host} = application:get_env(ybot, webadmin_host),
+    % Get Port
+    {ok, Port} = application:get_env(ybot, webadmin_port),
     % Cowboy dispatch
     Dispatch = cowboy_router:compile([
-        {'_', [
+        {binary_to_list(Host), [
             {"/css/[...]", cowboy_static, [
                 {directory, {priv_dir, ybot, [<<"webadmin/css">>]}},
                 {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
@@ -62,7 +66,7 @@ handle_cast(start_serve, State) ->
         ]}
     ]),
     % start serving
-    {ok, _} = cowboy:start_http(web_http_listener, 100, [{port, 8000}], [{env, [{dispatch, Dispatch}]}]),
+    {ok, _} = cowboy:start_http(web_http_listener, 100, [{port, Port}], [{env, [{dispatch, Dispatch}]}]),
     % return
     {noreply, State};
 
