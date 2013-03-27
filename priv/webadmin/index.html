@@ -11,6 +11,12 @@
       a{
         cursor: pointer;
       }
+      label{
+        font-size: 17px;
+      }
+      li{
+        font-size: 17px;
+      }
       .hero-unit{
         position: fixed;
         left: 340px;
@@ -49,8 +55,6 @@
                       <ul class="nav nav-list">
                           <li class="nav-header"><strong>Ybot options<strong></li>
                           <li id="li_web_interface" class="active"><a id="a_web_interface" href="/">Ybot web interface</a></li>
-                          <li id= "li_ybot_configuration" ng-click="active_ybot_configuration()">
-                          <a id="a_ybot_configuration">Current Ybot configuration</a></li>
                           <li class="divider"></li>
                           <li class="nav-header"><strong>Ybot plugins<strong></li>
                           <li id="li_ybot_plugins" ng-click="acive_ybot_plugins()"><a id="a_ybot_plugins">Ybot plugins</a></li>
@@ -59,9 +63,7 @@
                           <li class="divider"></li>
                           <li class="nav-header"><strong>Ybot transports<strong></li>
                           <li id="li_runned_transports" ng-click="active_runned_transport()"><a id="a_ybot_runned_transports">Ybot runned trannsports</a></li>
-                          
                           <li id="li_start_new_transport" ng-click="active_new_transport()"><a id="a_ybot_new_transport">Ybot start new transport</a></li>
-                          
                           <li class="divider"></li>
                           <li class="nav-header"><strong>Ybot storage backend<strong></li>
                           <li id="li_storage_option" ng-click="active_ybot_storage()"><a id="a_ybot_storage_opts">Ybot storage options</a></li>
@@ -69,8 +71,55 @@
                   </div>
                   
                   <!-- Main div -->
-                  <div id="main_div" class="hero-unit">
+                  <div id="main_div" class="hero-unit" style="overflow:auto;">
                     <h2>{{header}}</h2>
+
+                    <div id="div_ybot_web_interface" style="overflow:auto; top:20%; right:0%; left:21%; bottom:0%;">
+                      <h3>Transports</h3>
+                        <ul>
+                           <li ng-repeat="transport in transports">
+                              {{transport}}
+                           </li>
+                        </ul>
+                      <hr/>
+                      <h3>Plugins</h3>
+                        <ul>
+                          <li ng-repeat="plugin in plugins">
+                            {{plugin}}
+                          </li>
+                        </ul>
+                      <label>Ybot plugins directory - {{plugins_directory}}</label>
+                      <hr/>
+                      <h3>History and Plugin observer</h3>
+                      <label>Ybot history turn on - {{is_history}}</label>
+                      <label>Ybot history limit is - {{history_limit}}</label>
+                      <label>Ybot plugin observer turn on - {{is_observer}}</label>
+                      <label>Ybot plugin observer timeout - {{observer_timeout}}</label>
+                      <hr/>
+                      <h3>Ybot storage</h3>
+                      <label>Ybot storage backend - {{storage_type}}</label>
+                    </div>
+
+                    <div id="div_ybot_plugins" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                      <strong>TODO</strong>
+                    </div>
+
+                    <div id="div_ybot_upload" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                      <strong>TODO</strong>
+                    </div>
+
+                    <div id="div_ybot_transports" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                      <strong>TODO</strong>
+                    </div>
+
+                    <div id="div_ybot_runned_transports" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                      <strong>TODO</strong>
+                    </div>
+
+                    <div id="div_ybot_storage" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                      <strong>TODO</strong>
+                    </div>
+
                   <div>
                   <!-- End of main div -->
             </div>

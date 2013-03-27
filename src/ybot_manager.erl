@@ -48,7 +48,7 @@ init([PluginsDirectory, Transports]) ->
     ok = gen_server:cast(?MODULE, {start_transports, Transports}),
     % init command history process
     ok = gen_server:cast(?MODULE, init_history),
-    % start webadmin
+    % start webadmin interface
     ybot_web_admin_sup:start_web_admin(),
     % init
     {ok, #state{}}.
@@ -63,6 +63,10 @@ handle_call({get_plugin, PluginName}, _From, State) ->
             % return plugin with metadata
             {reply, Plugin, State}
     end;
+
+%% @doc get transports info
+handle_call(get_transports, _From, State) ->
+    {reply, State#state.transports, State};
 
 %% @doc get all runned transports pid
 handle_call(get_runnned_transports, _From, State) ->
@@ -358,7 +362,7 @@ load_plugin(Plugin) ->
                     [_, Name] = string:tokens(Plugin, "/"),
                     lager:info("Loading plugin(Erlang) ~s", [Name]),
                     application:start(AppName),
-                    {plugin, "erlang", Name, AppName};
+                    {plugin, "erlang", Name, atom_to_list(AppName)};
                 _ ->
                     []
             end;

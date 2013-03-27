@@ -13,6 +13,9 @@
   * New config option - brain_api_port.
   * checking_new_plugins, checking_new_plugins_timeout, commands_history and history_command_limit_count aren't required parametes now.
   * New Ybot erlang api, ybot:get_plugins_directory/0, get_runned_transports/0, is_new_plugins_observing/0 and etc... (see ybot.erl)
+  * New dependence - jiffy.
+  * New configuration option - webadmin_host :: integer()
+  * New configuration option - webadmin_port :: binary()
   
 ## Ybot-0.3.2 --> released
 
