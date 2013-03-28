@@ -118,6 +118,11 @@ function YbotController ($scope, $http) {
         $scope.header = $('a_ybot_runned_transports').innerHTML;
         // active current li
         activate_li('li_runned_transports', 'div_ybot_transports');
+        
+        $http.get(req_url + "?req=main_web_interface_req").success(function (data) {
+            $scope.runned_transports = data.transport.split('\n').splice(0, data.transport.split('\n').length - 1);
+        });
+
         // return
         return true;
     }

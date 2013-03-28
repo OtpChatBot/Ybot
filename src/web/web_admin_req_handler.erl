@@ -208,7 +208,6 @@ handle_request({[{<<"is_history">>, IsHistory}, {<<"limit">>, History}]}) ->
     end;
 
 handle_request({[{<<"upload_plugin_path">>, PluginUrl}]}) ->
-    % {_, _, _, Body2} = ibrowse:send_req("https://raw.github.com/0xAX/ybot-contrib/master/plugins/ackbar.rb", [], get).
     % Get plugin extension
     Ext = filename:extension(binary_to_list(PluginUrl)),
     % Check extenstion

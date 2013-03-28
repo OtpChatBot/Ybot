@@ -249,7 +249,7 @@ load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick, Opt
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
     % return correct transport
-    {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+    {hipchat, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
 
 %% @doc start campfire client
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
