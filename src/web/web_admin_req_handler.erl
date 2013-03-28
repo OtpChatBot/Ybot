@@ -221,7 +221,7 @@ handle_request({[{<<"upload_plugin_path">>, PluginUrl}]}) ->
             {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
             {_, _, _, PluginData} = ibrowse:send_req(binary_to_list(PluginUrl), [], get),
             {ok, IODevice} = file:open(PluginsDirectory ++ PluginName, [write]), 
-            file:write(IODevice, PluginData), file:close(IODevice),
+            file:write(IODevice, PluginData), file:close(IODevice);
         _ ->
             wrong_plugin
     end;

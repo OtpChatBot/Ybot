@@ -1,5 +1,5 @@
 var app = angular.module('ybot', []);
-
+ 
 /*
  * This is main angular controller for Ybot web interface
  */
@@ -133,6 +133,12 @@ function YbotController ($scope, $http) {
         $scope.header = $('a_ybot_new_transport').innerHTML;
         // active current li
         activate_li('li_start_new_transport', 'div_ybot_runned_transports');
+
+
+new Control.Tabs('tabs_example_one');   
+$$('.tabs').each(function(tab_group){  
+    new Control.Tabs(tab_group);  
+});
         // return
         return true;
     }

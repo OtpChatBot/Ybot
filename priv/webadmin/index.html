@@ -4,6 +4,8 @@
     <title>Ybot web interface</title>
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" media="screen"/>
     <script language="javascript" src="/js/prototype.js" type="text/javascript"></script>
+    <script language="javascript" src="/js/livepipe.js" type="text/javascript"></script>
+    <script language="javascript" src="/js/tab.js" type="text/javascript"></script>
     <script language="javascript" src="/js/angular.js" type="text/javascript"></script>
     <script language="javascript" src="/js/ybot.js" type="text/javascript"></script>
     <!-- Custom css -->
@@ -24,6 +26,14 @@
         right: 0%;
         bottom: 0%;
         margin-bottom:0%;
+      }
+ 
+      #menu ul{
+        list-style: none;
+      }
+
+      #menu li{
+        display: inline;
       }
     </style>
     <!-- End of custom css -->
@@ -139,8 +149,16 @@
                         </ul>
                     </div>
 
-                    <div id="div_ybot_runned_transports" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
-                      <strong>TODO</strong>
+                    <div id="div_ybot_runned_transports" style="position: absolute; top:20%; right:0%; left:21%; bottom:0%;">
+                      <h3>Start new Ybot transport</h3>
+                        <div id="menu">
+                          <ul id="tabs_example_one" class="subsection_tabs">  
+                              <li class="tab"><a href="#one">One</a></li>  
+                              <li class="tab"><a href="#two">Two</a></li>  
+                          </ul>  
+                          <div id="one"><p>This is the simplest example of a set of tabs.</p></div>  
+                          <div id="two"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
+                        </div>  
                     </div>
 
                     <div id="div_ybot_storage" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">

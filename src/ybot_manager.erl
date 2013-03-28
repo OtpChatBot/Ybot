@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/2, load_plugin/1]).
+-export([start_link/2, load_plugin/1, run_transport/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -153,6 +153,12 @@ handle_cast({start_transports, Transports}, State) ->
                                               end, TransportList)),
     % Init transports
     {noreply, State#state{transports = TransportList, runned_transports = RunnedTransport}};
+
+%% @doc add new runned transport
+handle_cast({update_transport, NewTransport, NewTransportPid}, State) ->
+    % update transports
+    {noreply, State#state{transports = lists:flatten([NewTransport | State#state.transports]), 
+                          runned_transports = lists:flatten([NewTransportPid | State#state.runned_transports])}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -327,7 +333,10 @@ load_transport({talkerapp, Nick, Room, Token}) ->
     % Log
     lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
     % return correct transport
-    {talkerapp, ClientPid, HandlerPid}.
+    {talkerapp, ClientPid, HandlerPid};
+
+load_transport(_) ->
+    [].
 
 load_plugin(Plugin) ->
     % Get plugin extension
@@ -375,4 +384,14 @@ load_plugin(Plugin) ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
+    end.
+
+%% @doc run new transport manualy
+run_transport(Transport) ->
+    case load_transport(Transport) of
+        [] ->
+            wrong_transport;
+        NewTransport ->
+            % update transport
+            gen_server:cast(ybot_manager, {update_transport, NewTransport, element(2, NewTransport)})
     end.
