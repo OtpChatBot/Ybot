@@ -134,13 +134,12 @@ function YbotController ($scope, $http) {
         // active current li
         activate_li('li_start_new_transport', 'div_ybot_runned_transports');
 
-
-new Control.Tabs('tabs_example_one');   
-$$('.tabs').each(function(tab_group){  
-    new Control.Tabs(tab_group);  
-});
-        // return
-        return true;
+    // init tabs
+    new Control.Tabs('tabs_example_one'); 
+    $$('.tabs').each(function(tab_group){ new Control.Tabs(tab_group); });
+    
+    // return
+    return true;
     }
 
     // click on storage options side bar
@@ -149,6 +148,39 @@ $$('.tabs').each(function(tab_group){
         $scope.header = $('a_ybot_storage_opts').innerHTML;
         // active current li
         activate_li('li_storage_option', 'div_ybot_storage');
+        // return
+        return true;
+    }
+
+    /*
+     * Start transports
+     */
+    $scope.start_irc = function(){
+        /*
+         * Get transport data
+         */
+        var irc_login = $('input_irc_nick').value;
+        var irc_password = $('input_irc_password').value;
+        var irc_channel = $('input_irc_channel').value;
+        var irc_channel_key = $('input_irc_channel_key').value;
+        var irc_server_host = $('input_irc_host').value;
+        var irc_server_port = $('input_irc_port').value;
+        var irc_use_ssl = $('input_irc_ssl').checked;
+        var irc_reconnect_timeout = $('input_irc_reconnect_timeout').value;
+        // send request to server
+        data = {'transport':'irc','irc_login' : irc_login, 'irc_password':irc_password,'irc_channel': irc_channel, 
+                'irc_channel_key' : irc_channel_key, 'irc_server_host':irc_server_host, 'irc_server_port' : irc_server_port,
+                'irc_use_ssl' : irc_use_ssl, 'irc_reconnect_timeout' : irc_reconnect_timeout};
+        $http.post(req_url + '?req=start_irc', data).success(function(data){
+            $('input_irc_nick').value = '';
+            $('input_irc_password').value = '';
+            $('input_irc_channel').value = '';
+            $('input_irc_channel_key').value = '';
+            $('input_irc_host').value = '';
+            $('input_irc_port').value = '';
+            $('input_irc_ssl').checked = false;
+            $('input_irc_reconnect_timeout').value = '';
+        });
         // return
         return true;
     }

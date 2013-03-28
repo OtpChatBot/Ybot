@@ -29,6 +29,7 @@
       }
  
       #menu ul{
+        margin-left : 0%;
         list-style: none;
       }
 
@@ -132,7 +133,7 @@
                     </div>
                     <!-- End of Ybot plugins content -->
 
-                    <div id="div_ybot_upload" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                    <div id="div_ybot_upload" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
                       <h3>Upload plugins</h3>
                           <lable>Ybot upload plugin from the <a href="https://github.com/0xAX/ybot-contrib">ybot-contrb</a> or from other place from the web:  <span id="span_upload_error" style="visibility: hidden;" class="label label-important">Wrong plugin path</span>
                           <br/></label>
@@ -140,7 +141,7 @@
                           <button class="btn btn-success" ng-model="upload_new_plugin" ng-click="upload_plugin()">Upload</button>
                     </div>
 
-                    <div id="div_ybot_transports" style="position: absolute; overflow:auto; top:0%; right:0%; left:0%;">
+                    <div id="div_ybot_transports" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%">
                       <h3>Transports</h3>
                         <ul>
                            <li ng-repeat="runned_transport in runned_transports">
@@ -149,15 +150,46 @@
                         </ul>
                     </div>
 
-                    <div id="div_ybot_runned_transports" style="position: absolute; top:20%; right:0%; left:21%; bottom:0%;">
+                    <div id="div_ybot_runned_transports" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
                       <h3>Start new Ybot transport</h3>
                         <div id="menu">
-                          <ul id="tabs_example_one" class="subsection_tabs">  
-                              <li class="tab"><a href="#one">One</a></li>  
-                              <li class="tab"><a href="#two">Two</a></li>  
-                          </ul>  
-                          <div id="one"><p>This is the simplest example of a set of tabs.</p></div>  
-                          <div id="two"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
+                          <ul id="tabs_example_one" class="subsection_tabs">        |
+                              <li class="tab"><a href="#tr1">Irc chat</a></li>      | 
+                              <li class="tab"><a href="#tr2">Jabber chat</a></li>   |
+                              <li class="tab"><a href="#tr3">Campfire chat</a></li> |
+                              <li class="tab"><a href="#tr4">HipChat chat</a></li>  |
+                              <li class="tab"><a href="#tr5">Skype chat</a></li>    |
+                              <li class="tab"><a href="#tr6">HTTP chat</a></li>     |
+                          </ul>
+
+                          <!-- Start irc transport -->
+                          <div id="tr1">
+                            <label>Irc bot nick:</label>
+                            <input type="text" id="input_irc_nick"/>
+                            <label>Irc bot password:</label>
+                            <input type="text" id="input_irc_password"/>
+                            <label>Irc channel:</label>
+                            <input type="text" id="input_irc_channel"/>
+                            <label>Irc channel key:</label>
+                            <input type="text" id="input_irc_channel_key"/>
+                            <label>Irc server host:</label>
+                            <input type="text" id="input_irc_host"/>
+                            <label>Irc server port:</label>
+                            <input type="text" id="input_irc_port"/>
+                            <label>Use ssl:</label>
+                            <input type="checkbox" id="input_irc_ssl"/>
+                            <label>recconnect timeout:</label>
+                            <input type="text" id="input_irc_reconnect_timeout"/>
+                            <br/>
+                            <button ng-model="start_irc_transport" ng-click="start_irc()" class="btn">Start</button>
+                          </div>  
+                          <!-- End of start irc transport -->
+                         
+                          <div id="tr2"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
+                          <div id="tr3"><p>This is the simplest example of a set of tabs.</p></div>  
+                          <div id="tr4"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
+                          <div id="tr5"><p>This is the simplest example of a set of tabs.</p></div>  
+                          <div id="tr6"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
                         </div>  
                     </div>
 

@@ -194,7 +194,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             % Start parser process
             {ok, ParserPid} = ybot_parser:start_link(),
             % Log
-            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
+            lager:info("Starting IRC transport: ~p, ~p, with nick: ~s", [Host, Channel, Nick]),
             % send client pid to handler
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, ParserPid, Nick}),
             % return correct transport

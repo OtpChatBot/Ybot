@@ -162,6 +162,15 @@ handle(Req, State) ->
                     handle_request(jiffy:decode(Body)),
                     % send response
                     cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Start irc transport
+                ["req", "start_irc"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
                 _ ->
                     % do nothing
                     pass
@@ -253,6 +262,17 @@ handle_request({[{<<"is_observer">>, UseObserver}, {<<"timeout">>, Timeout}]}) -
         _ ->
             wrong_command
     end;
-    
+
+handle_request({[{<<"transport">>, <<"irc">>}, _, _, _, _, _, _, _, _]} = Irc) ->
+    {[{<<"transport">>, <<"irc">>}, {<<"irc_login">>, IrcLogin}, {<<"irc_password">>, Password},
+      {<<"irc_channel">>, IrcChannel}, {<<"irc_channel_key">>, Key}, {<<"irc_server_host">>, Host},
+      {<<"irc_server_port">>, Port}, {<<"irc_use_ssl">>, Ssl}, {<<"irc_reconnect_timeout">>, RecTimeout}
+    ]} = Irc,
+    Options = [{port, ybot_utils:to_int(Port)}, {use_ssl, Ssl}, {reconnect_timeout, ybot_utils:to_int(RecTimeout)}],
+    % start irc
+    ybot_manager:run_transport({irc, IrcLogin, {IrcChannel, Key}, {Host, Password}, Options}),
+    % return 
+    done;
+
 handle_request(_) ->
     error.
