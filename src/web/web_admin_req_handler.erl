@@ -152,6 +152,16 @@ handle(Req, State) ->
                     handle_request(jiffy:decode(Body)),
                     % Send response
                     cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Upload new plugin
+                %
+                ["req", "upload_web_plugin"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
                 _ ->
                     % do nothing
                     pass
@@ -195,6 +205,26 @@ handle_request({[{<<"is_history">>, IsHistory}, {<<"limit">>, History}]}) ->
             end;
         _ ->
             wrong_command
+    end;
+
+handle_request({[{<<"upload_plugin_path">>, PluginUrl}]}) ->
+    % {_, _, _, Body2} = ibrowse:send_req("https://raw.github.com/0xAX/ybot-contrib/master/plugins/ackbar.rb", [], get).
+    % Get plugin extension
+    Ext = filename:extension(binary_to_list(PluginUrl)),
+    % Check extenstion
+    case lists:member(Ext, [".py", ".rb", ".sh", ".pl", ".ex", ".scala"]) of
+        % good plugin
+        true ->
+            %
+            % download plugin and save to plugins directory
+            %
+            PluginName = filename:basename(binary_to_list(PluginUrl)),
+            {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
+            {_, _, _, PluginData} = ibrowse:send_req(binary_to_list(PluginUrl), [], get),
+            {ok, IODevice} = file:open(PluginsDirectory ++ PluginName, [write]), 
+            file:write(IODevice, PluginData), file:close(IODevice),
+        _ ->
+            wrong_plugin
     end;
 
 handle_request({[{<<"is_observer">>, UseObserver}, {<<"timeout">>, Timeout}]}) ->

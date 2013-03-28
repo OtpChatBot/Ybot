@@ -56,6 +56,30 @@ function YbotController ($scope, $http) {
         }
     }
 
+    // clicin on upload plugin button
+    $scope.upload_plugin = function(){
+        // get plugin path
+        var plugin_path = $('plugin_web_path').value;
+        // check plugin path
+        if (plugin_path == ''){
+            // show error
+            $('span_upload_error').style.visibility = "visible";
+            // return
+            return false;
+        }
+        else{
+            // hide error
+            $('span_upload_error').style.visibility = "hidden";
+            // send request to server on new plugin upload
+            data = {'upload_plugin_path' : plugin_path};
+            $http.post(req_url + '?req=upload_web_plugin', data);
+            // clear plugin path
+            $('plugin_web_path').value = ''
+            // return
+            return true;
+        }
+    }
+
     // click on update history button
     $scope.update_history_settings = function(){
         // get history limit value

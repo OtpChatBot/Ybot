@@ -123,7 +123,10 @@
                     <!-- End of Ybot plugins content -->
 
                     <div id="div_ybot_upload" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
-                      <strong>TODO</strong>
+                          <lable>Ybot upload plugin from the <a href="https://github.com/0xAX/ybot-contrib">ybot-contrb</a> or from other place from the web:  <span id="span_upload_error" style="visibility: hidden;" class="label label-important">Wrong plugin path</span>
+                          <br/></label>
+                          <input id="plugin_web_path" name="input_update_plugin" type="text" placeholder="http://" style="width: 240px"/><br/>
+                          <button class="btn btn-success" ng-model="upload_new_plugin" ng-click="upload_plugin()">Upload</button>
                     </div>
 
                     <div id="div_ybot_transports" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
