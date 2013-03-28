@@ -53,7 +53,7 @@ handle(Req, State) ->
                                     undefined ->
                                         {history_limit, 0};
                                     _ ->
-                                        {history_limit, gen_server:call(ybot_history, get_history_limit),}
+                                        {history_limit, gen_server:call(ybot_history, get_history_limit)}
                                    end,
                     % Get observer
                     IsObserver = case whereis(ybot_plugins_observer) of
@@ -67,7 +67,7 @@ handle(Req, State) ->
                                           undefined ->
                                               {observer_timeout, 0};
                                           _ ->
-                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout),}
+                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout)}
                                       end,
                     % Get storage
                     Storage = {storage_type, ybot:get_brain_storage()},
