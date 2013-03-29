@@ -164,7 +164,28 @@ handle(Req, State) ->
                     cowboy_req:reply(200, [], <<"Ok">>, Req3);
                 %
                 % Start irc transport
+                %
                 ["req", "start_irc"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Start xmpp transport
+                %
+                ["req", "start_xmpp"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Start campfire
+                %
+                ["req", "start_campfire"] ->
                     % Get request body
                     {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
                     % handle_request from web interface
@@ -272,6 +293,26 @@ handle_request({[{<<"transport">>, <<"irc">>}, _, _, _, _, _, _, _, _]} = Irc) -
     % start irc
     ybot_manager:run_transport({irc, IrcLogin, {IrcChannel, Key}, {Host, Password}, Options}),
     % return 
+    done;
+
+handle_request({[{<<"transport">>, <<"xmpp">>}, _, _, _, _, _, _, _, _]} = Xmpp) ->
+    {[{<<"transport">>, <<"xmpp">>}, {<<"xmpp_login">>, Login}, {<<"xmpp_password">>, Password},
+      {<<"xmpp_room">>, Room}, {<<"xmpp_server">>, Host}, {<<"xmpp_resource">>, Resource},
+      {<<"xmpp_port">>, Port}, {<<"xmpp_ssl">>, Ssl}, {<<"xmpp_reconnect_timeout">>, RecTimeout}
+    ]} = Xmpp,
+    % Options
+    Options = [{port, ybot_utils:to_int(Port)}, {use_ssl, Ssl}, {reconnect_timeout, ybot_utils:to_int(RecTimeout)}],
+    % Start xmpp
+    ybot_manager:run_transport({xmpp, Login, Password, Room, Host, Resource, Options}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"campfire">>}, _, _, _, _, _]} = Campfire) ->
+    {[{<<"transport">>, <<"campfire">>}, {<<"login">>, Login}, {<<"token">>, Token},
+      {<<"room">>, Room}, {<<"subdomain">>, SubDomain}, {<<"reconnect_timeout">>, RecTimeout}
+    ]} = Campfire,
+    % Start campfire
+    ybot_manager:run_transport({campfire, Login, Token, ybot_utils:to_int(Room), SubDomain, [{reconnect_timeout, ybot_utils:to_int(RecTimeout)}]}),
     done;
 
 handle_request(_) ->

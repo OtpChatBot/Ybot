@@ -178,15 +178,53 @@
                             <input type="text" id="input_irc_port"/>
                             <label>Use ssl:</label>
                             <input type="checkbox" id="input_irc_ssl"/>
-                            <label>recconnect timeout:</label>
+                            <label>Recconnect timeout:</label>
                             <input type="text" id="input_irc_reconnect_timeout"/>
                             <br/>
                             <button ng-model="start_irc_transport" ng-click="start_irc()" class="btn">Start</button>
                           </div>  
                           <!-- End of start irc transport -->
-                         
-                          <div id="tr2"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
-                          <div id="tr3"><p>This is the simplest example of a set of tabs.</p></div>  
+
+                          <!-- Start jabber transport -->
+                          <div id="tr2">
+                            <label>Bot nick:</label>
+                            <input type="text" id="input_jabber_nick"/>
+                            <label>Bot password:</label>
+                            <input type="text" id="input_jabber_password"/>
+                            <label>Jabber room:</label>
+                            <input type="text" id="input_jabber_room"/>
+                            <label>Jabber server:</label>
+                            <input type="text" id="input_jabber_server"/>
+                            <label>Jabber resource:</label>
+                            <input type="text" id="input_jabber_resource"/>
+                            <label>Server port:</label>
+                            <input type="text" id="input_jabber_port"/>
+                            <label>Use ssl:</label>
+                            <input type="checkbox" id="input_jabber_ssl"/>
+                            <label>Recconnect timeout:</label>
+                            <input type="text" id="input_jabber_reconnect_timeout"/>
+                            <br/>
+                            <button ng-model="start_jabber_transport" ng-click="start_xmpp()" class="btn">Start</button>
+                          </div>
+                          <!-- End of start jabber transport -->
+
+                          <!-- Start campfire transport -->
+                          <div id="tr3">
+                            <label>Bot nick:</label>
+                            <input type="text" id="input_campfire_nick"/>
+                            <label>Campfire token:</label>
+                            <input type="text" id="input_campfire_token"/>
+                            <label>Campfire room id:</label>
+                            <input type="text" id="input_campfire_room_id"/>
+                            <label>Campfire subdomain:</label>
+                            <input type="text" id="input_campfire_subdomain"/>
+                            <label>Reconnect timeout:</label>
+                            <input type="text" id="input_campfire_reconnect_timeout"/>
+                            <br/>
+                            <button ng-model="start_campfire_transport" ng-click="start_campfire()" class="btn">Start</button>
+                          </div>
+                          <!-- End of start campfire transport -->
+
                           <div id="tr4"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
                           <div id="tr5"><p>This is the simplest example of a set of tabs.</p></div>  
                           <div id="tr6"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>

@@ -155,6 +155,7 @@ function YbotController ($scope, $http) {
     /*
      * Start transports
      */
+    // start irc
     $scope.start_irc = function(){
         /*
          * Get transport data
@@ -184,7 +185,59 @@ function YbotController ($scope, $http) {
         // return
         return true;
     }
-    
+
+    // start jabber
+    $scope.start_xmpp = function(){
+        // get data
+        var xmpp_login = $('input_jabber_nick').value;
+        var xmpp_password = $('input_jabber_password').value;
+        var xmpp_room = $('input_jabber_room').value;
+        var xmpp_server = $('input_jabber_server').value;
+        var xmpp_resource = $('input_jabber_resource').value;
+        var xmpp_port = $('input_jabber_port').value;
+        var xmpp_ssl = $('input_jabber_ssl').checked;
+        var xmpp_reconnect_timeout = $('input_jabber_reconnect_timeout').value;
+        // send request to server
+        data = {'transport': 'xmpp', 'xmpp_login' : xmpp_login, 'xmpp_password':xmpp_password,'xmpp_room':xmpp_room,
+                'xmpp_server':xmpp_server,'xmpp_resource':xmpp_resource,'xmpp_port':xmpp_port,'xmpp_ssl':xmpp_ssl,
+                'xmpp_reconnect_timeout':xmpp_reconnect_timeout};
+        $http.post(req_url + '?req=start_xmpp', data).success(function(data){
+            $('input_jabber_nick').value = '';
+            $('input_jabber_password').value = '';
+            $('input_jabber_room').value = '';
+            $('input_jabber_server').value = '';
+            $('input_jabber_resource').value = '';
+            $('input_jabber_port').value = '';
+            $('input_jabber_ssl').checked = false;
+            $('input_jabber_reconnect_timeout').value;
+        });
+        // return
+        return true;
+    }
+
+    // start campfire
+    $scope.start_campfire = function(){
+        // get data
+        var campfire_login = $('input_campfire_nick').value;
+        var campfire_token = $('input_campfire_token').value;
+        var campfire_room = $('input_campfire_room_id').value;
+        var campfire_sub_domain = $('input_campfire_subdomain').value;
+        var campfire_reconnect_timeout = $('input_campfire_reconnect_timeout').value;
+
+        // send request to server
+        data = {'transport':'campfire', 'login':campfire_login,'token':campfire_token,'room':campfire_room,
+                'subdomain':campfire_sub_domain, 'reconnect_timeout':campfire_reconnect_timeout};
+        $http.post(req_url + '?req=start_campfire', data).success(function(data){
+            $('input_campfire_nick').value = '';
+            $('input_campfire_token').value = '';
+            $('input_campfire_room_id').value = '';
+            $('input_campfire_subdomain').value = '';
+            $('input_campfire_reconnect_timeout').value = '';
+        });
+        // return
+        return true;
+    }
+
     /*
      * Handle main page
      */
