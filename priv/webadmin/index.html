@@ -159,7 +159,9 @@
                               <li class="tab"><a href="#tr3">Campfire chat</a></li> |
                               <li class="tab"><a href="#tr4">HipChat chat</a></li>  |
                               <li class="tab"><a href="#tr5">Skype chat</a></li>    |
-                              <li class="tab"><a href="#tr6">HTTP chat</a></li>     |
+                              <li class="tab"><a href="#tr6">HTTP transport</a></li>|
+                              <li class="tab"><a href="#tr7">Flowdock chat</a></li> |
+                              <li class="tab"><a href="#tr8">Talkerapp chat</a></li>|
                           </ul>
 
                           <!-- Start irc transport -->
@@ -225,14 +227,81 @@
                           </div>
                           <!-- End of start campfire transport -->
 
-                          <div id="tr4"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
-                          <div id="tr5"><p>This is the simplest example of a set of tabs.</p></div>  
-                          <div id="tr6"><p>Note that the styling for the tabs is done with CSS, not the Control.Tabs script.</p></div>
+                          <!-- Start of hipchat transport -->
+                          <div id="tr4">
+                            <label>Bot jid:</label>
+                            <input type="text" id="input_hipchat_jid"/>
+                            <label>Bot password:</label>
+                            <input type="text" id="input_hipchat_password"/>
+                            <label>Hipchat room:</label>
+                            <input type="text" id="input_hipchat_room"/>
+                            <label>Hipchat bot nick:</label>
+                            <input type="text" id="input_hipchat_nick"/>
+                            <label>Reconnect timeout:</label>
+                            <input type="text" id="input_hipchat_reconnect_timeout"/>
+                            <br/>
+                            <button ng-model="start_hipchat_transport" ng-click="start_hipchat()" class="btn">Start</button>
+                          </div>
+                          <!-- End of start HipChat transport -->
+
+                          <!-- Start of skype transport -->
+                          <div id="tr5">
+                            <label>Ybot http backend host:</label>
+                            <input type="text" id="input_skype_http_host"/>
+                            <label>Ybot http backend port:</label>
+                            <input type="text" id="input_skype_http_port"/>
+                            <br/>
+                            <button ng-model="start_skype_transport" ng-click="start_skype()" class="btn">Start</button>
+                          </div>  
+                          <!-- End of start skype transport -->
+
+                          <!-- Start of http transport -->
+                          <div id="tr6">
+                            <label>HTTP host:</label>
+                            <input type="text" id="input_http_host"/>
+                            <label>HTTP port:</label>
+                            <input type="text" id="input_http_port"/>
+                            <label>Bot nick:</label>
+                            <input type="text" id="input_http_bot_nick"/>
+                            <br/>
+                            <button ng-model="start_http_transport" ng-click="start_http()" class="btn">Start</button>
+                          </div>
+                          <!-- Start of http transport -->
+
+                          <div id="tr7">
+                            <label>Bot chat nick:</label>
+                            <input type="text" id="input_flowdock_nick"/>
+                            <label>Bot flowdock login:</label>
+                            <input type="text" id="input_flowdock_login"/>
+                            <label>Bot password:</label>
+                            <input type="text" id="input_flowdock_password"/>
+                            <label>flowdock organization:</label>
+                            <input type="text" id="input_flowdock_org"/>
+                            <label>flowdock flow:</label>
+                            <input type="text" id="input_flowdock_flow"/>
+                            <br/>
+                            <button ng-model="start_flowdock_transport" ng-click="start_flowdock()" class="btn">Start</button>
+                          </div>
+
+                          <div id="tr8">
+                            <label>Bot chat nick:</label>
+                            <input type="text" id="input_talkerapp_nick"/>
+                            <label>Bot talkerapp room:</label>
+                            <input type="text" id="input_talkerapp_room"/>
+                            <label>Talkerapp token:</label>
+                            <input type="text" id="input_talkerapp_token"/>
+                            <br/>
+                            <button ng-model="start_talkerapp_transport" ng-click="start_talkerapp()" class="btn">Start</button>
+                          </div>
+                          
                         </div>  
                     </div>
 
                     <div id="div_ybot_storage" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
-                      <strong>TODO</strong>
+                      <h3>Ybot backend storage</h3>
+                      <label>Backend storage type: {{storage_type}}</label>
+                      <label>Backend http host: {{storage_http_host}}</label>
+                      <label>Backend http port: {{storage_http_port}}</label>
                     </div>
 
                   <div>

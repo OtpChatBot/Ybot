@@ -272,7 +272,7 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, ParserPid, Login}),
     % return correct transport
-    {campfire, ClientPid, HandlerPid};
+    {campfire, ClientPid, HandlerPid, Login};
 
 %% @doc Ybot http interface
 load_transport({http, Host, Port, BotNick}) ->
@@ -298,7 +298,7 @@ load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, ParserPid, NickInChat}),
     % return correct transport
-    {flowdock, ClientPid, HandlerPid};
+    {flowdock, ClientPid, HandlerPid, Login};
 
 %% @doc Use skype or not
 load_transport({skype, UseSkype, Host, Port}) ->
@@ -333,7 +333,7 @@ load_transport({talkerapp, Nick, Room, Token}) ->
     % Log
     lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
     % return correct transport
-    {talkerapp, ClientPid, HandlerPid};
+    {talkerapp, ClientPid, HandlerPid, Nick};
 
 load_transport(_) ->
     [].

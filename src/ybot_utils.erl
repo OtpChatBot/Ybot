@@ -77,7 +77,8 @@ to_int(X) when is_binary(X) -> list_to_integer(binary_to_list(X));
 to_int(X) when is_integer(X) -> X;
 to_int(X) when is_float(X) -> list_to_integer(float_to_list(X));
 to_int(X) when is_atom(X) -> list_to_integer(atom_to_list(X));
-to_int(X) when is_list(X) -> list_to_integer(X).
+to_int(X) when is_list(X) -> list_to_integer(X);
+to_int(_) -> 0.
 
 %% @doc Send Body to all chats
 -spec broadcast(any()) -> ok.

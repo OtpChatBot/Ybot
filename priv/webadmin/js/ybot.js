@@ -148,6 +148,12 @@ function YbotController ($scope, $http) {
         $scope.header = $('a_ybot_storage_opts').innerHTML;
         // active current li
         activate_li('li_storage_option', 'div_ybot_storage');
+        // send request
+        $http.get(req_url + '?req=storage_info').success(function(data){
+            $scope.storage_http_host = data.storage_host;
+            $scope.storage_http_port = data.storage_port;
+        });
+
         // return
         return true;
     }
@@ -233,6 +239,99 @@ function YbotController ($scope, $http) {
             $('input_campfire_room_id').value = '';
             $('input_campfire_subdomain').value = '';
             $('input_campfire_reconnect_timeout').value = '';
+        });
+        // return
+        return true;
+    }
+
+    // start hipchat
+    $scope.start_hipchat = function () {
+        // get data
+        var hipchat_jid = $('input_hipchat_jid').value;
+        var hipchat_password = $('input_hipchat_password').value;
+        var hipchat_room = $('input_hipchat_room').value;
+        var hipchat_nick = $('input_hipchat_nick').value;
+        var hipchat_reconnect_timeout = $('input_hipchat_reconnect_timeout').value;
+        // send request to server
+        data = {'transport':'hipchat','hipchat_jid':hipchat_jid,'hipchat_password':hipchat_password,'hipchat_room':hipchat_room,
+                'hipchat_nick':hipchat_nick,'hipchat_reconnect_timeout':hipchat_reconnect_timeout};
+        $http.post(req_url + '?req=start_hipchat', data).success(function(data){
+            $('input_hipchat_jid').value = '';
+            $('input_hipchat_password').value = '';
+            $('input_hipchat_room').value = '';
+            $('input_hipchat_nick').value = '';
+            $('input_hipchat_reconnect_timeout').value = '';
+        });
+        // return
+        return true;
+    }
+
+    // start skype
+    $scope.start_skype = function(){
+        // get data
+        var skype_http_host = $('input_skype_http_host').value;
+        var skype_http_port = $('input_skype_http_port').value;
+        // send request
+        data = {'transport':'skype','skype_http_host':skype_http_host,'skype_http_port':skype_http_port};
+        $http.post(req_url + '?req=start_skype', data).success(function(data){
+            $('input_skype_http_host').value = '';
+            $('input_skype_http_port').value = '';
+        });
+        // return
+        return true;
+    }
+
+    // start flowdock
+    $scope.start_flowdock = function(){
+        // get data
+        var flowdock_nick = $('input_flowdock_nick').value;
+        var flowdock_login = $('input_flowdock_login').value;
+        var flowdock_password = $('input_flowdock_password').value;
+        var flowdock_org = $('input_flowdock_org').value;
+        var flowdock_flow = $('input_flowdock_flow').value;
+        // send request
+        data = {'transport':'flowdock','flowdock_nick':flowdock_nick,'flowdock_login':flowdock_login,'flowdock_password':flowdock_password,
+                'flowdock_org':flowdock_org,'flowdock_flow':flowdock_flow};
+        $http.post(req_url + '?req=start_flowdock', data).success(function(data){
+            $('input_flowdock_nick').value = '';
+            $('input_flowdock_login').value = '';
+            $('input_flowdock_password').value = '';
+            $('input_flowdock_org').value = '';
+            $('input_flowdock_flow').value = '';
+        });
+        // return
+        return true;
+    }
+
+    // start http
+    $scope.start_http = function(){
+        // get data
+        var http_host = $('input_http_host').value;
+        var http_port = $('input_http_port').value;
+        var http_bot_nick = $('input_http_bot_nick').value;
+        // send request
+        data = {'transport':'http','http_host':http_host,'http_port':http_port,'http_bot_nick':http_bot_nick};
+        $http.post(req_url + '?req=start_http', data).success(function(data){
+            $('input_http_host').value = '';
+            $('input_http_port').value = '';
+            $('input_http_bot_nick').value = ''; 
+        });
+        // return
+        return true;
+    }
+
+    // start talkerapp
+    $scope.start_talkerapp = function(){
+        // get data
+        var talkerapp_nick = $('input_talkerapp_nick').value;
+        var talkerapp_room = $('input_talkerapp_room').value;
+        var talkerapp_token = $('input_talkerapp_token').value;
+        // send request
+        data = {'transport':'talkerapp','talkerapp_nick':talkerapp_nick,'talkerapp_room':talkerapp_room,'talkerapp_token':talkerapp_token};
+        $http.post(req_url + '?req=start_talkerapp', data).success(function(data){
+            $('input_talkerapp_nick').value = '';
+            $('input_talkerapp_room').value = '';
+            $('input_talkerapp_token').value = '';
         });
         // return
         return true;

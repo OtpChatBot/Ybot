@@ -29,13 +29,41 @@ handle(Req, State) ->
             % Parse query string
             case string:tokens(binary_to_list(QS), "=") of
                 %
+                % Get backend storage info
+                %
+                ["req", "storage_info"] ->
+                    % Get storage host
+                    StorageHost = case application:get_env(ybot, brain_api_host) of
+                                    undefined ->
+                                        {storage_host, false};
+                                    {_, Host} ->
+                                        {storage_host, Host}
+                                end,
+                    % Get storage port
+                    StoragePort = case application:get_env(ybot, brain_api_port) of
+                                    undefined ->
+                                        {storage_port, 0};
+                                    {_, Port} ->
+                                        {storage_port, Port}
+                                   end,
+                    % prepare data to json
+                    Data = {[
+                                StorageHost,
+                                StoragePort
+                            ]},
+                    % Convert to json
+                    Json = jiffy:encode(Data),
+                    % Send info to Ybot webadmin
+                    cowboy_req:reply(200, [], Json, Req3);
+                %
                 % Get data for front page
                 %
                 ["req", "main_web_interface_req"] ->
                     % Get runned transports
                     Transports = [atom_to_list(element(1, Transport))  ++ " " ++
                                   pid_to_list(element(2, Transport))   ++ " " ++ 
-                                  binary_to_list(element(4, Transport)) ++ "\n" || Transport <- ybot:get_runned_transports(), element(1, Transport) /= http],
+                                  binary_to_list(element(4, Transport)) ++ "\n" || Transport <- ybot:get_runned_transports(), 
+                                  (element(1, Transport) /= http) or (element(1, Transport) /= skype)],
                     % Get plugins
                     PluginsDirectory = {plugins_directory, list_to_binary(ybot:get_plugins_directory())},
                     % Get plugins
@@ -192,6 +220,56 @@ handle(Req, State) ->
                     handle_request(jiffy:decode(Body)),
                     % send response
                     cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Start hipchat
+                %
+                ["req", "start_hipchat"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % Start skype
+                %
+                ["req", "start_skype"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % start flowdock
+                %
+                ["req", "start_flowdock"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % start http
+                %
+                ["req", "start_http"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
+                %
+                % start talkerapp
+                %
+                ["req", "start_talkerapp"] ->
+                    % Get request body
+                    {ok, [{Body, _}], _} = cowboy_req:body_qs(Req3),
+                    % handle_request from web interface
+                    handle_request(jiffy:decode(Body)),
+                    % send response
+                    cowboy_req:reply(200, [], <<"Ok">>, Req3);
                 _ ->
                     % do nothing
                     pass
@@ -313,6 +391,45 @@ handle_request({[{<<"transport">>, <<"campfire">>}, _, _, _, _, _]} = Campfire) 
     ]} = Campfire,
     % Start campfire
     ybot_manager:run_transport({campfire, Login, Token, ybot_utils:to_int(Room), SubDomain, [{reconnect_timeout, ybot_utils:to_int(RecTimeout)}]}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"hipchat">>}, _, _, _, _, _]} = HipChat) ->
+    {[{<<"transport">>, <<"hipchat">>}, {<<"hipchat_jid">>, Jid}, {<<"hipchat_password">>, Password},
+      {<<"hipchat_room">>, Room}, {<<"hipchat_nick">>, Nick}, {<<"hipchat_reconnect_timeout">>, RecTimeout}
+    ]} = HipChat,
+    % Start hipchat
+    ybot_manager:run_transport({hipchat, Jid, Password, Room, <<"chat.hipchat.com">>, <<"bot">>, Nick, [{reconnect_timeout, ybot_utils:to_int(RecTimeout)}]}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"skype">>}, _, _]} = Skype) ->
+    {[{<<"transport">>, <<"skype">>}, {<<"skype_http_host">>, Host}, {<<"skype_http_port">>, Port}]} = Skype,
+    % Start skype
+    ybot_manager:run_transport({skype, true, Host, ybot_utils:to_int(Port)}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"flowdock">>}, _, _, _, _, _]} = Flowdock) ->
+    {[{<<"transport">>, <<"flowdock">>}, {<<"flowdock_nick">>, Nick}, {<<"flowdock_login">>, Login},
+      {<<"flowdock_password">>, Password}, {<<"flowdock_org">>, Org}, {<<"flowdock_flow">>, Flow}]} = Flowdock,
+    % Start flowdock
+    ybot_manager:run_transport({flowdock, Nick, Login, Password, Org, Flow}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"http">>}, _, _, _]} = Http) ->
+    {[{<<"transport">>, <<"http">>}, {<<"http_host">>, Host}, {<<"http_port">>, Port}, {<<"http_bot_nick">>, Nick}]} = Http,
+    % start http
+    ybot_manager:run_transport({http, Host, ybot_utils:to_int(Port), Nick}),
+    % return
+    done;
+
+handle_request({[{<<"transport">>, <<"talkerapp">>}, _, _, _]} = Talkerapp) ->
+    {[{<<"transport">>, <<"talkerapp">>}, {<<"talkerapp_nick">>, Nick}, {<<"talkerapp_room">>, Room}, {<<"talkerapp_token">>, Token}]} = Talkerapp,
+    % start talkerapp
+    ybot_manager:run_transport({talkerapp, Nick, Room, Token}),
+    % return
     done;
 
 handle_request(_) ->

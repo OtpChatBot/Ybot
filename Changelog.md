@@ -16,6 +16,7 @@
   * New dependence - jiffy.
   * New configuration option - webadmin_host :: integer()
   * New configuration option - webadmin_port :: binary()
+  * Web interface added.
   
 ## Ybot-0.3.2 --> released
 
