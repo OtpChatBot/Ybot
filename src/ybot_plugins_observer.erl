@@ -8,7 +8,7 @@
  
 -behaviour(gen_server).
  
--export([start_link/3]).
+-export([start_link/3, stop/0]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -44,6 +44,10 @@
 start_link(PluginsDirectory, Plugins, Timeout) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Plugins, Timeout], []).
 
+%% @doc stop observer process
+stop() ->
+    gen_server:cast(ybot_plugins_observer, stop).
+
 %%%============================================================================
 %%% Observer callbacks
 %%%============================================================================
@@ -53,10 +57,20 @@ init([PluginsDirectory, Plugins, Timeout]) ->
     erlang:send_after(Timeout, self(), {check_new_plugins, PluginsDirectory, Plugins}),
     % init observer parameters
     {ok, #state{current_plugins = Plugins, timeout = Timeout, plugins_directory = PluginsDirectory}}.
+
+handle_call(get_observer_timeout, _From, State) ->
+    {reply, State#state.timeout, State};
  
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
- 
+
+%% @doc update observing timeout
+handle_cast({update_timeout, Time}, State) ->
+    {noreply, State#state{timeout = Time}};
+
+handle_cast(stop, State) ->
+    {stop, normal, State};
+
 handle_cast(_Msg, State) ->
     {noreply, State}.
 

@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/2, load_plugin/1]).
+-export([start_link/2, load_plugin/1, run_transport/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -27,7 +27,9 @@
        % Ybot active plugins list
        plugins = [] :: [{plugin, Source :: string(), PluginName :: string(), Path :: string()}],
        % Runned transports pid list
-       runned_transports = [] :: [pid()] 
+       runned_transports = [] :: [pid()],
+       % plugins paths
+       plugins_paths = []
     }).
 
 %%%=============================================================================
@@ -78,6 +80,9 @@ handle_call(get_plugins, _From, State) ->
     % Return all plugins
     {reply, State#state.plugins, State};
 
+handle_call(get_plugins_paths, _From, State) ->
+    {reply, State#state.plugins_paths, State};
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
@@ -125,7 +130,7 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
             % observe new plugins after start
             ok = ybot_plugins_observer:observe_new_plugins(PluginsDirectory, PluginsPaths),
             % return plugins
-            {noreply, State#state{plugins = Plugins}};
+            {noreply, State#state{plugins = Plugins, plugins_paths =  PluginsPaths}};
         false ->
             % some log
             lager:error("Unable to load plugins. Invalid directory ~s", [PluginsDirectory]),
@@ -148,6 +153,12 @@ handle_cast({start_transports, Transports}, State) ->
                                               end, TransportList)),
     % Init transports
     {noreply, State#state{transports = TransportList, runned_transports = RunnedTransport}};
+
+%% @doc add new runned transport
+handle_cast({update_transport, NewTransport, NewTransportPid}, State) ->
+    % update transports
+    {noreply, State#state{transports = lists:flatten([NewTransport | State#state.transports]), 
+                          runned_transports = lists:flatten([NewTransportPid | State#state.runned_transports])}};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -183,7 +194,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             % Start parser process
             {ok, ParserPid} = ybot_parser:start_link(),
             % Log
-            lager:info("Starting IRC transport: ~p, ~p, ~s", [Host, Channel, Nick]),
+            lager:info("Starting IRC transport: ~p, ~p, with nick: ~s", [Host, Channel, Nick]),
             % send client pid to handler
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid, ParserPid, Nick}),
             % return correct transport
@@ -244,7 +255,7 @@ load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick, Opt
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
     % return correct transport
-    {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+    {hipchat, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
 
 %% @doc start campfire client
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
@@ -261,7 +272,7 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, ParserPid, Login}),
     % return correct transport
-    {campfire, ClientPid, HandlerPid};
+    {campfire, ClientPid, HandlerPid, Login};
 
 %% @doc Ybot http interface
 load_transport({http, Host, Port, BotNick}) ->
@@ -287,7 +298,7 @@ load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
     % Send client pid to handler
     ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, ParserPid, NickInChat}),
     % return correct transport
-    {flowdock, ClientPid, HandlerPid};
+    {flowdock, ClientPid, HandlerPid, Login};
 
 %% @doc Use skype or not
 load_transport({skype, UseSkype, Host, Port}) ->
@@ -322,7 +333,10 @@ load_transport({talkerapp, Nick, Room, Token}) ->
     % Log
     lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
     % return correct transport
-    {talkerapp, ClientPid, HandlerPid}.
+    {talkerapp, ClientPid, HandlerPid, Nick};
+
+load_transport(_) ->
+    [].
 
 load_plugin(Plugin) ->
     % Get plugin extension
@@ -370,4 +384,14 @@ load_plugin(Plugin) ->
             % this is wrong plugin
             lager:info("Unsupported plugin type: ~s", [Ext]),
             []
+    end.
+
+%% @doc run new transport manualy
+run_transport(Transport) ->
+    case load_transport(Transport) of
+        [] ->
+            wrong_transport;
+        NewTransport ->
+            % update transport
+            gen_server:cast(ybot_manager, {update_transport, NewTransport, element(2, NewTransport)})
     end.

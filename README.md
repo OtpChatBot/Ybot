@@ -19,6 +19,7 @@ Features
   * Completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
   * You don't need to know Erlang to write a plugin;
+  * Web interface;
   * Supports plugins in different technology:
     * Python plugins;
     * Ruby plugins;

@@ -8,7 +8,7 @@
  
 -behaviour(gen_server).
  
--export([start_link/1]).
+-export([start_link/1, stop/0]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -33,6 +33,9 @@
 start_link(HistoryLimit) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [HistoryLimit], []).
 
+stop() ->
+    gen_server:cast(?MODULE, stop).
+
 %%%=============================================================================
 %%% ybot_history callbacks
 %%%=============================================================================
@@ -48,8 +51,20 @@ handle_call({get_history, Transport}, _From, State) ->
     % return history
     {reply, History, State};
  
+%% @doc return history limit
+handle_call(get_history_limit, _From, State) -> 
+    {reply, State#state.limit, State};
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
+
+%% update history limit
+handle_cast({update_history_limit, HistoryLimit}, State) ->
+    {noreply, State#state{limit = HistoryLimit}};
+
+%% @doc stop history process
+handle_cast(stop, State) ->
+    {stop, normal, State};
 
 %% @doc update history
 handle_cast({update_history, From, Command}, State) ->

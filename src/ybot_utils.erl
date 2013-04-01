@@ -14,6 +14,7 @@
          to_binary/1,
          to_atom/1,
          to_list/1,
+         to_int/1,
          broadcast/1,
          get_config_val/1,
          get_config_val/2
@@ -70,6 +71,15 @@ to_list(X) when is_integer(X) -> integer_to_list(X);
 to_list(X) when is_float(X) -> mochinum:digits(X);
 to_list(X) when is_atom(X) -> atom_to_list(X);
 to_list(X) when is_list(X) -> X.
+
+%% @doc Ensures that this is integer
+-spec to_int(any()) -> integer().
+to_int(X) when is_binary(X) -> list_to_integer(binary_to_list(X));
+to_int(X) when is_integer(X) -> X;
+to_int(X) when is_float(X) -> list_to_integer(float_to_list(X));
+to_int(X) when is_atom(X) -> list_to_integer(atom_to_list(X));
+to_int(X) when is_list(X) -> list_to_integer(X);
+to_int(_) -> 0.
 
 %% @doc Send Body to all chats
 -spec broadcast(any()) -> ok.
