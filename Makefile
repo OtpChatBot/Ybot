@@ -12,6 +12,7 @@ DIALYZER_OPTS =
 DIALYZER_DEPS = deps/lager/ebin \
                 deps/ibrowse/ebin \
 	        deps/mochijson2/ebin \
+                deps/jiffy/ebin \
 		deps/cowboy/ebin
 
 DEPS_PLT = $(PROJECT).plt
