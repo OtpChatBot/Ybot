@@ -126,7 +126,7 @@ get_by_params([{<<"plugin">>, Plugin}, {<<"key">>, Key}]) ->
 
 % Helpers
 from_json(Input) ->
-    mochijson2:decode(ybot_utils:to_list(Input)).
+    jiffy:decode(ybot_utils:to_list(Input)).
 
 deserialize(Item) ->
     case validate_json(Item) of
@@ -140,25 +140,25 @@ deserialize(Item) ->
 serialize(Records) when is_list(Records) ->
     [serialize(R) || R <- Records];
 serialize(Record) ->
-    {struct,[
-             {id,      bin_to_hex(Record#memory.uuid)},
-             {plugin,  Record#memory.plugin},
-             {key,     Record#memory.key},
-             {value,   Record#memory.value},
-             {created, format_datetime(Record#memory.created)}
-            ]}.
+    HexId = bin_to_hex(Record#memory.uuid),
+    {[
+        {id,      HexId},
+        {url,     get_resource_url(HexId)},
+        {plugin,  Record#memory.plugin},
+        {key,     Record#memory.key},
+        {value,   Record#memory.value},
+        {created, format_datetime(Record#memory.created)}
+    ]}.
 
-validate_json({struct, [{<<"plugin">>, _}, {<<"key">>, _},
-                        {<<"value">>, _}]}) ->
+validate_json({[{<<"plugin">>, _}, {<<"key">>, _}, {<<"value">>, _}]}) ->
     true;
-validate_json({struct, [{<<"id">>, _}, {<<"plugin">>, _}, {<<"key">>, _},
-                        {<<"value">>, _}]}) ->
+validate_json({[{<<"id">>, _}, {<<"plugin">>, _}, {<<"key">>, _}, {<<"value">>, _}]}) ->
     true;
 validate_json(_Other) ->
     false.
 
 to_json(Input) ->
-    ybot_utils:to_binary(mochijson2:encode(Input)).
+    ybot_utils:to_binary(jiffy:encode(Input)).
 
 get_value(Key, List) ->
     proplists:get_value(Key, List).
@@ -170,6 +170,11 @@ format_datetime({{Y,M,D},{H,Mi,S}}) ->
                       [Y, M, D, H, Mi, S])
        )
      ).
+
+get_resource_url(Id) ->	
+    Host = ybot_utils:to_list(ybot_utils:get_config_val(brain_api_host)),
+    Port = ybot_utils:to_list(ybot_utils:get_config_val(brain_api_port)),
+    ybot_utils:to_binary("http://" ++ Host ++ ":" ++ Port ++ "/memories/" ++ ybot_utils:to_list(Id)).
 
 bin_to_hex(Bin) ->
     <<<<(binary:list_to_bin(
