@@ -45,17 +45,22 @@ handle_cast(_Msg, State) ->
 handle_info({incoming_message, IncomingMessage}, State) ->
     % Get Ybot Nick from current chat
     Nick = binary_to_list(State#state.campfire_nick),
-    % Try to decode json
-    {struct, DataList} = try
-                            % Decode json message
-                            mochijson2:decode(IncomingMessage)
-                         catch _ : _ ->
-                                {struct, [{<<"body">>, <<"">>}]}
-                         end,
+    % Decode json message
+    Message = lists:flatten(string:tokens(IncomingMessage, "\r\n")),
+    {Json} = try 
+                jiffy:decode(Message)
+             catch _ : _ ->
+                {""}
+             end,
     % Get body
-    {_, Body} = lists:keyfind(<<"body">>, 1, DataList),
-    % Send message to parser
-    gen_server:cast(State#state.parser_pid, {incoming_message, State#state.campfire_client_pid, Nick, "", binary_to_list(Body)}),
+    case get_body(Json) of
+        [] ->
+            % do nothing
+            pass;
+        Body ->
+            % Send message to parser
+            gen_server:cast(State#state.parser_pid, {incoming_message, State#state.campfire_client_pid, Nick, "", binary_to_list(Body)})
+    end,
     % return
     {noreply, State};
 
@@ -69,3 +74,12 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
  
 %% Internal functions
+get_body([]) ->
+    [];
+get_body([H | Json]) ->
+    case H of
+        {<<"body">>, Body} ->
+            Body;
+        _ ->
+            get_body(Json)
+    end.

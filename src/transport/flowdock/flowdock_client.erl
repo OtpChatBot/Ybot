@@ -95,7 +95,7 @@ handle_info({ibrowse_async_response, ReqId, Data}, State) ->
         _ ->
             % Try to decode json incoming data
             TryJsonDecode = try
-                mochijson2:decode(Data)
+                jiffy:decode(Data)
             catch _ : _ ->
                 ""
             end,
@@ -106,9 +106,9 @@ handle_info({ibrowse_async_response, ReqId, Data}, State) ->
                 % this is json incoming message
                 _ ->
                     % Get json
-                    {struct, Json} = TryJsonDecode,
-                    case lists:keyfind(<<"event">>, 1, Json) of
-                        {<<"event">>, <<"message">>} ->
+                    {Json} = TryJsonDecode,
+                    case lists:member({<<"event">>, <<"message">>}, Json) of
+                        true ->
                             % this is incoming message. 
                             {_, IncomingMessage} = lists:keyfind(<<"content">>, 1, Json),
                             % send it to handler

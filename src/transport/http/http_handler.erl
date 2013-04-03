@@ -45,6 +45,20 @@ handle(Req, State) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
+get_type([H | Json]) ->
+    case H of
+        {<<"type">>, Type} ->
+            Type;
+        _ ->
+            get_type(Json)
+    end.
+
+get_command([H | Json]) ->
+    case H of
+        {<<"content">>, Content} -> Content;
+        _ -> get_command(Json)
+    end.
+
 %% @doc Handle post requets
 do_post(Data, Headers, Req) ->
     % Check content type
@@ -57,7 +71,9 @@ do_post(Data, Headers, Req) ->
                         true ->
                             % try to decode json
                             try
-                                {struct, DecodeJson} = mochijson2:decode(Data),
+                                {DecodeJson} = jiffy:decode(Data),
+                                %Type = get_type(DecodeJson)
+                                %JsonCommand = get_command(DecodeJson),
                                 % Get type
                                 {_, Type} = lists:keyfind(<<"type">>, 1, DecodeJson),
                                 % Get command

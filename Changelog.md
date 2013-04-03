@@ -17,6 +17,7 @@
   * New configuration option - webadmin_host :: integer()
   * New configuration option - webadmin_port :: binary()
   * Web interface added.
+  * mochijson2 removed from dependecies.
   
 ## Ybot-0.3.2 --> released
 

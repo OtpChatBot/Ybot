@@ -68,7 +68,7 @@ to_atom(X) when is_binary(X) -> list_to_atom(binary_to_list(X)).
 -spec to_list(any()) -> list().
 to_list(X) when is_binary(X) -> binary_to_list(X);
 to_list(X) when is_integer(X) -> integer_to_list(X);
-to_list(X) when is_float(X) -> mochinum:digits(X);
+to_list(X) when is_float(X) -> float_to_list(X);
 to_list(X) when is_atom(X) -> atom_to_list(X);
 to_list(X) when is_list(X) -> X.
 

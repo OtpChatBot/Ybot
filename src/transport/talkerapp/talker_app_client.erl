@@ -57,16 +57,12 @@ handle_call(_Request, _From, State) ->
 
 %% @doc send message
 handle_cast({send_message, _From, Message}, State) ->
-    % Split message by \r\n
-    MessageList = lists:flatten(string:tokens(Message, "\r\n")),
-    % Send messages
-    lists:foreach(fun(M) ->
-                      % Make json message
-                      JsonMessage = "{\"type\":\"message\",\"content\" :\"" ++ M ++ "\"}",
-                      % Send message
-                      ssl:send(State#state.socket, JsonMessage)
-                  end, 
-                  MessageList),
+
+            % Make json message
+            JsonMessage = "{\"type\":\"message\",\"content\" :\"" ++ Message ++ "\"}",
+            % Send message
+            ssl:send(State#state.socket, JsonMessage),
+
     % return state
     {noreply, State};
 
@@ -95,28 +91,21 @@ handle_cast(_Msg, State) ->
 %% @doc Incoming message
 handle_info({_, _Socket, Data}, State) ->
     % Decode json data
-    {struct, DecodeJson} = mochijson2:decode(Data),
-    % Get message type
-    Type = lists:keyfind(<<"type">>, 1, DecodeJson),
-    % Check type
-    case Type of
-        {<<"type">>, <<"message">>} ->
+    {DecodeJson} = jiffy:decode(Data),
+    case lists:member({<<"type">>,<<"message">>}, DecodeJson) of
+        true ->
             % Get user data
-            {<<"user">>, {struct, UserData}} = lists:keyfind(<<"user">>, 1, DecodeJson),
-            % Get user name
-            {<<"name">>, UserName} = lists:keyfind(<<"name">>, 1, UserData),
-            % Check user name
+            UserName = get_user_name(DecodeJson),
             if UserName == State#state.bot_nick ->
                 % do nothing
                 pass;
             true ->
-                % Got incoming message
-                {_, Message} = lists:keyfind(<<"content">>, 1, DecodeJson),
-                % Send message to callback
+                % Send incoming message to handler
+                Message = get_message(DecodeJson),
                 State#state.callback ! {incoming_message, Message}
             end;
-        _ ->
-            % do noting
+        false ->
+            % do nothing
             pass
     end,
     % return
@@ -143,3 +132,25 @@ code_change(_OldVsn, State, _Extra) ->
 %%%=============================================================================
 %%% Internal functions
 %%%=============================================================================
+get_user_name([H | Json]) ->
+    case H of
+        {<<"user">>, UserData} ->
+            {<<"user">>, {Data}} = H,
+            [{<<"name">>, UserName}] = lists:flatten(lists:filter(fun(D) -> {Label, _} = D,
+                                                                      case Label of
+                                                                          <<"name">> -> true;
+                                                                          _ -> false
+                                                                      end
+                                                                  end, Data)),
+            UserName;
+        _ ->
+            get_user_name(Json)
+    end.
+
+get_message([H | Json]) ->
+    case H of
+        {<<"content">>, Message} ->
+            Message;
+        _ ->
+            get_message(Json)
+    end.
