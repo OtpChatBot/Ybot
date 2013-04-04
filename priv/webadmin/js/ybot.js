@@ -56,7 +56,7 @@ function YbotController ($scope, $http) {
         }
     }
 
-    // clicin on upload plugin button
+    // click on upload plugin button
     $scope.upload_plugin = function(){
         // get plugin path
         var plugin_path = $('plugin_web_path').value;
@@ -134,12 +134,12 @@ function YbotController ($scope, $http) {
         // active current li
         activate_li('li_start_new_transport', 'div_ybot_runned_transports');
 
-    // init tabs
-    new Control.Tabs('tabs_example_one'); 
-    $$('.tabs').each(function(tab_group){ new Control.Tabs(tab_group); });
+        // init tabs
+        new Control.Tabs('tabs_example_one'); 
+        $$('.tabs').each(function(tab_group){ new Control.Tabs(tab_group); });
     
-    // return
-    return true;
+        // return
+        return true;
     }
 
     // click on storage options side bar
@@ -166,7 +166,7 @@ function YbotController ($scope, $http) {
         /*
          * Get transport data
          */
-        var irc_login = $('input_irc_nick').value;
+        var irc_login = ($('input_irc_nick').value == '');
         var irc_password = $('input_irc_password').value;
         var irc_channel = $('input_irc_channel').value;
         var irc_channel_key = $('input_irc_channel_key').value;
@@ -174,6 +174,9 @@ function YbotController ($scope, $http) {
         var irc_server_port = $('input_irc_port').value;
         var irc_use_ssl = $('input_irc_ssl').checked;
         var irc_reconnect_timeout = $('input_irc_reconnect_timeout').value;
+        if (irc_login == '' || irc_password == '' || irc_channel_key == '' || irc_server_host == '' || irc_server_host == ""
+            || irc_reconnect_timeout == '')
+            return false;
         // send request to server
         data = {'transport':'irc','irc_login' : irc_login, 'irc_password':irc_password,'irc_channel': irc_channel, 
                 'irc_channel_key' : irc_channel_key, 'irc_server_host':irc_server_host, 'irc_server_port' : irc_server_port,
@@ -203,6 +206,8 @@ function YbotController ($scope, $http) {
         var xmpp_port = $('input_jabber_port').value;
         var xmpp_ssl = $('input_jabber_ssl').checked;
         var xmpp_reconnect_timeout = $('input_jabber_reconnect_timeout').value;
+        if (xmpp_login == '' || xmpp_password == '' | xmpp_room == '' || xmpp_resource == '' || xmpp_port == '' || xmpp_reconnect_timeout == '')
+            return false;
         // send request to server
         data = {'transport': 'xmpp', 'xmpp_login' : xmpp_login, 'xmpp_password':xmpp_password,'xmpp_room':xmpp_room,
                 'xmpp_server':xmpp_server,'xmpp_resource':xmpp_resource,'xmpp_port':xmpp_port,'xmpp_ssl':xmpp_ssl,
@@ -229,7 +234,8 @@ function YbotController ($scope, $http) {
         var campfire_room = $('input_campfire_room_id').value;
         var campfire_sub_domain = $('input_campfire_subdomain').value;
         var campfire_reconnect_timeout = $('input_campfire_reconnect_timeout').value;
-
+        if (campfire_login == '' || campfire_token == '' || campfire_sub_domain == '' || campfire_reconnect_timeout == '')
+            return false;
         // send request to server
         data = {'transport':'campfire', 'login':campfire_login,'token':campfire_token,'room':campfire_room,
                 'subdomain':campfire_sub_domain, 'reconnect_timeout':campfire_reconnect_timeout};
@@ -252,6 +258,8 @@ function YbotController ($scope, $http) {
         var hipchat_room = $('input_hipchat_room').value;
         var hipchat_nick = $('input_hipchat_nick').value;
         var hipchat_reconnect_timeout = $('input_hipchat_reconnect_timeout').value;
+        if (hipchat_jid == '' || hipchat_password == '' || hipchat_room == '' || hipchat_nick == '' || hipchat_reconnect_timeout == '')
+            return false;
         // send request to server
         data = {'transport':'hipchat','hipchat_jid':hipchat_jid,'hipchat_password':hipchat_password,'hipchat_room':hipchat_room,
                 'hipchat_nick':hipchat_nick,'hipchat_reconnect_timeout':hipchat_reconnect_timeout};
@@ -271,6 +279,8 @@ function YbotController ($scope, $http) {
         // get data
         var skype_http_host = $('input_skype_http_host').value;
         var skype_http_port = $('input_skype_http_port').value;
+        if (skype_http_host == '' || skype_http_port == '')
+            return false;
         // send request
         data = {'transport':'skype','skype_http_host':skype_http_host,'skype_http_port':skype_http_port};
         $http.post(req_url + '?req=start_skype', data).success(function(data){
@@ -289,6 +299,8 @@ function YbotController ($scope, $http) {
         var flowdock_password = $('input_flowdock_password').value;
         var flowdock_org = $('input_flowdock_org').value;
         var flowdock_flow = $('input_flowdock_flow').value;
+        if (flowdock_nick == '' || flowdock_login == '' || flowdock_password == '' || flowdock_org == '' || flowdock_flow == '')
+            return false;
         // send request
         data = {'transport':'flowdock','flowdock_nick':flowdock_nick,'flowdock_login':flowdock_login,'flowdock_password':flowdock_password,
                 'flowdock_org':flowdock_org,'flowdock_flow':flowdock_flow};
@@ -309,6 +321,8 @@ function YbotController ($scope, $http) {
         var http_host = $('input_http_host').value;
         var http_port = $('input_http_port').value;
         var http_bot_nick = $('input_http_bot_nick').value;
+        if (http_host == '' || http_port == '' || http_bot_nick == '')
+            return false;
         // send request
         data = {'transport':'http','http_host':http_host,'http_port':http_port,'http_bot_nick':http_bot_nick};
         $http.post(req_url + '?req=start_http', data).success(function(data){
@@ -326,6 +340,8 @@ function YbotController ($scope, $http) {
         var talkerapp_nick = $('input_talkerapp_nick').value;
         var talkerapp_room = $('input_talkerapp_room').value;
         var talkerapp_token = $('input_talkerapp_token').value;
+        if (talkerapp_nick == '' || talkerapp_room == '' || talkerapp_token == '')
+            return false;
         // send request
         data = {'transport':'talkerapp','talkerapp_nick':talkerapp_nick,'talkerapp_room':talkerapp_room,'talkerapp_token':talkerapp_token};
         $http.post(req_url + '?req=start_talkerapp', data).success(function(data){
