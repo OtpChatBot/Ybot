@@ -14,6 +14,7 @@ For example: Ybot math 1 + 1
 My internal commands:
   
   * announce - Send messages to all chat rooms.
+  * name?    - Send bot name to chat.
   * hi - say hi to Ybot
   * hello - say hello to Ybot
   * bye - say bye to Ybot

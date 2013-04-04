@@ -18,7 +18,9 @@
   * New configuration option - webadmin_port :: binary()
   * Web interface added.
   * mochijson2 removed from dependecies.
-  
+  * New internal command 'name?'.
+  * 'help' plugin updated.
+
 ## Ybot-0.3.2 --> released
 
   * Fixed #42 issue. Unable to connect to IRC bug.

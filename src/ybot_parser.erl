@@ -51,6 +51,8 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->    
             gen_server:cast(TrasportPid, {send_message, From, "What?"});
+        [Nick, "name?"] ->
+            gen_server:cast(TrasportPid, {send_message, From, "My name is: " ++ Nick});
         [Nick, "announce" | _] ->
             % Get announce content
             Announce = string:tokens(ybot_utils:split_at_end(IncomingMessage, "announce"), "\r\n"),
