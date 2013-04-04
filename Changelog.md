@@ -20,6 +20,8 @@
   * mochijson2 removed from dependecies.
   * New internal command 'name?'.
   * 'help' plugin updated.
+  * all api from ybot.erl beside start/stop were removed.
+  * ybot_shell added for testing Ybot from erlang shell.
 
 ## Ybot-0.3.2 --> released
 

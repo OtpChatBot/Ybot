@@ -101,8 +101,8 @@ get_config_val(Param) ->
 
 get_config_val(Param, DefaultValue) ->
     case application:get_env(ybot, Param) of
-        {_, HistoryLimit} ->
-            HistoryLimit;
+        {_, ParamValue} ->
+            ParamValue;
         _ ->
             DefaultValue
     end.

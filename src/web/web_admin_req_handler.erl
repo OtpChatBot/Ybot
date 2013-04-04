@@ -33,19 +33,9 @@ handle(Req, State) ->
                 %
                 ["req", "storage_info"] ->
                     % Get storage host
-                    StorageHost = case application:get_env(ybot, brain_api_host) of
-                                    undefined ->
-                                        {storage_host, false};
-                                    {_, Host} ->
-                                        {storage_host, Host}
-                                end,
+                    StorageHost = get_val(brain_api_host, {storage_host, false}),
                     % Get storage port
-                    StoragePort = case application:get_env(ybot, brain_api_port) of
-                                    undefined ->
-                                        {storage_port, 0};
-                                    {_, Port} ->
-                                        {storage_port, Port}
-                                   end,
+                    StoragePort = get_val(brain_api_port, {storage_port, 0}),
                     % prepare data to json
                     Data = {[
                                 StorageHost,
@@ -62,49 +52,26 @@ handle(Req, State) ->
                     % Get runned transports
                     Transports = [atom_to_list(element(1, Transport))  ++ " " ++
                                   pid_to_list(element(2, Transport))   ++ " " ++ 
-                                  binary_to_list(element(4, Transport)) ++ "\n" || Transport <- ybot:get_runned_transports(), 
+                                  binary_to_list(element(4, Transport)) ++ "\n" || Transport <- gen_server:call(ybot_manager, get_transports), 
                                   (element(1, Transport) /= http) or (element(1, Transport) /= skype)],
                     % Get plugins
-                    PluginsDirectory = {plugins_directory, list_to_binary(ybot:get_plugins_directory())},
-                    % Get plugins
-                    Plugins = {plugins, format_plugins_helper(ybot:get_plugins())},
+                    Plugins = {plugins, format_plugins_helper(gen_server:call(ybot_manager, get_plugins))},
 
                     % Is history using
-                    IsHistory = case whereis(ybot_history) of
-                                    undefined ->
-                                        {is_history, false};
-                                    _ ->
-                                        {is_history, true}
-                                end,
+                    IsHistory = get_val(ybot_history, {is_history, false}),
                     % History limit
-                    HistoryLimit = case whereis(ybot_history) of
-                                    undefined ->
-                                        {history_limit, 0};
-                                    _ ->
-                                        {history_limit, gen_server:call(ybot_history, get_history_limit)}
-                                   end,
+                    HistoryLimit = get_val(ybot_history, {history_limit, 0}),
                     % Get observer
-                    IsObserver = case whereis(ybot_plugins_observer) of
-                                    undefined ->
-                                        {is_observer, false};
-                                    _ ->
-                                        {is_observer, true}
-                                 end,
+                    IsObserver = get_val(ybot_plugins_observer, {is_observer, false}),
                     % Get observer timeout
-                    ObserverTimeout = case whereis(ybot_plugins_observer) of
-                                          undefined ->
-                                              {observer_timeout, 0};
-                                          _ ->
-                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout)}
-                                      end,
+                    ObserverTimeout = get_val(ybot_plugins_observer, {observer_timeout, 0}),
                     % Get storage
-                    Storage = {storage_type, ybot:get_brain_storage()},
+                    Storage = {storage_type, ybot_utils:get_config_val(brain_storage, mnesia)},
                     % prepare data to json
                     Data = {[
                                 {transport, list_to_binary(Transports)},
                                 IsHistory,
                                 HistoryLimit,
-                                PluginsDirectory,
                                 Plugins,
                                 IsObserver,
                                 ObserverTimeout,
@@ -119,33 +86,13 @@ handle(Req, State) ->
                 %
                 ["req", "ybot_plugins_settings"] ->
                     % Using observer or not
-                    IsObserver = case whereis(ybot_plugins_observer) of
-                                    undefined ->
-                                        {is_observer, false};
-                                    _ ->
-                                        {is_observer, true}
-                                 end,
+                    IsObserver = get_val(ybot_plugins_observer, {is_observer, false}),
                     % Observer timeout limit
-                    ObserverTimeout = case whereis(ybot_plugins_observer) of
-                                          undefined ->
-                                              {observer_timeout, 0};
-                                          _ ->
-                                              {observer_timeout, gen_server:call(ybot_plugins_observer, get_observer_timeout)}
-                                      end,
+                    ObserverTimeout = get_val(ybot_plugins_observer, {observer_timeout, 0}),
                     % Is history using
-                    IsHistory = case whereis(ybot_history) of
-                                    undefined ->
-                                        {is_history, false};
-                                    _ ->
-                                        {is_history, true}
-                                end,
+                    IsHistory = get_val(ybot_history, {is_history, false}),
                     % History limit
-                    HistoryLimit = case whereis(ybot_history) of
-                                    undefined ->
-                                        {history_limit, 0};
-                                    _ ->
-                                        {history_limit, gen_server:call(ybot_history, get_history_limit)}
-                                   end,
+                    HistoryLimit = get_val(ybot_history, {history_limit, 0}),
                     % Prepara data for converting into json
                     Data = {[IsObserver, ObserverTimeout, IsHistory, HistoryLimit]},
                     % Convert into json
@@ -434,3 +381,11 @@ handle_request({[{<<"transport">>, <<"talkerapp">>}, _, _, _]} = Talkerapp) ->
 
 handle_request(_) ->
     error.
+
+get_val(Param, {Label, DefVal}) ->
+    case application:get_env(ybot, Param) of
+        undefined ->
+            {Label, DefVal};
+        {_, ParamVal} ->
+            {Label, ParamVal}
+    end.

@@ -51,7 +51,7 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
     case string:tokens(IncomingMessage, " \r\n") of
         [Nick] ->    
             gen_server:cast(TrasportPid, {send_message, From, "What?"});
-        [Nick, "name?"] ->
+        ["name?"] ->
             gen_server:cast(TrasportPid, {send_message, From, "My name is: " ++ Nick});
         [Nick, "announce" | _] ->
             % Get announce content

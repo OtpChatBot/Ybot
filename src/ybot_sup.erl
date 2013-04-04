@@ -87,9 +87,9 @@ init([]) ->
              permanent, brutal_kill, worker, []
         },
 
-        % start ybot api process
-        {ybot,
-            {ybot, start_link, []},
+        % start ybot shell
+        {ybot_shell,
+            {ybot_shell, start_link, []},
             permanent, brutal_kill, worker, []
         }
     ],

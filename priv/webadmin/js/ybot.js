@@ -345,7 +345,6 @@ function YbotController ($scope, $http) {
     $http.get(req_url + "?req=main_web_interface_req").success(function (data) {
         $scope.transports = data.transport.split('\n').splice(0, data.transport.split('\n').length - 1);
         $scope.plugins = data.plugins.split('\n').splice(0, data.plugins.split('\n').length - 1);
-        $scope.plugins_directory = data.plugins_directory;
         $scope.is_history = data.is_history;
         $scope.history_limit = data.history_limit;
         $scope.is_observer = data.is_observer;
