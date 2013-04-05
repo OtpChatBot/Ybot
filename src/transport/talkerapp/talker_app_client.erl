@@ -146,7 +146,7 @@ code_change(_OldVsn, State, _Extra) ->
 %%%=============================================================================
 get_user_name([H | Json]) ->
     case H of
-        {<<"user">>, UserData} ->
+        {<<"user">>, _UserData} ->
             {<<"user">>, {Data}} = H,
             [{<<"name">>, UserName}] = lists:flatten(lists:filter(fun(D) -> {Label, _} = D,
                                                                       case Label of
