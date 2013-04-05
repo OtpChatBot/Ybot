@@ -190,7 +190,7 @@ handle_info({_, _Socket, Data}, State) ->
                         {noreply, State#state{is_auth = true}}
                 end
         end
-    catch _ : _ ->
+    catch _Error : _Reason ->
         {noreply, State}
     end;
 

@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
  
--export([start_link/5]).
+-export([start_link/6]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -30,17 +30,19 @@
     % flowdock login
     login,
     % flowdock password
-    password
+    password,
+    % reconnect timeout in microseconds
+    reconnect_timeout = 0
     }).
 
-start_link(Callback, FlowDockOrg, Flow, Login, Password) ->
-    gen_server:start_link(?MODULE, [Callback, FlowDockOrg, Flow, Login, Password], []).
+start_link(Callback, FlowDockOrg, Flow, Login, Password, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [Callback, FlowDockOrg, Flow, Login, Password, ReconnectTimeout], []).
  
-init([Callback, FlowDockOrg, Flow, Login, Password]) ->
+init([Callback, FlowDockOrg, Flow, Login, Password, ReconnectTimeout]) ->
     % Start http stream
     gen_server:cast(self(), stream),
     % init state
-    {ok, #state{callback = Callback, org = FlowDockOrg, flow = Flow, login = Login, password = Password}}.
+    {ok, #state{callback = Callback, org = FlowDockOrg, flow = Flow, login = Login, password = Password, reconnect_timeout = ReconnectTimeout}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -131,7 +133,8 @@ handle_info({ibrowse_async_response_end, _ReqId}, State) ->
 
 %% @doc connection timeout
 handle_info({error, {conn_failed, {error, _}}}, State) ->
-    {noreply, State};
+    % try to reconnect or exit
+    try_reconnect(State);
 
 handle_info(_Info, State) ->
     {noreply, State}.
@@ -141,3 +144,19 @@ terminate(_Reason, _State) ->
  
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+%% @doc try reconnect
+-spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
+try_reconnect(#state{reconnect_timeout = Timeout} = State) ->
+    case Timeout > 0 of
+        true ->
+            % no need in reconnect
+            {normal, stop, State};
+        false ->
+            % sleep
+            timer:sleep(Timeout),
+            % Try reconnect
+            gen_server:cast(self(), stream),
+            % return
+            {noreply, State}
+    end.

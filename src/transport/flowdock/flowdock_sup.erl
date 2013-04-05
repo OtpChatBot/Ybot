@@ -9,7 +9,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_flowdock_client/5]).
+-export([start_link/0, start_flowdock_client/6]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -28,11 +28,12 @@ start_link() ->
                             FlowDockOrg :: binary(), 
                             Flow :: binary(), 
                             Login :: binary(), 
-                            Password :: binary())
+                            Password :: binary(),
+                            ReconnectTimeout :: integer())
                        -> {ok, Pid :: pid()} | {error, Reason :: term()}.
-start_flowdock_client(CallbackModule, FlowDockOrg, Flow, Login, Password) ->
+start_flowdock_client(CallbackModule, FlowDockOrg, Flow, Login, Password, ReconnectTimeout) ->
     % run new flowdock client
-    supervisor:start_child(?MODULE, [CallbackModule, FlowDockOrg, Flow, Login, Password]).
+    supervisor:start_child(?MODULE, [CallbackModule, FlowDockOrg, Flow, Login, Password, ReconnectTimeout]).
 
 init([]) ->
     % flowdock client

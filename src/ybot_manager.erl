@@ -286,11 +286,18 @@ load_transport({http, Host, Port, BotNick}) ->
     {http, HttpPid};
 
 %% @doc start flowdock client
-load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow}) ->
+load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow, Options}) ->
     % Start flowdock handler
     {ok, HandlerPid} = flowdock_handler:start_link(),
+    % Get reconnect timeout
+    RecTimeout = case lists:keyfind(reconnect_timeout, 1, Options) of
+                    {reconnect_timeout, T} ->
+                        T;
+                    _ ->
+                        0
+                    end,
     % Start flowdock client
-    {ok, ClientPid} = flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow, Login, Password),
+    {ok, ClientPid} = flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow, Login, Password, RecTimeout),
     % Log
     lager:info("Starting flowdock transport ~p:~p", [FlowdockOrg, Flow]),
     % Start parser process
