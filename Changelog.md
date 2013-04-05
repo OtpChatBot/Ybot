@@ -23,6 +23,7 @@
   * all api from ybot.erl beside start/stop were removed.
   * ybot_shell added for testing Ybot from erlang shell.
   * reconnect_timeout option added to flowdock transport.
+  * reconnect_timeout option added to talkerapp transport.
 
 ## Ybot-0.3.2 --> released
 

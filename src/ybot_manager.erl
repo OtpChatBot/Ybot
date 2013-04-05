@@ -328,11 +328,18 @@ load_transport({skype, UseSkype, Host, Port}) ->
     end;
 
 %% @doc start talkerapp client
-load_transport({talkerapp, Nick, Room, Token}) ->
+load_transport({talkerapp, Nick, Room, Token, Options}) ->
     % Start handler
     {ok, HandlerPid} = talkerapp_handler:start_link(),
+    % Get reconnect timeout
+    RecTimeout = case lists:keyfind(reconnect_timeout, 1, Options) of
+                    {reconnect_timeout, T} ->
+                        T;
+                    _ ->
+                        0
+                    end,
     % Start talker app client
-    {ok, ClientPid} = talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token),
+    {ok, ClientPid} = talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token, RecTimeout),
     % Start parser process
     {ok, ParserPid} = ybot_parser:start_link(),
     % Send client pid to handler

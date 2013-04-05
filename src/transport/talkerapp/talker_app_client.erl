@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
  
--export([start_link/4]).
+-export([start_link/5]).
  
 %% gen_server callbacks
 -export([init/1,
@@ -32,37 +32,37 @@
         % Bot nick
         bot_nick = <<>> :: binary(),
         % talkerapp room
-        room = <<>> :: binary()
+        room = <<>> :: binary(),
+        % talkerapp reconnect timeout
+        reconnect_timeout = 0 :: integer()
     }).
 
 %%%=============================================================================
 %%% API
 %%%=============================================================================
 
-start_link(Callback, BotNick, Room, Token) ->
-    gen_server:start_link(?MODULE, [Callback, BotNick, Room, Token], []).
+start_link(Callback, BotNick, Room, Token, RecTimeout) ->
+    gen_server:start_link(?MODULE, [Callback, BotNick, Room, Token, RecTimeout], []).
 
 %%%=============================================================================
 %%% talker_app client callback
 %%%=============================================================================
  
-init([Callback, BotNick, Room, Token]) ->
+init([Callback, BotNick, Room, Token, RecTimeout]) ->
     % start connection
     gen_server:cast(self(), {connect, Token, Room}),
     % init state and return
-    {ok, #state{bot_nick = BotNick, callback = Callback, token = Token, room = Room}}.
+    {ok, #state{bot_nick = BotNick, callback = Callback, token = Token, room = Room, reconnect_timeout = RecTimeout}}.
  
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 %% @doc send message
 handle_cast({send_message, _From, Message}, State) ->
-
-            % Make json message
-            JsonMessage = "{\"type\":\"message\",\"content\" :\"" ++ Message ++ "\"}",
-            % Send message
-            ssl:send(State#state.socket, JsonMessage),
-
+    % Make json message
+    JsonMessage = "{\"type\":\"message\",\"content\" :\"" ++ Message ++ "\"}",
+    % Send message
+    ssl:send(State#state.socket, JsonMessage),
     % return state
     {noreply, State};
 
@@ -89,7 +89,7 @@ handle_cast(_Msg, State) ->
     {noreply, State}.
 
 %% @doc Incoming message
-handle_info({_, _Socket, Data}, State) ->
+handle_info({ssl, _Socket, Data}, State) ->
     % Decode json data
     {DecodeJson} = jiffy:decode(Data),
     case lists:member({<<"type">>,<<"message">>}, DecodeJson) of
@@ -110,6 +110,18 @@ handle_info({_, _Socket, Data}, State) ->
     end,
     % return
     {noreply, State};
+
+handle_info({ssl_closed, Reason}, State) ->
+    % Some log
+    lager:info("ssl_closed with reason: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
+
+handle_info({ssl_error, _Socket, Reason}, State) ->
+    % Some log
+    lager:error("tcp_error: ~p~n", [Reason]),
+    % try reconnect
+    try_reconnect(State);
 
 %% @doc send ping
 handle_info(ping, State) ->
@@ -153,4 +165,20 @@ get_message([H | Json]) ->
             Message;
         _ ->
             get_message(Json)
+    end.
+
+%% @doc try reconnect
+-spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
+try_reconnect(#state{reconnect_timeout = Timeout, token = Token, room = Room} = State) ->
+    case Timeout > 0 of
+        true ->
+            % no need in reconnect
+            {normal, stop, State};
+        false ->
+            % sleep
+            timer:sleep(Timeout),
+            % Try reconnect
+            gen_server:cast(self(), {connect, Token, Room}),
+            % return
+            {noreply, State}
     end.

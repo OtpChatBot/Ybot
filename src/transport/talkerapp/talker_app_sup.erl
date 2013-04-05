@@ -9,7 +9,7 @@
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, start_talkerapp_client/4]).
+-export([start_link/0, start_talkerapp_client/5]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -24,11 +24,12 @@ start_link() ->
     
 %% @doc Start new talkerapp client
 %% @end
--spec start_talkerapp_client(Callback :: pid(), BotNick :: binary(), Room :: binary(), Token :: binary()) -> {ok, Pid :: pid()} | {error, Reason :: term()}.
-start_talkerapp_client(Callback, BotNick, Room, Token) ->
+-spec start_talkerapp_client(Callback :: pid(), BotNick :: binary(), Room :: binary(), Token :: binary(), RecTimeout :: integer()) 
+                             -> {ok, Pid :: pid()} | {error, Reason :: term()}.
+start_talkerapp_client(Callback, BotNick, Room, Token, RecTimeout) ->
     % Child
     Child = {talker_app_client, 
-                {talker_app_client, start_link, [Callback, BotNick, Room, Token]},
+                {talker_app_client, start_link, [Callback, BotNick, Room, Token, RecTimeout]},
                  temporary, 2000, worker, []
              },
     % run new talkerapp client
