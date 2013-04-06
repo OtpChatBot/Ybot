@@ -26,6 +26,7 @@
   * reconnect_timeout option added to talkerapp transport.
   * Improved skype support.
   * priv/skype.py now sends ping to Ybot every minute in separate thread, script work will end when ping fail..
+  * Fixed long message sending for campfire transport.
 
 ## Ybot-0.3.2 --> released
 

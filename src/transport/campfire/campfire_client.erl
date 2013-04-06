@@ -46,12 +46,16 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast({send_message, _From, Message}, State) ->
-    % Make url
-    Url = "https://" ++ binary_to_list(State#state.domain) ++ ".campfirenow.com/room/" ++ integer_to_list(State#state.room) ++ "/speak.xml",
-    % Make message
-    Mes = "<message><type>TextMessage</type><body>" ++ Message ++ "</body></message>",
+    MessageList = string:tokens(Message, "\n"),
     % Send message
-    ibrowse:send_req(Url, [{"Content-Type", "application/xml"}, {basic_auth, {binary_to_list(State#state.token), "x"}}], post, Mes),
+    lists:foreach(fun(M) ->
+                  % Make url
+                  Url = "https://" ++ binary_to_list(State#state.domain) ++ ".campfirenow.com/room/" ++ integer_to_list(State#state.room) ++ "/speak.xml",
+                  % Make message
+                  Mes = "<message><type>TextMessage</type><body>" ++ M ++ "</body></message>",
+                  % Send message
+                  ibrowse:send_req(Url, [{"Content-Type", "application/xml"}, {basic_auth, {binary_to_list(State#state.token), "x"}}], post, Mes)
+    end, MessageList),
     % return
     {noreply, State};
 
