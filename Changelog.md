@@ -24,6 +24,7 @@
   * ybot_shell added for testing Ybot from erlang shell.
   * reconnect_timeout option added to flowdock transport.
   * reconnect_timeout option added to talkerapp transport.
+  * Improved skype support.
 
 ## Ybot-0.3.2 --> released
 

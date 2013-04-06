@@ -20,8 +20,6 @@
  
  %% @doc internal state
 -record(state, {
-        % skype pid
-        skype_pid = 0
     }).
  
 start_link(Command) ->
@@ -41,22 +39,17 @@ handle_call(_Request, _From, State) ->
 %% @doc start skype script
 handle_cast({command, Command}, State) ->
     % Run
-    Port = open_port({spawn, Command}, [exit_status]),
-    % get pid
-    {os_pid, OsPid} = erlang:port_info(Port, os_pid),
-    % Save pid and return
-    {noreply, State#state{skype_pid = OsPid}};
+    open_port({spawn, Command}, [exit_status]),
+    % return
+    {noreply, State};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
  
-handle_info(Info, State) ->
-    io:format("Info ~p~n", [Info]),
+handle_info(_Info, State) ->
     {noreply, State}.
  
-terminate(_Reason, State) ->
-    % Kill skype pid
-    os:cmd(io_lib:format("kill -9 ~p", [State#state.skype_pid])),
+terminate(_Reason, _State) ->
     % return
     ok.
  

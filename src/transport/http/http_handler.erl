@@ -94,9 +94,6 @@ do_post(Data, Headers, Req) ->
 handle_data(Data, Req) ->
     % Match incoming message
     case string:tokens(binary_to_list(Data), " \r\n") of
-        [_BotNick] ->
-            % Send response
-            cowboy_req:reply(200, [], "What?", Req);
         [_BotNick, "hi"] ->
             % Send response
             cowboy_req:reply(200, [], "Hello :)", Req);
@@ -118,13 +115,18 @@ handle_data(Data, Req) ->
                 % Get command arguments
                 Args = string:tokens(ybot_utils:split_at_end(binary_to_list(Data), Command), "\r\n"),
                 % Try to execute plugin and resend result
-                Result = handle_command(Command, Args, self()),
-                % send response
-                cowboy_req:reply(200, [], Result, Req);
+                case handle_command(Command, Args, self()) of
+                    wrong_plugin ->
+                        % send response
+                        cowboy_req:reply(200, [], <<"I don't know anything about ">>, Req);
+                    Result ->
+                        % send response
+                        cowboy_req:reply(200, [], Result, Req)
+                end;
         % this is not our command
         _ ->
-            % Send response
-            cowboy_req:reply(400, [], <<"Wrong request">>, Req)
+            % do nothing
+            pass
     end.
 
 %% @doc Try to find plugin and execute it
@@ -135,7 +137,14 @@ handle_command(Command, Args, TransportPid) ->
     case TryToFindPlugin of
         wrong_plugin ->
             % plugin not found
-            error;
+            wrong_plugin;
+        {plugin, "erlang", PluginName, AppModule} ->
+            % execute plugin
+            Result = AppModule:execute(Args),
+            % Save command to history
+            ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ PluginName ++ " " ++ Args ++ "\n"}),
+            % send result to chat
+            Result;
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
             Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
