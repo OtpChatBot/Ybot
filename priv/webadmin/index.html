@@ -132,7 +132,7 @@
                     </div>
                     <!-- End of Ybot plugins content -->
 
-                    <div id="div_ybot_upload" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
+                    <div id="div_ybot_upload" style="position: absolute; top:15%; right:0%; left:3.8%;">
                       <h3>Upload plugins</h3>
                           <lable>Ybot upload plugin from the <a href="https://github.com/0xAX/ybot-contrib">ybot-contrb</a> or from other place from the web:  <span id="span_upload_error" style="visibility: hidden;" class="label label-important">Wrong plugin path</span>
                           <br/></label>
@@ -140,7 +140,7 @@
                           <button class="btn btn-success" ng-model="upload_new_plugin" ng-click="upload_plugin()">Upload</button>
                     </div>
 
-                    <div id="div_ybot_transports" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%">
+                    <div id="div_ybot_transports" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
                       <h3>Transports</h3>
                         <ul>
                            <li ng-repeat="runned_transport in runned_transports">
@@ -296,7 +296,7 @@
                         </div>  
                     </div>
 
-                    <div id="div_ybot_storage" style="position: fixed; top:20%; right:0%; left:21%; bottom:0%;">
+                    <div id="div_ybot_storage" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
                       <h3>Ybot backend storage</h3>
                       <label>Backend storage type: {{storage_type}}</label>
                       <label>Backend http host: {{storage_http_host}}</label>
