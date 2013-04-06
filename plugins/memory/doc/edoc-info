@@ -1,3 +1,0 @@
-{application,ybot_plugin_memory}.
-{packages,[]}.
-{modules,[ybot_plugin_memory,ybot_plugin_memory_app,ybot_plugin_memory_sup]}.
