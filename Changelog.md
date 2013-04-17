@@ -1,6 +1,8 @@
 # Ybot news & changelog
 
-## Ybot-0.3.3 --> in development
+## Ybot-0.3.4 -- In development
+
+## Ybot-0.3.3 --> released
 
   * #47. HipChat config moved to separte config from XMPP transport.
   * XMPP 'is_hipchat' option was removed.

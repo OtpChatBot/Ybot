@@ -135,4 +135,3 @@ observe_new_plugins(PluginsDirectory, PluginsPaths) ->
     end,
     % return
     ok.
-           
