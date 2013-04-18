@@ -2,4 +2,9 @@
 # Ybot today plugin. Show curent day of the week.
 #
 
-echo `date --date=${dateinfile#?_} "+%A"` 
+if [ "$(uname -s)" == "Darwin" ]
+then
+	echo `date "+%A"`
+else
+	echo `date --date=${dateinfile#?_} "+%A"`
+fi
