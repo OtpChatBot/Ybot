@@ -198,12 +198,12 @@ Operation       | HTTP Verb | Url                     | Description
 ----------------|-----------|-------------------------|-------------------------------------------------
 Insert new      | POST      | /memories               | Pass memory object without id and created field
 Update existing | PUT       | /memories/id            | Pass memory object without id and created field
-Remove by id    | DELETE    | /memories/id            |
-Get all         | GET       | /memories               |
-Get by id       | GET       | /memories/id            |
-Get by plugin   | GET       | /memories/?plugin=foo   |
-Get by key      | GET       | /memories/?key=bar      |
-Get by value    | GET       | /memories/?value=foobar |
+Remove by id    | DELETE    | /memories/id            | Delete field by id
+Get all         | GET       | /memories               | Return all fileds
+Get by id       | GET       | /memories/id            | Return field by id
+Get by plugin   | GET       | /memories/?plugin=foo   | Return data by plugin name
+Get by key      | GET       | /memories/?key=bar      | Return field by key
+Get by value    | GET       | /memories/?value=foobar | Return field by value
 
 Contribute
 ============
