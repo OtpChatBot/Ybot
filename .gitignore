@@ -8,4 +8,5 @@ log/*
 *.pyc
 ebin/
 erl_crash.dump
+*~
 
