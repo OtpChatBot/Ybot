@@ -2,6 +2,8 @@
 
 ## Ybot-0.3.4 -- In development
 
+  * today plugin compatible with Mac OS X date.
+
 ## Ybot-0.3.3 --> released
 
   * #47. HipChat config moved to separte config from XMPP transport.
