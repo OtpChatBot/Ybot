@@ -60,7 +60,7 @@ do_post(Data, Headers, Req) ->
                                 {DecodeJson} = jiffy:decode(Data),
                                 % Get type
                                 {_, Type} = lists:keyfind(<<"type">>, 1, DecodeJson),
-                                % Get command
+                                %% Get command
                                 {_, JsonCommand} = lists:keyfind(<<"content">>, 1, DecodeJson),
                                 % return
                                 {Type, JsonCommand}
@@ -71,7 +71,6 @@ do_post(Data, Headers, Req) ->
                             Data
                     end
             end,
-
     case Message of
         wrong_json ->
             cowboy_req:reply(400, [], "Wrong json data", Req);
