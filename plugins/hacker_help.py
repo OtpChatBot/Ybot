@@ -13,8 +13,8 @@ import simplejson as json
 import zlib
 
 if len(sys.argv) != 2:
-	print 'Wrong arguments\nUsage: ybot hacker_help my request' 
-	sys.exit()
+    print 'Wrong arguments\nUsage: ybot hacker_help my request' 
+    sys.exit()
 
 # Get question from command line
 question = sys.argv[1]
@@ -30,5 +30,5 @@ questions = json.loads(zlib.decompress( json_data, 16+zlib.MAX_WBITS ))['questio
 
 # print questions with links
 for q in questions:
-	# return
-	print (q['title'] + ' ' + '--> http://stackoverflow.com/questions/' + str(q['question_id'])).encode('utf-8')
+    # return
+    print (q['title'] + ' ' + '--> http://stackoverflow.com/questions/' + str(q['question_id'])).encode('utf-8')

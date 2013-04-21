@@ -13,13 +13,13 @@ require 'json'
 expr = ''
 
 if ARGV.length != 1
-	puts 'Wrong argument\nUsage: Ybot erl 1 + 1.'
-	exit
+    puts 'Wrong argument\nUsage: Ybot erl 1 + 1.'
+    exit
 end
 
 # collect arguments in expression
 ARGV.each do |arg|
-	expr += arg
+    expr += arg
 end
 
 # send request

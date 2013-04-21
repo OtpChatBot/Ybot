@@ -26,13 +26,13 @@ from = arg.split(' ')[0].split('/')
 to = arg.split(' ')[0].split('/')[1]
 
 if (languages.include? from[0]) == false
-	puts 'This language ' + from[0] + ' is not supported'
-	exit
+    puts 'This language ' + from[0] + ' is not supported'
+    exit
 end
 
 if (languages.include? to) == false
-	puts 'This language ' + to + ' is not supported'
-	exit
+    puts 'This language ' + to + ' is not supported'
+    exit
 end
 
 # get text to translate

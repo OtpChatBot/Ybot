@@ -4,7 +4,7 @@
 
 if [ "$(uname -s)" == "Darwin" ]
 then
-	echo `date "+%A"`
+    echo `date "+%A"`
 else
-	echo `date --date=${dateinfile#?_} "+%A"`
+    echo `date --date=${dateinfile#?_} "+%A"`
 fi

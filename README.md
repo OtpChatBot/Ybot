@@ -11,12 +11,10 @@ or even in shell.
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=0xAX&url=https://github.com/0xAX/Ybot&title=Ybot&language=&tags=github&category=software)
-
 Features
 =========
 
-  * Completely written in Erlang;
+  * Ybot's core completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
   * You don't need to know Erlang to write a plugin;
   * Web interface;
@@ -152,7 +150,9 @@ Here Ybot calls the `math` plugin with the argument: '3 ^ 2'
 Current plugins
 ================
 
-  * chuck - Chuck Norris quotes :)
+  * memory - Simple Key/Value memory.
+  * ackbar - show an Admiral Ackbar.
+  * chuck - Chuck Norris quotes.
   * decide - Ybot try to help make decisions for you.
   * github_status - Github status state.
   * echo - simple echo plugin.
@@ -223,4 +223,4 @@ Author
 
 Creator of Ybot [@0xAX](https://twitter.com/0xAX).
 
-Thank you all who participating in Ybot developing. Names and contact information of those who helped Yubotu, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)
+Thank you all who participating in Ybot developing. Names and contact information of those who helped, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)
