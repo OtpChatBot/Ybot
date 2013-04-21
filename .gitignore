@@ -9,4 +9,4 @@ log/*
 ebin/
 erl_crash.dump
 *~
-
+Mnesia.*
