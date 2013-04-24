@@ -83,6 +83,7 @@ Dependencies
   * [ibrowse](https://github.com/cmullaparthi/ibrowse) - Erlang http client.
   * [jiffy](https://github.com/davisp/jiffy) - JSON NIFs for Erlang.
   * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
+  * [erlang-oauth](https://github.com/tim/erlang-oauth)
   * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
 
 Transport
