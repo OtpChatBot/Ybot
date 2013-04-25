@@ -4,6 +4,7 @@
 
   * today plugin compatible with Mac OS X date.
   * fixed http application/json data receiving.
+  * #62 fixed. Security issue. Command args escaping.
 
 ## Ybot-0.3.3 --> released
 
