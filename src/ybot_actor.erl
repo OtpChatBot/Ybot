@@ -102,9 +102,24 @@ handle_command(From, Command, Args, TransportPid) ->
             gen_server:cast(TransportPid, {send_message, From, Result});
         {plugin, Lang, _PluginName, PluginPath} ->
             % execute plugin
-            Result = os:cmd(Lang ++ " " ++ PluginPath ++ " \'" ++ Args ++ "\'"),
+            Cmd = Lang ++ " " ++ PluginPath ++ os_escape(Args),
+            %%lager:info("Exec: ~p", [Cmd]),
+            Result = os:cmd(Cmd),
             % Save command to history
             ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ Command ++ " " ++ Args ++ "\n"}),
             % send result to chat
             gen_server:cast(TransportPid, {send_message, From, Result})
     end.
+
+
+os_escape([]) ->
+    [];
+os_escape(Args) ->
+    os_escape(Args, [$",$ ]).
+
+os_escape([], Acc) ->
+    lists:reverse([$"|Acc]);
+os_escape([$"|Args], Acc) ->
+    os_escape(Args, [$",$\\|Acc]);
+os_escape([C|Args], Acc) ->
+    os_escape(Args, [C|Acc]).
