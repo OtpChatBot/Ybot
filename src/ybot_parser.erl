@@ -100,7 +100,11 @@ handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State)
         end);
         [Nick1, Command | _] -> maybe_respond({Nick1, Nick}, fun() ->
                 % Get command arguments
-                Args = string:tokens(ybot_utils:split_at_end(IncomingMessage, Command), "\r\n"),
+                Args = string:strip(
+                         lists:flatten(
+                           string:tokens(
+                             ybot_utils:split_at_end(IncomingMessage, Command), 
+                             "\r\n"))),
                 % Start process with supervisor which will be execute plugin and send to pid
                 ybot_actor:start_link(TrasportPid, From, Command, Args) 
         end);
