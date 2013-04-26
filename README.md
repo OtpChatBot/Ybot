@@ -38,6 +38,7 @@ Features
   * Flowdock supporting;
   * Skype supporting;
   * Talkerapp supporting;
+  * Notifications.
 
 Building and Running
 =====================

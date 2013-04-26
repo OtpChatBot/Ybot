@@ -31,6 +31,11 @@ init([]) ->
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
+    % Get notifications
+    {ok, Notifications} = application:get_env(ybot, notification),
+    % notification plugins directory
+    NotificationsDir = PluginsDirectory ++ "notifications/",
+
     % Root supervisor childrens
     Childrens = [
 
@@ -80,11 +85,23 @@ init([]) ->
             {talker_app_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
         },
+        
+        % start notification handlers supervisor
+        {ybot_notification_sup,
+            {ybot_notification_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
 
         % start manager with transports list
         {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports]},
              permanent, brutal_kill, worker, []
+        },
+
+        % start notification manager
+        {ybot_notification,
+            {ybot_notification, start_link, [Notifications, NotificationsDir]},
+            permanent, brutal_kill, worker, []
         },
 
         % start ybot shell

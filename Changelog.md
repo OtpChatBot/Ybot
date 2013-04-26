@@ -5,6 +5,8 @@
   * today plugin compatible with Mac OS X date.
   * fixed http application/json data receiving.
   * #62 fixed. Security issue. Command args escaping.
+  * new configuration option - `notification`.
+  * Notification support.
 
 ## Ybot-0.3.3 --> released
 
