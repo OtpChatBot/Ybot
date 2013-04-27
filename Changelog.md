@@ -7,6 +7,8 @@
   * #62 fixed. Security issue. Command args escaping.
   * new configuration option - `notification`.
   * Notification support.
+  * Added channels concept. Write only transports.
+  * Twitter channel added.
 
 ## Ybot-0.3.3 --> released
 

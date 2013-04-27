@@ -36,9 +36,10 @@ Features
   * GTalk supporting;
   * HipChat supporting;
   * Flowdock supporting;
+  * Twitter supporting;
   * Skype supporting;
   * Talkerapp supporting;
-  * Notifications.
+  * Notifications supporting.
 
 Building and Running
 =====================
@@ -104,6 +105,10 @@ supports:
   * Flowdock.
   * Skype.
   * Talkerapp.
+
+And also write-only transports:
+
+  * Twitter
 
 Plugins
 ==========

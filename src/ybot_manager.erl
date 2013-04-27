@@ -8,7 +8,7 @@
 
 -behaviour(gen_server).
 
--export([start_link/2, load_plugin/1, run_transport/1]).
+-export([start_link/3, load_plugin/1, load_channel/1, run_transport/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -29,25 +29,29 @@
        % Runned transports pid list
        runned_transports = [] :: [pid()],
        % plugins paths
-       plugins_paths = []
+       plugins_paths = [],
+       % write only channels
+       channels = []
     }).
 
 %%%=============================================================================
 %%% API
 %%%=============================================================================
 
-start_link(PluginsDirectory, Transports) ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Transports], []).
+start_link(PluginsDirectory, Transports, Channels) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [PluginsDirectory, Transports, Channels], []).
 
 %%%=============================================================================
 %%% ybot_manager callbacks
 %%%=============================================================================
 
-init([PluginsDirectory, Transports]) ->
+init([PluginsDirectory, Transports, Channels]) ->
     % init plugins
     ok = gen_server:cast(?MODULE, {init_plugins, PluginsDirectory}),
     % Start transports
     ok = gen_server:cast(?MODULE, {start_transports, Transports}),
+    % start channels
+    ok = gen_server:cast(?MODULE, {start_channels, Channels}),
     % init command history process
     ok = gen_server:cast(?MODULE, init_history),
     % start webadmin interface
@@ -137,6 +141,13 @@ handle_cast({init_plugins, PluginsDirectory}, State) ->
             % return empty plugins list
             {noreply, State#state{plugins = []}}
     end;
+
+%% doc Start write-only channels
+handle_cast({start_channels, Channels}, State) ->
+    % Review supported mode of transportation
+    ChannelList = lists:flatten(lists:map(fun load_channel/1, Channels)),
+    % update channels
+    {noreply, State#state{channels = ChannelList}};
 
 %% @doc Run transports from `Transports` list
 handle_cast({start_transports, Transports}, State) ->
@@ -409,3 +420,14 @@ run_transport(Transport) ->
             % update transport
             gen_server:cast(ybot_manager, {update_transport, NewTransport, element(2, NewTransport)})
     end.
+
+load_channel({twitter, ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret}) ->
+    % start twitter client
+    {ok, TwitterCLientPid} = ybot_twitter_sup:start_twitter_client(ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret),
+    % some logs
+    lager:info("Twitter channel started ~p ~p", [TwitterCLientPid, ConsumerKey]),
+    % return channel
+    {twitter, TwitterCLientPid, ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret};
+
+load_channel(_) ->
+    [].

@@ -31,6 +31,9 @@ init([]) ->
     % Get transports
     {ok, Transports} = application:get_env(ybot, transports),
 
+    % Get write-only channels
+    {ok, Channels} = application:get_env(ybot, channel),
+
     % Get notifications
     {ok, Notifications} = application:get_env(ybot, notification),
     % notification plugins directory
@@ -92,9 +95,15 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % start twitter supervisor
+        {ybot_twitter_sup,
+            {ybot_twitter_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start manager with transports list
         {ybot_manager,
-            {ybot_manager, start_link, [PluginsDirectory, Transports]},
+            {ybot_manager, start_link, [PluginsDirectory, Transports, Channels]},
              permanent, brutal_kill, worker, []
         },
 
