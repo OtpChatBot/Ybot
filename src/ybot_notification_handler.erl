@@ -88,12 +88,22 @@ handle_cast(_Msg, State) ->
 handle_info(execute, State) ->
     % execute plugin
     Result = os:cmd(State#state.lang ++ " " ++ State#state.plugin_path),
-    % send notification to the chats
-    lists:foreach(fun(Transport) ->
-                      % send message
-                      gen_server:cast(Transport, {send_message, "", Result})
-                  end, 
-                  State#state.transports),
+    io:format("Result ~p~n", [Result]),
+    case Result of
+      "" ->
+          ok;
+      "\n" ->
+          ok;
+      "\r\n" ->
+          ok;
+      _ ->
+          % send notification to the chats
+          lists:foreach(fun(Transport) ->
+                            % send message
+                            gen_server:cast(Transport, {send_message, "", Result})
+                        end, 
+                        State#state.transports)
+    end,
     % start new notification
     erlang:send_after(State#state.timeout, self(), execute),
     % return

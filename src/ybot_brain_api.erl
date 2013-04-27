@@ -61,9 +61,7 @@ create_json(Req, Id) ->
         {true, Req2, Id}
     catch
         _:Reason ->
-            lager:error("Unable to create memoery. Invalid JSON!"
-                        " Error=~p, Stack=~p",
-                        [Reason, erlang:get_stacktrace()]),
+            lager:error("Unable to create memory. Invalid JSON!" " Error=~p, Stack=~p", [Reason, erlang:get_stacktrace()]),
             {false, Req, Id}
     end.
 
@@ -126,13 +124,12 @@ get_by_params([{<<"plugin">>, Plugin}, {<<"key">>, Key}]) ->
 
 % Helpers
 from_json(Input) ->
-    jiffy:decode(ybot_utils:to_list(Input)).
+    jiffy:decode(Input).
 
 deserialize(Item) ->
     case validate_json(Item) of
         true  ->
-            {struct, List} = Item,
-            List;
+            Item;
         false ->
             throw({invalid_json, Item})
     end.
@@ -154,13 +151,15 @@ validate_json({[{<<"plugin">>, _}, {<<"key">>, _}, {<<"value">>, _}]}) ->
     true;
 validate_json({[{<<"id">>, _}, {<<"plugin">>, _}, {<<"key">>, _}, {<<"value">>, _}]}) ->
     true;
+validate_json({[{<<"value">>, _}, {<<"created">>, _}, {<<"id">>, _}, {<<"key">>, _}, {<<"plugin">>, _}]}) ->
+    true;    
 validate_json(_Other) ->
     false.
 
 to_json(Input) ->
     ybot_utils:to_binary(jiffy:encode(Input)).
 
-get_value(Key, List) ->
+get_value(Key, {List}) ->
     proplists:get_value(Key, List).
 
 format_datetime({{Y,M,D},{H,Mi,S}}) ->
@@ -171,7 +170,7 @@ format_datetime({{Y,M,D},{H,Mi,S}}) ->
        )
      ).
 
-get_resource_url(Id) ->	
+get_resource_url(Id) -> 
     Host = ybot_utils:to_list(ybot_utils:get_config_val(brain_api_host)),
     Port = ybot_utils:to_list(ybot_utils:get_config_val(brain_api_port)),
     ybot_utils:to_binary("http://" ++ Host ++ ":" ++ Port ++ "/memories/" ++ ybot_utils:to_list(Id)).
