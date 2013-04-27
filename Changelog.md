@@ -9,6 +9,7 @@
   * Notification support.
   * Added channels concept. Write only transports.
   * Twitter channel added.
+  * Notification support for channels.
 
 ## Ybot-0.3.3 --> released
 

@@ -37,7 +37,7 @@ start_link(Consumer, ConsumerSecret, AccessToken, AccessTokenSecret) ->
 -spec send_message(TwitterClient :: pid(), Messsage :: string()) -> ok.
 send_message(TwitterClient, Messsage) ->
     % send message
-    gen_server:cast(TwitterClient, {send_message, Messsage}).
+    gen_server:cast(TwitterClient, {send_message, "", Messsage}).
 
 init([Consumer, ConsumerSecret, AccessToken, AccessTokenSecret]) ->
     % init interanal state
@@ -47,7 +47,7 @@ init([Consumer, ConsumerSecret, AccessToken, AccessTokenSecret]) ->
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast({send_message, Messsage}, State) ->
+handle_cast({send_message, _From, Messsage}, State) ->
     Consumer = {binary_to_list(State#state.consumer, binary_to_list(State#state.consumer_secret), hmac_sha1)},
     % update twitter status
     oauth:post("https://api.twitter.com/1/statuses/update.json", [{"status", Messsage}], Consumer, 

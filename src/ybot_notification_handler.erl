@@ -56,6 +56,21 @@ handle_cast({init_handler, {PluginName, TranportsList, Timeout}, NotificationDir
                                                    end
                                                end,
                                                gen_server:call(ybot_manager, get_transports))),
+
+    % Get necessary channels
+    Channels = lists:flatten(lists:map(fun(Channel) ->
+                                           % Check is notification for this channel or not 
+                                           IsChannel = lists:member(element(1, Channel), TranportsList),
+                                           case IsChannel of
+                                               true ->
+                                                   element(2, Channel);
+                                               false ->
+                                                   []
+                                            end
+                                       end,
+                                       gen_server:call(ybot_manager, get_channels))),
+    % Make transports list
+    Transports = lists:append(RunnedTransports, Channels),
     % Get plugin file with extension
     [PluginWithExt | _] = filelib:wildcard(atom_to_list(PluginName) ++ "*", NotificationDir),
     % Get lang
@@ -65,7 +80,7 @@ handle_cast({init_handler, {PluginName, TranportsList, Timeout}, NotificationDir
     % start notifications
     erlang:send_after(Timeout * 1000, self(), execute),
     % return
-    {noreply, State#state{transports = RunnedTransports, lang = Lang, timeout = Timeout * 1000, plugin_path = PluginPath}};
+    {noreply, State#state{transports = Transports, lang = Lang, timeout = Timeout * 1000, plugin_path = PluginPath}};
  
 handle_cast(_Msg, State) ->
     {noreply, State}.
