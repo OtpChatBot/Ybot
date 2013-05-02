@@ -74,6 +74,8 @@ Run on heroku
 cd Ybot
 heroku create your-application-name -s cedar
 heroku config:add BUILDPACK_URL=http://github.com/heroku/heroku-buildpack-erlang.git
+echo OTP_R15B01 > .preferred_otp_version
+git commit "Select R15B01 as preferred OTP version" .preferred_otp_version
 git push heroku master
 ```
 
