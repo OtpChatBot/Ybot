@@ -138,8 +138,9 @@ handle_command(Command, Args, TransportPid) ->
             % plugin not found
             wrong_plugin;
         {plugin, "erlang", PluginName, AppModule} ->
+            PluginMod = list_to_atom(AppModule),
             % execute plugin
-            Result = AppModule:execute(Args),
+            Result = PluginMod:execute(Args),
             % Save command to history
             ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ PluginName ++ " " ++ Args ++ "\n"}),
             % send result to chat

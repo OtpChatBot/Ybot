@@ -27,12 +27,14 @@ execute([]) ->
     handle_command(list, [], []);
 
 execute(Input) ->
+    io:format("Start to execute ~n"),
     case re:split(Input, " ", [{return, list}]) of
         [] ->
             "No input";
         [[], "help"] ->
             handle_command(help, [], []);
         [[], "list"] ->
+            io:format("Is list ~n"),
             handle_command(list, [], []);
         [[], Key] ->
             handle_command(list, Key, []);
