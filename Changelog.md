@@ -11,6 +11,7 @@
   * Twitter channel added.
   * Notification support for channels.
   * Ybot memory json validating fix.
+  * added new config option - `use_web_admin :: boolean()`
 
 ## Ybot-0.3.3 --> released
 

@@ -54,8 +54,21 @@ init([PluginsDirectory, Transports, Channels]) ->
     ok = gen_server:cast(?MODULE, {start_channels, Channels}),
     % init command history process
     ok = gen_server:cast(?MODULE, init_history),
-    % start webadmin interface
-    ybot_web_admin_sup:start_web_admin(),
+    % Start web interface
+    case application:get_env(ybot, web_admin) of
+        {ok, WebAdminOptions} ->
+            case lists:keyfind(use_web_admin, 1, WebAdminOptions) of
+                {use_web_admin, true} ->
+                    % some logs
+                    lager:info("Web admin started ...."),
+                    % start webadmin interface
+                    ybot_web_admin_sup:start_web_admin();
+                _ ->
+                    ok
+            end;
+        _ ->
+            ok
+    end,
     % init
     {ok, #state{}}.
 

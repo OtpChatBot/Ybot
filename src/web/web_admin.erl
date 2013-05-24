@@ -41,10 +41,12 @@ handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast(start_serve, State) ->
+    % Get web admin config
+    {ok, WebAdmin} = application:get_env(ybot, web_admin),
     % Get Host
-    {ok, Host} = application:get_env(ybot, webadmin_host),
+    {webadmin_host, Host} = lists:keyfind(webadmin_host, 1, WebAdmin),
     % Get Port
-    {ok, Port} = application:get_env(ybot, webadmin_port),
+    {webadmin_port, Port} = lists:keyfind(webadmin_port, 1, WebAdmin),
     % Cowboy dispatch
     Dispatch = cowboy_router:compile([
         {binary_to_list(Host), [
