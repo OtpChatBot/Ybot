@@ -101,6 +101,12 @@ init([]) ->
             permanent, brutal_kill, supervisor, []
         },
 
+        % start mail supervisor
+        {ybot_mail_client_sup,
+            {ybot_mail_client_sup, start_link, []},
+            permanent, brutal_kill, supervisor, []
+        },
+
         % start manager with transports list
         {ybot_manager,
             {ybot_manager, start_link, [PluginsDirectory, Transports, Channels]},

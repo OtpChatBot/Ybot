@@ -438,6 +438,7 @@ run_transport(Transport) ->
             gen_server:cast(ybot_manager, {update_transport, NewTransport, element(2, NewTransport)})
     end.
 
+%% @doc start twitter channel
 load_channel({twitter, ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret}) ->
     % start twitter client
     {ok, TwitterCLientPid} = ybot_twitter_sup:start_twitter_client(ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret),
@@ -445,6 +446,15 @@ load_channel({twitter, ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecr
     lager:info("Twitter channel started ~p ~p", [TwitterCLientPid, ConsumerKey]),
     % return channel
     {twitter, TwitterCLientPid, ConsumerKey, ConsumerSecret, AccessToken, AccessTokenSecret};
+
+%% @doc start mail channel
+load_channel({smtp, From, FromPassword, To, Options}) ->
+    % start smtp client
+    {ok, SmtpClientPid} = ybot_mail_client_sup:start_smtp_client(From, FromPassword, To, Options),
+    % some logs
+    lager:info("SMTP channel started ~p ~p", [SmtpClientPid, From]),
+    % return channel
+    {smtp};
 
 load_channel(_) ->
     [].

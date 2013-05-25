@@ -37,6 +37,7 @@ Features
   * HipChat supporting;
   * Flowdock supporting;
   * Twitter supporting;
+  * Email supporting;
   * Skype supporting;
   * Talkerapp supporting;
   * Notifications supporting.
@@ -112,6 +113,7 @@ supports:
 And also write-only transports:
 
   * Twitter
+  * Channel
 
 Plugins
 ==========
