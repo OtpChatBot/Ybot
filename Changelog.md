@@ -12,6 +12,7 @@
   * Notification support for channels.
   * Ybot memory json validating fix.
   * added new config option - `use_web_admin :: boolean()`
+  * `gen_smtpc` added to dependencies.
 
 ## Ybot-0.3.3 --> released
 
