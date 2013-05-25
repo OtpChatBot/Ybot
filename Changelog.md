@@ -1,6 +1,8 @@
 # Ybot news & changelog
 
-## Ybot-0.3.4 -- In development
+## Ybot-0.3.5 --> In development
+
+## Ybot-0.3.4 -- released.
 
   * today plugin compatible with Mac OS X date.
   * fixed http application/json data receiving.
