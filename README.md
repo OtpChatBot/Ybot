@@ -89,6 +89,7 @@ Dependencies
   * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
   * [erlang-oauth](https://github.com/tim/erlang-oauth)
   * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
+  * [gen_smtpc](https://github.com/0xAX/gen_smtpc) - Simple erlang smtp client.
 
 Transport
 ==========
