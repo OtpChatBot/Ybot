@@ -2,6 +2,8 @@
 
 ## Ybot-0.3.5 --> In development
 
+  * twitter channel compatible with twitter api v.1.1
+
 ## Ybot-0.3.4 -- released.
 
   * today plugin compatible with Mac OS X date.

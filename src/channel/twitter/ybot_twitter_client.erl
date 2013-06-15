@@ -50,7 +50,7 @@ handle_call(_Request, _From, State) ->
 handle_cast({send_message, _From, Messsage}, State) ->
     Consumer = {binary_to_list(State#state.consumer), binary_to_list(State#state.consumer_secret), hmac_sha1},
     % update twitter status
-    oauth:post("https://api.twitter.com/1/statuses/update.json", [{"status", Messsage}], Consumer, 
+    oauth:post("https://api.twitter.com/1.1/statuses/update.json", [{"status", Messsage}], Consumer, 
                binary_to_list(State#state.access_token), binary_to_list(State#state.access_token_secret)),
     % return
     {noreply, State};
