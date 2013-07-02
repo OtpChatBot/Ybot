@@ -1,13 +1,13 @@
 Ybot
 ===============
 
-Ybot is a customizable bot which was inspired by GitHub's
-[Hubot](http://hubot.github.com/). Hubot is really cool, but sorry, I
-don't like JavaScript and I don't know coffescript. Ybot is completely
-written in Erlang/OTP and you can write plugins in Python, Perl, Ruby,
-or even in shell.
+Ybot is a customizable bot which was inspired by GitHub's [Hubot](http://hubot.github.com/). What can you do with `Ybot`:
 
-![Ybot](http://s7.postimage.org/5hiyut7ff/logo79187921.png "Ybot logo")
+  * Chat bot with many different [plugins](https://github.com/0xAX/ybot-contrib).
+  * Bridge between `http` and differnt chat systems like `irc`, `xmpp` and etc...
+  * Notification chat bot. See [@erlnews](https://twitter.com/erlnews) twitter bot.
+  * Email bot.
+  * Logging (see [lager_ybot_backend](https://github.com/0xAX/lager_ybot_backend)).
 
 [![Build Status](https://travis-ci.org/0xAX/Ybot.png)](https://travis-ci.org/0xAX/Ybot)
 
@@ -16,7 +16,6 @@ Features
 
   * Ybot's core completely written in Erlang;
   * Simultaneously run any number of bots on different transports;
-  * You don't need to know Erlang to write a plugin;
   * Web interface;
   * Supports plugins in different technology:
     * Python plugins;
@@ -33,7 +32,6 @@ Features
   * Supports XMPP and XMPP via ssl;
   * Supports Campfire
   * HTTP interface;
-  * GTalk supporting;
   * HipChat supporting;
   * Flowdock supporting;
   * Twitter supporting;
@@ -235,4 +233,4 @@ Author
 
 Creator of Ybot [@0xAX](https://twitter.com/0xAX).
 
-Thank you all who participating in Ybot developing. Names and contact information of those who helped, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS)
+Thank you all who participating in Ybot developing. Names and contact information of those who helped, you can find the file [AUTHORS](https://github.com/0xAX/Ybot/blob/master/AUTHORS).
