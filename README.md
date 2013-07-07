@@ -102,7 +102,6 @@ supports:
   * XMPP MUC (+single user chat supporting, +private messages supporting, +ssl supporting).
   * Campfire.
   * HTTP.
-  * Gtalk.
   * HipChat.
   * Flowdock.
   * Skype.
