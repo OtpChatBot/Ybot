@@ -47,7 +47,7 @@ HipChat
 
 For using Ybot with [HipChat](https://www.hipchat.com/), you must to configure it in configuration file ybot.config, something like that:
 
-``erlang
+```erlang
 [
     {ybot,
         [
