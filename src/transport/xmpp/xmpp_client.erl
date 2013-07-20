@@ -46,8 +46,7 @@
         % reconnect timeout
         reconnect_timeout = 0,
         % is_authorizated
-        success = false,
-        
+        success = false
     }).
 
 %%%=============================================================================
@@ -212,29 +211,6 @@ code_change(_OldVsn, State, _Extra) ->
 %%%=============================================================================
 %%% Internal functions
 %%%=============================================================================
-
-%% @doc send online status to single user chat
-send_presence(Xml, Socket, M) ->
-    case xmerl_xpath:string("/presence/@type", Xml) of
-        [{_,_,_,_, _, _, _, _,"subscribe", _}] ->
-            [{_,_,_,_, _, _, _, _, To, _}] = xmerl_xpath:string("/presence/@from", Xml),
-            % send subscribed
-            M:send(Socket, xmpp_xml:presence_subscribed(To));
-        % do nothing
-        _ ->
-            pass
-    end,
-
-    case xmerl_xpath:string("/presence/@from", Xml) of
-        [{_,_,_,_, _, _, _, _, From, _}] ->
-            % send subscribed
-            M:send(Socket, xmpp_xml:presence_subscribed(From));
-        % do nothing
-        _ ->
-            pass
-    end,
-    % return
-    ok.
 
 %% @doc try reconnect
 -spec try_reconnect(State :: #state{}) -> {normal, stop, State} | {noreply, State}.
