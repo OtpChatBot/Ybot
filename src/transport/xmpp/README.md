@@ -8,7 +8,7 @@ Jabber
 
 For using Ybot with `jabber`, you must to configure it in configuration file ybot.config, something like that:
 
-``erlang
+```erlang
 [
     {ybot,
         [
@@ -20,45 +20,7 @@ For using Ybot with `jabber`, you must to configure it in configuration file ybo
                            <<"ybot_test@conference.jabber.org">>,
                            <<"jabber.org">>,
                            <<"home">>,
-                           [{port, 5222}, {use_ssl, false}, {reconnect_timeout, 5000}, {is_hipchat, false}, {hipchat_nick, <<>>}]
-                    }
-                ]
-            },
-
-            % Loading new plugins during work or not
-            {checking_new_plugins, false},
-            % Checking new plugins timeout
-            {checking_new_plugins_timeout, 20000},
-
-            % Save commands history
-            {commands_history, true},
-            % Command history limit
-            {history_command_limit_count, 100},
-            
-            % plugins directory path
-            {plugins_path, "plugins/"}
-        ]
-    }
-].
-```
-
-Gtalk
-================
-
-For using Ybot with [Google Talk](http://www.google.com/talk/), you must to configure it in configuration file ybot.config, something like that:
-
-``erlang
-[
-    {ybot,
-        [
-            % list of transport
-            {transports, [                    
-                    {xmpp, <<"ybot@gmail.com">>,
-                           <<"password">>,
-                           <<"ybot_test@conference.jabber.org">>,
-                           <<"talk.google.com">>,
-                           <<"home">>,
-                           [{port, 443}, {use_ssl, true}]
+                           [{port, 5222}, {use_ssl, false}, {reconnect_timeout, 5000}]
                     }
                 ]
             },
