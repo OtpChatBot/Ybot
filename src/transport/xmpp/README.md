@@ -53,32 +53,31 @@ For using Ybot with [HipChat](https://www.hipchat.com/), you must to configure i
         [
             % list of transport
             {transports, [                    
-                    {xmpp, <<"hipchat_nick@chat.hipchat.com">>,
-                           <<"password">>,
-                           <<"room@conf.hipchat.com">>,
-                           <<"chat.hipchat.com">>,
-                           <<"bot">>,
-                           [{port, 5223}, {use_ssl, true}, {reconnect_timeout, 0}, 
-                            % is this hipchat
-                            {is_hipchat, true},
-                            % Room nickname. Get it in account xmpp settings
-                            {hipchat_nick, <<"ybot ybot">>}]
-                    }
+                     % Hipchat config
+                      {hipchat,
+                             % Bot Hipchat Username
+                             <<"00000_00000@chat.hipchat.com">>,
+                             % Bot Hipchat password
+                             <<"password">>,
+                             % Hipchat room
+                             <<"ybot_test@conf.hipchat.com">>,
+                             % Server
+                             <<"chat.hipchat.com">>,
+                             % Resource
+                             <<"bot">>,
+                             % Hipchat nick
+                             <<"ybot">>,
+                             % Options
+                             [
+                                 {reconnect_timeout, 0}
+                             ]
+                    },
                 ]
             },
 
-            % Loading new plugins during work or not
-            {checking_new_plugins, false},
-            % Checking new plugins timeout
-            {checking_new_plugins_timeout, 20000},
-
-            % Save commands history
-            {commands_history, true},
-            % Command history limit
-            {history_command_limit_count, 100},
-            
-            % plugins directory path
-            {plugins_path, "plugins/"}
+            .....
+            .....
+            .....
         ]
     }
 ].
