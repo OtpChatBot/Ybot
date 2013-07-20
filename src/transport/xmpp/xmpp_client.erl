@@ -12,7 +12,7 @@
 -include_lib("xmerl/include/xmerl.hrl").
 
 -export([start_link/9]).
- 
+
 %% gen_server callbacks
 -export([init/1,
          handle_call/3,
@@ -44,7 +44,10 @@
         % socket mode
         socket_mod = null,
         % reconnect timeout
-        reconnect_timeout = 0
+        reconnect_timeout = 0,
+        % is_authorizated
+        success = false,
+        
     }).
 
 %%%=============================================================================
@@ -82,9 +85,9 @@ handle_cast({connect, Host, Port}, State) ->
     % Connection options
     Options = case State#state.socket_mod of
                 ssl -> 
-                    [{verify, 0}];
+                    [list, {verify, 0}];
                 gen_tcp -> 
-                    []
+                    [list]
     end,
     % connect
     case (State#state.socket_mod):connect(binary_to_list(Host), Port, Options) of
@@ -150,52 +153,55 @@ handle_info({tcp_error, _Socket, Reason}, State) ->
     lager:error("tcp_error: ~p~n", [Reason]),
     % try reconnect
     try_reconnect(State);
-    
-%% @doc Incoming message
+
+%% handle chat message
+handle_info({_, _, "<message " ++ Rest}, State) ->
+    % parse xml
+    case xmerl_scan:string("<message " ++ Rest) of
+        [] ->
+            {noreply, State};
+        {Xml, _} ->
+            % Try to catch incoming xmpp message and send it to hander
+            ok = is_xmpp_message(Xml, State#state.callback),
+            % return
+            {noreply, State}
+    end;
+
+%% @doc Handle incoming XMPP message
 handle_info({_, _Socket, Data}, State) ->
-    try
-        % Try to parse incoming xml
-        {Xml, _} = xmerl_scan:string(Data),
-        % Check auth state
-        case State#state.is_auth of
-            % Authorized
-            true ->
-                % try to send presence
-                ok = send_presence(Xml, State#state.socket, State#state.socket_mod),
-                % Try to catch incoming xmpp message and send it to hander
-                ok = is_xmpp_message(Xml, State#state.callback),
-                % return
-                {noreply, State};
-            % Not authorized
-            false ->
-                % Got success authorization
-                case xmerl_xpath:string("/success", Xml) of
-                    [] ->
-                        {noreply, State};
-                    _ ->
-                        NewStream = lists:last(string:tokens(binary_to_list(State#state.login), "@")),
-                        % create new stream
-                        (State#state.socket_mod):send(State#state.socket, ?STREAM(NewStream)),
-                        % bind resource
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:bind(binary_to_list(State#state.resource))),
-                        % create session
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:create_session()),
-                        % send presence
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:presence()),
-                        % Little timer
-                        timer:sleep(1000),
-                        % Join to muc
-                        (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(State#state.room)),
-                        % set is_auth = true and return
-                        {noreply, State#state{is_auth = true}}
-                end
-        end
-    catch _Error : _Reason ->
-        {noreply, State}
+    case State#state.success of
+        true ->
+            {noreply, State};
+        false ->
+            case parse_data(Data) of
+                success ->
+                    % make xmpp stream string
+                    NewStream = lists:last(string:tokens(binary_to_list(State#state.login), "@")),
+                    % create new stream
+                    (State#state.socket_mod):send(State#state.socket, ?STREAM(NewStream)),
+                    % bind resource
+                    (State#state.socket_mod):send(State#state.socket, xmpp_xml:bind(binary_to_list(State#state.resource))),
+                    % create session
+                    (State#state.socket_mod):send(State#state.socket, xmpp_xml:create_session()),
+                    % send presence
+                    (State#state.socket_mod):send(State#state.socket, xmpp_xml:presence()),
+                    % Join to muc
+                    (State#state.socket_mod):send(State#state.socket, xmpp_xml:muc(State#state.room)),
+                    % set is_auth = true and return
+                    {noreply, State#state{is_auth = true, success = true}};
+                ok ->
+                    {noreply, State}
+            end
     end;
 
 handle_info(_Info, State) ->
     {noreply, State}.
+
+parse_data("<success " ++ _) ->
+    success;
+
+parse_data(_) ->
+    ok.
 
 terminate(_Reason, _State) ->
     ok.
@@ -274,8 +280,12 @@ is_xmpp_message(Xml, Callback) ->
             pass;
         _ ->
             % Get message body
-            [{xmlText, _, _, _, IncomingMessage, text}]  = xmerl_xpath:string("/message/body/text()", Xml),
-            % Check message type and send it to handler
-            ok = send_message_to_handler(Xml, Callback, IncomingMessage)
+            case xmerl_xpath:string("/message/body/text()", Xml) of
+                [{xmlText, _, _, _, IncomingMessage, text}] ->
+                    % Check message type and send it to handler
+                    ok = send_message_to_handler(Xml, Callback, IncomingMessage);
+                _ ->
+                    error
+            end
     end,
     ok.
