@@ -50,9 +50,9 @@ handle(Req, State) ->
                 %
                 ["req", "main_web_interface_req"] ->
                     % Get runned transports
-                    Transports = [atom_to_list(element(1, Transport))  ++ " " ++
-                                  pid_to_list(element(2, Transport))   ++ " " ++ 
-                                  binary_to_list(element(4, Transport)) ++ "\n" || Transport <- gen_server:call(ybot_manager, get_transports), 
+                    Transports = [
+                                  atom_to_list(element(1, Transport))  ++ " " ++
+                                  pid_to_list(element(2, Transport))   ++ " " ++ "\n" || Transport <- gen_server:call(ybot_manager, get_transports), 
                                   (element(1, Transport) /= http) or (element(1, Transport) /= skype)],
                     % Get plugins
                     Plugins = {plugins, format_plugins_helper(gen_server:call(ybot_manager, get_plugins))},

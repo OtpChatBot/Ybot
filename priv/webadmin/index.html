@@ -1,311 +1,63 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app='ybot'>
   <head>
     <title>Ybot web interface</title>
     <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css" media="screen"/>
-    <script language="javascript" src="/js/prototype.js" type="text/javascript"></script>
-    <script language="javascript" src="/js/livepipe.js" type="text/javascript"></script>
-    <script language="javascript" src="/js/tab.js" type="text/javascript"></script>
-    <script language="javascript" src="/js/angular.js" type="text/javascript"></script>
-    <script language="javascript" src="/js/ybot.js" type="text/javascript"></script>
-    <!-- Custom css -->
-    <style media="screen" type="text/css">
-      a{
-        cursor: pointer;
-      }
-      label{
-        font-size: 17px;
-      }
-      li{
-        font-size: 17px;
-      }
-      .hero-unit{
-        position: fixed;
-        left: 340px;
-        top : 4%;
-        right: 0%;
-        bottom: 0%;
-        margin-bottom:0%;
-      }
- 
-      #menu ul{
-        margin-left : 0%;
-        list-style: none;
-      }
-
-      #menu li{
-        display: inline;
-      }
-    </style>
-    <!-- End of custom css -->
+    <link rel="stylesheet" type="text/css" href="/css/ybot.css" media="screen" />
   </head>
-    <body>
+    <body ng-controller="YbotController">
 
       <!-- Page header -->
       <div class="navbar navbar-inverse navbar-fixed-top">
-            <div class="navbar-inner">
-                    <div class="container-fluid">
-                    <a class="brand" href="/">Ybot web interface</a>
-
-                    <div class="nav-collapse collapse">
-                        <ul class="nav">
-                          <li><a href="https://github.com/0xAX/Ybot">Source Code</a></li>
-                            <li><a href="http://0xax.github.com/Ybot.html">Documentation</a></li>
-                            <li><a href="http://0xax.github.com/ybot-plugins.html">Plugin catalog</a></li>
-                        </ul>
-                    </div>
-                    </div>
-                </div>
+        <div class="navbar-inner">
+          <div class="container-fluid">
+            <a class="brand" href="/">Ybot web interface</a>
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <li><a href="https://github.com/0xAX/Ybot">Source Code</a></li>
+                <li><a href="http://0xax.github.com/Ybot.html">Documentation</a></li>
+                <li><a href="http://0xax.github.com/ybot-plugins.html">Plugins catalog</a></li>
+              </ul>
             </div>
-            <br/>
-            <!-- End header -->
+          </div>
+        </div>
+      </div>
+      <!-- End header -->
 
-            <!-- Side bar -->
-             <div ng-app='ybot' id="side_bar_div" class="container-fluid" ng-controller="YbotController" ng-load="start()">
-                <div class="well sidebar-nav" style="width: 300px; top: 4%; left:0px; position:fixed;">
-                      <ul class="nav nav-list">
-                          <li class="nav-header"><strong>Ybot options<strong></li>
-                          <li id="li_web_interface" class="active"><a id="a_web_interface" href="/">Ybot web interface</a></li>
-                          <li class="divider"></li>
-                          <li class="nav-header"><strong>Ybot plugins<strong></li>
-                          <li id="li_ybot_plugins" ng-click="acive_ybot_settings()"><a id="a_ybot_plugins">Ybot plugins observer and history</a></li>
-                          <li id="li_ybot_upload_plugin" ng-click="active_upload_plugin()">
-                          <a id="a_ybot_upload_plugin">Ybot upload and start new plugin</a></li>
-                          <li class="divider"></li>
-                          <li class="nav-header"><strong>Ybot transports<strong></li>
-                          <li id="li_runned_transports" ng-click="active_runned_transport()"><a id="a_ybot_runned_transports">Ybot runned trannsports</a></li>
-                          <li id="li_start_new_transport" ng-click="active_new_transport()"><a id="a_ybot_new_transport">Ybot start new transport</a></li>
-                          <li class="divider"></li>
-                          <li class="nav-header"><strong>Ybot storage backend<strong></li>
-                          <li id="li_storage_option" ng-click="active_ybot_storage()"><a id="a_ybot_storage_opts">Ybot storage options</a></li>
-                      </ul>
-                  </div>
-                  
-                  <!-- Main div -->
-                  <div id="main_div" class="hero-unit" style="overflow:auto; position:absolute;">
-                    <h2>{{header}}</h2>
-                    <hr/>
+      <!-- Side bar -->
+      <ng-include src="'/views/sidebar.html'">
+      </ng-include>
+      <!-- End of side bar -->
 
-                    <!-- Ybot web interface content -->
-                    <div id="div_ybot_web_interface" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
-                      <h3>Transports</h3>
-                        <ul>
-                           <li ng-repeat="transport in transports">
-                              {{transport}}
-                           </li>
-                        </ul>
-                      <hr/>
-                      <h3>Plugins</h3>
-                        <ul>
-                          <li ng-repeat="plugin in plugins">
-                            {{plugin}}
-                          </li>
-                        </ul>
-                      <hr/>
-                      <h3>History and Plugin observer</h3>
-                      <label>Ybot history turn on - {{is_history}}</label>
-                      <label>Ybot history limit is - {{history_limit}}</label>
-                      <label>Ybot plugin observer turn on - {{is_observer}}</label>
-                      <label>Ybot plugin observer timeout - {{observer_timeout}}</label>
-                      <hr/>
-                      <h3>Ybot storage</h3>
-                      <label>Ybot storage backend - {{storage_type}}</label>
-                    </div>
-                    <!-- End of Ybot web interface content -->
-
-                    <!-- Ybot plugins content -->
-                    <div id="div_ybot_plugins" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
-                        <h3>Plugin observer settings</h3>
-                        <label>New plugin observer timeout (in microsecond):<label>
-                        <span id="span_observer_error1" class="label label-important" style="visibility: hidden;">Observer timeout must be number</span><br/>
-                        <input type="text" id="input_observer_timeout" placeholder="Observer timeout..."></input>
-                        <label class="checkbox"><input id="checkbox_is_observer" checked="false" type="checkbox">Use plugins observer</input></label>
-                        <button class="btn btn-success" ng-model="update_observer_sett_btn" ng-click="update_observer_settings()">Update</button>
-                        <hr/>
-                        <h3>Command history settings</h3>
-                        <label>Limit of command history:<label>
-                        <span id="span_observer_error2" class="label label-important" style="visibility: hidden;">Wrong number</span><br/>
-                        <input type="text" id="input_history_limit" placeholder="History limit..."></input>
-                        <label class="checkbox"><input id="checkbox_is_history" checked="false" type="checkbox">Use command history</input></label>
-                        <button class="btn btn-success" ng-model="update_observer_sett_btn" ng-click="update_history_settings()">Update</button>
-                        <hr/>
-                    </div>
-                    <!-- End of Ybot plugins content -->
-
-                    <div id="div_ybot_upload" style="position: absolute; top:15%; right:0%; left:3.8%;">
-                      <h3>Upload plugins</h3>
-                          <lable>Ybot upload plugin from the <a href="https://github.com/0xAX/ybot-contrib">ybot-contrb</a> or from other place from the web:  <span id="span_upload_error" style="visibility: hidden;" class="label label-important">Wrong plugin path</span>
-                          <br/></label>
-                          <input id="plugin_web_path" name="input_update_plugin" type="text" placeholder="http://" style="width: 240px"/><br/>
-                          <button class="btn btn-success" ng-model="upload_new_plugin" ng-click="upload_plugin()">Upload</button>
-                    </div>
-
-                    <div id="div_ybot_transports" style="position: absolute; overflow:auto; top:15%; right:0%; left:3.8%;">
-                      <h3>Transports</h3>
-                        <ul>
-                           <li ng-repeat="runned_transport in runned_transports">
-                              {{runned_transport}}
-                           </li>
-                        </ul>
-                    </div>
-
-                    <div id="div_ybot_runned_transports" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
-                      <h3>Start new Ybot transport</h3>
-                        <div id="menu">
-                          <ul id="tabs_example_one" class="subsection_tabs">        |
-                              <li class="tab"><a href="#tr1">Irc chat</a></li>      | 
-                              <li class="tab"><a href="#tr2">Jabber chat</a></li>   |
-                              <li class="tab"><a href="#tr3">Campfire chat</a></li> |
-                              <li class="tab"><a href="#tr4">HipChat chat</a></li>  |
-                              <li class="tab"><a href="#tr5">Skype chat</a></li>    |
-                              <li class="tab"><a href="#tr6">HTTP transport</a></li>|
-                              <li class="tab"><a href="#tr7">Flowdock chat</a></li> |
-                              <li class="tab"><a href="#tr8">Talkerapp chat</a></li>|
-                          </ul>
-
-                          <!-- Start irc transport -->
-                          <div id="tr1">
-                            <label>Irc bot nick:</label>
-                            <input type="text" id="input_irc_nick"/>
-                            <label>Irc bot password:</label>
-                            <input type="text" id="input_irc_password"/>
-                            <label>Irc channel:</label>
-                            <input type="text" id="input_irc_channel"/>
-                            <label>Irc channel key:</label>
-                            <input type="text" id="input_irc_channel_key"/>
-                            <label>Irc server host:</label>
-                            <input type="text" id="input_irc_host"/>
-                            <label>Irc server port:</label>
-                            <input type="text" id="input_irc_port"/>
-                            <label>Use ssl:</label>
-                            <input type="checkbox" id="input_irc_ssl"/>
-                            <label>Recconnect timeout:</label>
-                            <input type="text" id="input_irc_reconnect_timeout"/>
-                            <br/>
-                            <button ng-model="start_irc_transport" ng-click="start_irc()" class="btn">Start</button>
-                          </div>  
-                          <!-- End of start irc transport -->
-
-                          <!-- Start jabber transport -->
-                          <div id="tr2">
-                            <label>Bot nick:</label>
-                            <input type="text" id="input_jabber_nick"/>
-                            <label>Bot password:</label>
-                            <input type="text" id="input_jabber_password"/>
-                            <label>Jabber room:</label>
-                            <input type="text" id="input_jabber_room"/>
-                            <label>Jabber server:</label>
-                            <input type="text" id="input_jabber_server"/>
-                            <label>Jabber resource:</label>
-                            <input type="text" id="input_jabber_resource"/>
-                            <label>Server port:</label>
-                            <input type="text" id="input_jabber_port"/>
-                            <label>Use ssl:</label>
-                            <input type="checkbox" id="input_jabber_ssl"/>
-                            <label>Recconnect timeout:</label>
-                            <input type="text" id="input_jabber_reconnect_timeout"/>
-                            <br/>
-                            <button ng-model="start_jabber_transport" ng-click="start_xmpp()" class="btn">Start</button>
-                          </div>
-                          <!-- End of start jabber transport -->
-
-                          <!-- Start campfire transport -->
-                          <div id="tr3">
-                            <label>Bot nick:</label>
-                            <input type="text" id="input_campfire_nick"/>
-                            <label>Campfire token:</label>
-                            <input type="text" id="input_campfire_token"/>
-                            <label>Campfire room id:</label>
-                            <input type="text" id="input_campfire_room_id"/>
-                            <label>Campfire subdomain:</label>
-                            <input type="text" id="input_campfire_subdomain"/>
-                            <label>Reconnect timeout:</label>
-                            <input type="text" id="input_campfire_reconnect_timeout"/>
-                            <br/>
-                            <button ng-model="start_campfire_transport" ng-click="start_campfire()" class="btn">Start</button>
-                          </div>
-                          <!-- End of start campfire transport -->
-
-                          <!-- Start of hipchat transport -->
-                          <div id="tr4">
-                            <label>Bot jid:</label>
-                            <input type="text" id="input_hipchat_jid"/>
-                            <label>Bot password:</label>
-                            <input type="text" id="input_hipchat_password"/>
-                            <label>Hipchat room:</label>
-                            <input type="text" id="input_hipchat_room"/>
-                            <label>Hipchat bot nick:</label>
-                            <input type="text" id="input_hipchat_nick"/>
-                            <label>Reconnect timeout:</label>
-                            <input type="text" id="input_hipchat_reconnect_timeout"/>
-                            <br/>
-                            <button ng-model="start_hipchat_transport" ng-click="start_hipchat()" class="btn">Start</button>
-                          </div>
-                          <!-- End of start HipChat transport -->
-
-                          <!-- Start of skype transport -->
-                          <div id="tr5">
-                            <label>Ybot http backend host:</label>
-                            <input type="text" id="input_skype_http_host"/>
-                            <label>Ybot http backend port:</label>
-                            <input type="text" id="input_skype_http_port"/>
-                            <br/>
-                            <button ng-model="start_skype_transport" ng-click="start_skype()" class="btn">Start</button>
-                          </div>  
-                          <!-- End of start skype transport -->
-
-                          <!-- Start of http transport -->
-                          <div id="tr6">
-                            <label>HTTP host:</label>
-                            <input type="text" id="input_http_host"/>
-                            <label>HTTP port:</label>
-                            <input type="text" id="input_http_port"/>
-                            <label>Bot nick:</label>
-                            <input type="text" id="input_http_bot_nick"/>
-                            <br/>
-                            <button ng-model="start_http_transport" ng-click="start_http()" class="btn">Start</button>
-                          </div>
-                          <!-- Start of http transport -->
-
-                          <div id="tr7">
-                            <label>Bot chat nick:</label>
-                            <input type="text" id="input_flowdock_nick"/>
-                            <label>Bot flowdock login:</label>
-                            <input type="text" id="input_flowdock_login"/>
-                            <label>Bot password:</label>
-                            <input type="text" id="input_flowdock_password"/>
-                            <label>flowdock organization:</label>
-                            <input type="text" id="input_flowdock_org"/>
-                            <label>flowdock flow:</label>
-                            <input type="text" id="input_flowdock_flow"/>
-                            <br/>
-                            <button ng-model="start_flowdock_transport" ng-click="start_flowdock()" class="btn">Start</button>
-                          </div>
-
-                          <div id="tr8">
-                            <label>Bot chat nick:</label>
-                            <input type="text" id="input_talkerapp_nick"/>
-                            <label>Bot talkerapp room:</label>
-                            <input type="text" id="input_talkerapp_room"/>
-                            <label>Talkerapp token:</label>
-                            <input type="text" id="input_talkerapp_token"/>
-                            <br/>
-                            <button ng-model="start_talkerapp_transport" ng-click="start_talkerapp()" class="btn">Start</button>
-                          </div>
-                          
-                        </div>  
-                    </div>
-
-                    <div id="div_ybot_storage" style="position: absolute; top:15%; right:0%; left:3.8%; bottom:0%;">
-                      <h3>Ybot backend storage</h3>
-                      <label>Backend storage type: {{storage_type}}</label>
-                      <label>Backend http host: {{storage_http_host}}</label>
-                      <label>Backend http port: {{storage_http_port}}</label>
-                    </div>
-
-                  <div>
-                  <!-- End of main div -->
-            </div>
-            <!-- End side bar-->
+      <!-- Main div -->
+      <div id="main_div" class="hero-unit" style="overflow:auto; position:absolute;">
+        <div ng-switch on="selection">
+          <div ng-switch-when="home">
+            <ng-include src="'/views/home.html'"></ng-include>
+          </div>
+          <div ng-switch-when="observer_and_history">
+            <ng-include src="'/views/observer.html'"></ng-include>
+          </div>
+          <div ng-switch-when="upload_plugin">
+            <ng-include src="'/views/upload_plugin.html'"></ng-include>
+          </div>
+          <div ng-switch-when="transport">
+            <ng-include src="'/views/transport.html'"></ng-include>
+          </div>
+          <div ng-switch-when="activate_transport">
+            <ng-include src="'/views/activate_transport.html'"></ng-include>
+          </div>
+          <div ng-switch-when="storage">
+            <ng-include src="'/views/storage.html'"></ng-include>
+          </div>
+        </div>
+      </div>
+      <!-- End of main div -->
+      
     </body>
+
+    <script language="javascript" src="/js/angular.js" type="text/javascript"></script>
+    <script language="javascript" src="/js/ui-bootstrap-tpls-0.4.0.min.js" type="text/javascript"></script>
+    <script language="javascript" src="/js/ybot.js" type="text/javascript"></script>
+
 </html>

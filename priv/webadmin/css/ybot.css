@@ -1,0 +1,33 @@
+a{
+  cursor: pointer;
+}
+label{
+  font-size: 17px;
+}
+li{
+  font-size: 17px;
+}
+.hero-unit{
+  position: fixed;
+  left: 340px;
+  top : 4%;
+  right: 0%;
+  bottom: 0%;
+  margin-bottom:0%;
+}
+
+#menu ul{
+  margin-left : 0%;
+  list-style: none;
+}
+
+#menu li{
+  display: inline;
+}
+
+.sidebar-nav{
+  width: 300px; 
+  top: 4%; 
+  left:0px; 
+  position:fixed;
+}

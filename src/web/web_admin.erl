@@ -63,8 +63,11 @@ handle_cast(start_serve, State) ->
                 {file, <<"index.html">>},
                 {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
             ]},
-            {"/admin", web_admin_req_handler, []},
-            {'_', not_found_handler, []}
+            {"/views/[...]", cowboy_static, [
+                {directory, {priv_dir, ybot, [<<"webadmin/views">>]}},
+                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
+            ]},
+            {"/admin", web_admin_req_handler, []}
         ]}
     ]),
     % start serving

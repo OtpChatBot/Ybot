@@ -1,0 +1,27 @@
+<h2>{{header}}</h2>
+<hr/>
+
+<div>
+  <h3>Transports</h3>
+  <ul>
+    <li ng-repeat="transport in transports">
+      {{transport}}
+    </li>
+  </ul>
+  <hr/>
+  <h3>Plugins</h3>
+    <ul>
+      <li ng-repeat="plugin in plugins">
+        {{plugin}}
+      </li>
+    </ul>
+  <hr/>
+  <h3>History and Plugin observer</h3>
+  <label>Ybot history turn on - {{is_history}}</label>
+  <label>Ybot history limit is - {{history_limit}}</label>
+  <label>Ybot plugin observer turn on - {{is_observer}}</label>
+  <label>Ybot plugin observer timeout - {{observer_timeout}}</label>
+  <hr/>
+  <h3>Ybot storage</h3>
+  <label>Ybot storage backend - {{storage_type}}</label>
+</div>
