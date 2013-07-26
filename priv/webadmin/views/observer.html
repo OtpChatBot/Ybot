@@ -1,0 +1,19 @@
+ <div ng-controller="YbotController">
+      <h3>Plugin observer settings</h3>
+      <label>New plugin observer timeout (in microsecond):<label>
+      <input type="text" ng-model="observerTimeout" placeholder="60000"></input>
+
+      <label class="checkbox">
+            <input ng-model="is_observer" id="observer_checked" type="checkbox">Use plugins observer</input>
+      </label>
+      <button class="btn btn-success" ng-click="update_observer_settings(observerTimeout)">Update</button>
+      <hr/>
+      <h3>Command history settings</h3>
+      <label>Limit of command history:</label>
+      <input type="text" ng-model="historyTimeout" placeholder="100"></input>
+      <label class="checkbox">
+            <input ng-model="is_history" id="history_checked" type="checkbox">Use command history</input>
+      </label>
+      <button class="btn btn-success" ng-click="update_history_settings(historyTimeout)">Update</button>
+      <hr/>
+</div>

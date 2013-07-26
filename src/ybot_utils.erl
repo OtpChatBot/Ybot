@@ -17,7 +17,8 @@
          to_int/1,
          broadcast/1,
          get_config_val/1,
-         get_config_val/2
+         get_config_val/2,
+         get_val/2
         ]).
 
 %% @doc get all files from directory
@@ -105,4 +106,12 @@ get_config_val(Param, DefaultValue) ->
             ParamValue;
         _ ->
             DefaultValue
+    end.
+
+get_val(Param, {Label, DefVal}) ->
+    case application:get_env(ybot, Param) of
+        undefined ->
+            {Label, DefVal};
+        {_, ParamVal} ->
+            {Label, ParamVal}
     end.
