@@ -119,6 +119,67 @@ handle_request(Body, Req, State) ->
                             ybot_history:stop()
                     end
             end;
+        <<"upload_plugin">> ->
+            % Get params
+            {[{<<"upload_plugin_path">>, PluginPath}]} = Params,
+            PluginName = filename:basename(binary_to_list(PluginPath)),
+            {ok, PluginsDirectory} = application:get_env(ybot, plugins_path),
+            {_, _, _, PluginData} = ibrowse:send_req(binary_to_list(PluginPath), [], get),
+            {ok, IODevice} = file:open(PluginsDirectory ++ PluginName, [write]), 
+            file:write(IODevice, PluginData), file:close(IODevice),
+            file:close(IODevice);
+        <<"get_runned_transports">> ->
+            Transports = [atom_to_list(element(1, Transport))  ++ " " ++
+                          pid_to_list(element(2, Transport))   ++ " " ++ "\n" || Transport <- gen_server:call(ybot_manager, get_transports), 
+                          (element(1, Transport) /= http) or (element(1, Transport) /= skype)],
+            Data = jiffy:encode({[{transport, list_to_binary(Transports)}]}),
+            cowboy_req:reply(200, [], Data, Req);
+        <<"start_irc">> ->
+            {[{<<"irc_login">>, IrcLogin}, {<<"irc_password">>, Password},
+              {<<"irc_channel">>, IrcChannel}, {<<"irc_channel_key">>, Key}, {<<"irc_server_host">>, Host},
+              {<<"irc_server_port">>, Port}, {<<"irc_use_ssl">>, Ssl}, {<<"irc_reconnect_timeout">>, RecTimeout}]} = Params,
+            Options = [{port, ybot_utils:to_int(Port)}, {use_ssl, Ssl}, {reconnect_timeout, ybot_utils:to_int(RecTimeout)}],
+            ybot_manager:run_transport({irc, IrcLogin, {IrcChannel, Key}, {Host, Password}, Options}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_xmpp">> ->
+            {[{<<"xmpp_login">>, Login}, {<<"xmpp_password">>, Password},
+              {<<"xmpp_room">>, Room}, {<<"xmpp_server">>, Host}, {<<"xmpp_resource">>, Resource},
+              {<<"xmpp_port">>, Port}, {<<"xmpp_ssl">>, Ssl}, {<<"xmpp_reconnect_timeout">>, RecTimeout}]} = Params,
+            Options = [{port, ybot_utils:to_int(Port)}, {use_ssl, Ssl}, {reconnect_timeout, ybot_utils:to_int(RecTimeout)}],
+            ybot_manager:run_transport({xmpp, Login, Password, Room, Host, Resource, Options}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_campfire">> ->
+            {[{<<"login">>, Login}, {<<"token">>, Token},
+              {<<"room">>, Room}, {<<"subdomain">>, SubDomain}, {<<"reconnect_timeout">>, RecTimeout}]} = Params,
+            ybot_manager:run_transport({campfire, Login, Token, ybot_utils:to_int(Room), SubDomain, [{reconnect_timeout, ybot_utils:to_int(RecTimeout)}]}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_hipchat">> ->
+            {[{<<"hipchat_jid">>, Jid}, {<<"hipchat_password">>, Password},
+              {<<"hipchat_room">>, Room}, {<<"hipchat_nick">>, Nick}, {<<"hipchat_reconnect_timeout">>, RecTimeout}]} = Params,
+            ybot_manager:run_transport({hipchat, Jid, Password, Room, <<"chat.hipchat.com">>, <<"bot">>, Nick, [{reconnect_timeout, ybot_utils:to_int(RecTimeout)}]}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_skype">> ->
+            {[{<<"skype_http_host">>, Host}, {<<"skype_http_port">>, Port}]} = Params,
+            ybot_manager:run_transport({skype, true, Host, ybot_utils:to_int(Port)}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_http">> ->
+            {[{<<"http_host">>, Host}, {<<"http_port">>, Port}, {<<"http_bot_nick">>, Nick}]} = Params,
+            ybot_manager:run_transport({http, Host, ybot_utils:to_int(Port), Nick}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_flowdock">> ->
+            {[{<<"flowdock_nick">>, Nick}, {<<"flowdock_login">>, Login},
+              {<<"flowdock_password">>, Password}, {<<"flowdock_org">>, Org}, {<<"flowdock_flow">>, Flow}]} = Params,
+            ybot_manager:run_transport({flowdock, Nick, Login, Password, Org, Flow}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"start_talkerapp">> ->
+            {[{<<"talkerapp_nick">>, Nick}, {<<"talkerapp_room">>, Room}, {<<"talkerapp_token">>, Token}]} = Params,
+            ybot_manager:run_transport({talkerapp, Nick, Room, Token}),
+            cowboy_req:reply(200, [], <<"ok">>, Req);
+        <<"get_storage_info">> ->
+            StorageHost = ybot_utils:get_val(brain_api_host, {storage_host, false}),    
+            StoragePort = ybot_utils:get_val(brain_api_port, {storage_port, 0}),
+            Data = jiffy:encode({[StorageHost, StoragePort]}),
+            cowboy_req:reply(200, [], Data, Req);
         _ ->
             ok
     end,

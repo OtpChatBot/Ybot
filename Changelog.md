@@ -5,6 +5,8 @@
   * twitter channel compatible with twitter api v.1.1.
   * XMPP support imrpoved.
   * XMPP error during connection fixed. #75.
+  * Removed protype.js and other js besides AngularJs.
+  * Web admin remade, now it's only based on Angular-js.
 
 ## Ybot-0.3.4 -- released.
 

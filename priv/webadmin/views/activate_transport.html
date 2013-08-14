@@ -1,0 +1,135 @@
+<div>
+    <h3>Start new transport</h3>
+    <tabset>
+        
+        <tab heading="Irc">
+            <div id="tr1">
+                <label>Irc bot nick:</label>
+                <input type="text" ng-model="nick"/>
+                <label>Irc bot password:</label>
+                <input type="text" ng-model="password"/>
+                <label>Irc channel:</label>
+                <input type="text" ng-model="channel"/>
+                <label>Irc channel key:</label>
+                <input type="text" ng-model="channel_key"/>
+                <label>Irc server host:</label>
+                <input type="text" ng-model="host"/>
+                <label>Irc server port:</label>
+                <input type="text" ng-model="port"/>
+                <label>Use ssl:</label>
+                <input type="checkbox" ng-model="ssl"/>
+                <label>Recconnect timeout:</label>
+                <input type="text" ng-model="timeout"/>
+                <br/>
+                <button ng-click="start_irc(nick, password, channel, channel_key, host, port, ssl, timeout)" 
+                        class="btn">Start</button>
+            </div>
+        </tab>
+
+        <tab heading="XMPP">
+            <div id="tr2">
+                <label>Bot nick:</label>
+                <input type="text" ng-model="jabber_nick"/>
+                <label>Bot password:</label>
+                <input type="text" ng-model="jabber_password"/>
+                <label>Jabber room:</label>
+                <input type="text" ng-model="jabber_room"/>
+                <label>Jabber server:</label>
+                <input type="text" ng-model="jabber_server"/>
+                <label>Jabber resource:</label>
+                <input type="text" ng-model="jabber_resource"/>
+                <label>Server port:</label>
+                <input type="text" ng-model="jabber_port"/>
+                <label>Use ssl:</label>
+                <input type="checkbox" ng-model="jabber_ssl"/>
+                <label>Recconnect timeout:</label>
+                <input type="text" ng-model="jabber_reconnect_timeout"/>
+                <br/>
+                <button ng-click="start_xmpp(jabber_nick, jabber_password, jabber_room, jabber_server, jabber_resource, jabber_port,
+                jabber_ssl, jabber_reconnect_timeout)" class="btn">Start</button>
+            </div>
+        </tab>
+        
+        <tab heading="Campfire">
+            <div id="tr3">
+                <label>Bot nick:</label>
+                <input type="text" ng-model="campfire_nick"/>
+                <label>Campfire token:</label>
+                <input type="text" ng-model="campfire_token"/>
+                <label>Campfire room id:</label>
+                <input type="text" ng-model="campfire_room_id"/>
+                <label>Campfire subdomain:</label>
+                <input type="text" ng-model="campfire_subdomain"/>
+                <label>Reconnect timeout:</label>
+                <input type="text" ng-model="campfire_reconnect_timeout"/>
+                <br/>
+                <button ng-click="start_campfire(campfire_nick, campfire_token, campfire_room_id, campfire_subdomain, campfire_reconnect_timeout)" class="btn">Start</button>
+            </div>
+        </tab>
+
+        <tab heading="HipChat">
+            <div id="tr4">
+                <label>Bot jid:</label>
+                <input type="text" ng-model="hipchat_jid"/>
+                <label>Bot password:</label>
+                <input type="text" ng-model="hipchat_password"/>
+                <label>Hipchat room:</label>
+                <input type="text" ng-model="hipchat_room"/>
+                <label>Hipchat bot nick:</label>
+                <input type="text" ng-model="hipchat_nick"/>
+                <label>Reconnect timeout:</label>
+                <input type="text" ng-model="hipchat_reconnect_timeout"/>
+                <br/>
+                <button ng-click="start_hipchat(hipchat_jid, hipchat_password, hipchat_room, hipchat_nick, hipchat_reconnect_timeout)" class="btn">Start</button>
+            </div>
+        </tab>
+
+        <tab heading="Skype">
+            <div id="tr5">
+                <label>Ybot http backend host:</label>
+                <input type="text" ng-model="skype_http_host"/>
+                <label>Ybot http backend port:</label>
+                <input type="text" ng-model="skype_http_port"/>
+                <br/>
+                <button ng-click="start_skype(skype_http_host, skype_http_port)" class="btn">Start</button>
+            </div>  
+        </tab>
+
+        <tab heading="HTTP">
+            <label>HTTP host:</label>
+            <input type="text" ng-model="http_host"/>
+            <label>HTTP port:</label>
+            <input type="text" ng-model="http_port"/>
+            <label>Bot nick:</label>
+            <input type="text" ng-model="http_bot_nick"/>
+            <br/>
+            <button ng-click="start_http(http_host, http_port, http_bot_nick)" class="btn">Start</button>
+        </tab>
+
+        <tab heading="Flowdock">
+            <label>Bot chat nick:</label>
+            <input type="text" ng-model="flowdock_nick"/>
+            <label>Bot flowdock login:</label>
+            <input type="text" ng-model="flowdock_login"/>
+            <label>Bot password:</label>
+            <input type="text" ng-model="flowdock_password"/>
+            <label>flowdock organization:</label>
+            <input type="text" ng-model="flowdock_org"/>
+            <label>flowdock flow:</label>
+            <input type="text" ng-model="flowdock_flow"/>
+            <br/>
+            <button ng-click="start_flowdock(flowdock_nick, flowdock_login, flowdock_password, flowdock_org, flowdock_flow)" class="btn">Start</button>
+        </tab>
+        
+        <tab heading="TalkerApp">
+            <label>Bot chat nick:</label>
+            <input type="text" ng-model="talkerapp_nick"/>
+            <label>Bot talkerapp room:</label>
+            <input type="text" ng-model="talkerapp_room"/>
+            <label>Talkerapp token:</label>
+            <input type="text" ng-model="talkerapp_token"/>
+            <br/>
+            <button ng-click="start_talkerapp(talkerapp_nick, talkerapp_room, talkerapp_token)" class="btn">Start</button>
+        </tab>
+    </tabset>
+</div>

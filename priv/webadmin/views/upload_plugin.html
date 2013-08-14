@@ -1,0 +1,7 @@
+<div ng-controller="YbotController">
+  <h3>Upload plugins</h3>
+      <label>Ybot upload plugin from the <a href="https://github.com/0xAX/ybot-contrib">ybot-contrib</a> or from other place from the web</label>
+      <input type="text" placeholder="http://" ng-model="newPluginPath" style="width: 240px"></input>
+      <br/>
+      <button class="btn btn-success" ng-click="upload_new_plugin(newPluginPath)">Upload</button>
+</div>
