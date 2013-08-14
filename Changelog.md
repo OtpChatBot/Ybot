@@ -1,6 +1,8 @@
 # Ybot news & changelog
 
-## Ybot-0.3.5 --> In development
+## Ybot-0.4.0 --> In development.
+
+## Ybot-0.3.5 --> released.
 
   * twitter channel compatible with twitter api v.1.1.
   * XMPP support imrpoved.
