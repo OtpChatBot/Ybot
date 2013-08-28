@@ -20,5 +20,5 @@ stop() ->
 
 %% Internal functions
 deps() ->
-    [compiler, syntax_tools, lager, inets, crypto, public_key, ssl,
+    [compiler, syntax_tools, asn1, lager, inets, crypto, public_key, ssl,
      mnesia, ranch, cowboy, jiffy, ibrowse, reloader].
