@@ -47,27 +47,20 @@ handle_cast(start_serve, State) ->
     {webadmin_host, Host} = lists:keyfind(webadmin_host, 1, WebAdmin),
     % Get Port
     {webadmin_port, Port} = lists:keyfind(webadmin_port, 1, WebAdmin),
+
     % Cowboy dispatch
     Dispatch = cowboy_router:compile([
-        {binary_to_list(Host), [
-            {"/css/[...]", cowboy_static, [
-                {directory, {priv_dir, ybot, [<<"webadmin/css">>]}},
-                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-            ]},
-            {"/js/[...]", cowboy_static, [
-                {directory, {priv_dir, ybot, [<<"webadmin/js">>]}},
-                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-            ]},
-            {"/", cowboy_static, [
-                {directory, {priv_dir, ybot, [<<"webadmin">>]}},
-                {file, <<"index.html">>},
-                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-            ]},
-            {"/views/[...]", cowboy_static, [
-                {directory, {priv_dir, ybot, [<<"webadmin/views">>]}},
-                {mimetypes, {fun mimetypes:path_to_mimes/2, default}}
-            ]},
-            {"/admin", web_admin_req_handler, []}
+        {binary_to_list(Host),
+         [
+          {"/css/[...]", cowboy_static,
+           {dir, docroot("css"), [{mimetypes, cow_mimetypes, all}]}},
+          {"/js/[...]", cowboy_static,
+           {dir, docroot("js"), [{mimetypes, cow_mimetypes, all}]}},
+          {"/", cowboy_static,
+           {file, docroot("index.html"), [{mimetypes, cow_mimetypes, all}]}},
+          {"/views/[...]", cowboy_static,
+           {dir, docroot("views"), [{mimetypes, cow_mimetypes, all}]}},
+          {"/admin", web_admin_req_handler, []}
         ]}
     ]),
     % start serving
@@ -90,3 +83,14 @@ code_change(_OldVsn, State, _Extra) ->
 %% ===================================================================
 %% Internal functions
 %% ===================================================================
+docroot(Append) ->
+    priv_dir() ++ "webadmin/" ++ Append.
+
+priv_dir() ->
+    case code:priv_dir(ybot) of
+        {error, bad_name} ->
+            {ok, Cwd} = file:get_cwd(),
+            Cwd ++ "/" ++ "priv/";
+        Priv ->
+            Priv ++ "/"
+    end.
