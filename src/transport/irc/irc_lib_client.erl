@@ -28,10 +28,12 @@
     port = 0 :: integer(),
     % irc server password
     password = <<>> :: binary(),
-    % irc channel
-    irc_channel = <<>> :: binary(),
-    % channel key
-    irc_channel_key = <<>> :: binary(),
+    % % irc channel
+    % irc_channel = <<>> :: binary(),
+    % % channel key
+    % irc_channel_key = <<>> :: binary(),
+    % list of irc channels with keys
+    channels = [] :: list({binary(), binary()}),
     % irc connection socket
     socket = null,
     % socket manager
@@ -46,20 +48,17 @@
 
 -define(TIMEOUT, 15000).
 
-start_link(CallbackModule, Host, Port, SocketMod, Channel, Nick, ReconnectTimeout) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Host, Port, SocketMod, Channel, Nick, ReconnectTimeout], []).
+start_link(CallbackModule, Host, Port, SocketMod, ChanList, Nick, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Host, Port, SocketMod, ChanList, Nick, ReconnectTimeout], []).
 
-init([CallbackModule, Host0, Port, SocketMod, Channel, Nick, ReconnectTimeout]) ->
+init([CallbackModule, Host0, Port, SocketMod, ChanList, Nick, ReconnectTimeout]) ->
     % Get host and password
     {Host, Pass} = Host0,
     % try to connect
     gen_server:cast(self(), {connect, Host, Port}),
-    % Get channel and key
-    {Chan, Key} = Channel,
     % init process internal state
-    {ok, #state{login = Nick, host = Host, password = Pass, irc_channel = Chan, port = Port,
-                irc_channel_key = Key, socket_mod = SocketMod, callback = CallbackModule,
-                reconnect_timeout = ReconnectTimeout}}.
+    {ok, #state{login = Nick, host = Host, password = Pass, channels = ChanList, port = Port,
+                socket_mod = SocketMod, callback = CallbackModule, reconnect_timeout = ReconnectTimeout}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
@@ -73,7 +72,7 @@ handle_cast({connect, Host, Port}, State) ->
     end,
     case (State#state.socket_mod):connect(binary_to_list(Host), Port, Options) of
         {ok, Socket} ->
-            ok = irc_connect(Socket, State),
+            irc_connect(Socket, State),
             {noreply, State#state{socket = Socket, is_auth = false}};
         {error, Reason} ->
             % Some log
@@ -88,20 +87,20 @@ handle_cast({send_message, From, Message}, State) ->
     MessagesList = string:tokens(Message, "\r\n"),
     % Check private message or public
     case From of
-        "" ->
+        {channel, Chan} ->
             % Send messages
             lists:foreach(fun(Mes) ->
                               timer:sleep(200),
                               % Send message to irc
-                              (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ binary_to_list(State#state.irc_channel) ++ " :" ++ Mes ++ "\r\n")
+                              (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ Chan ++ " :" ++ Mes ++ "\r\n")
                           end, 
                           MessagesList);
-        _ ->
+        {user, FullUser} ->
             % Send messages
             lists:foreach(fun(Mes) ->
                               timer:sleep(200),
                               % Get username
-                              [UserName | _] = string:tokens(From, "!"),
+                              [UserName | _] = string:tokens(FullUser, "!"),
                               % Send private message to irc
                               (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ UserName ++ " :" ++ Mes ++ "\r\n")
                           end, 
@@ -169,8 +168,9 @@ handle_info({_, Socket, Data}, State) ->
         [_, "402" | _] ->
             lager:info("Wrong server address ~p", [State#state.host]);
         % Wrong server
-        [_, "403" | _] ->
-            lager:info("Wrong channel ~p", [State#state.irc_channel]);
+        [_, "403" | Body] ->
+            {match, [Chan]} = re:run(Body, "\#(.*) :"),
+            lager:info("Wrong channel ~p", [Chan]);
         % No nickname given
         [_, "432" | _] ->
             lager:info("No nickname given");
@@ -194,10 +194,10 @@ handle_info({_, Socket, Data}, State) ->
                 % this is public message
                 $# ->
                     % Send incomming message to callback
-                    State#state.callback ! {incoming_message, IncomingMessage, ""};
+                    State#state.callback ! {incoming_message, IncomingMessage, {channel, To}};
                 % this is private message
                 _ ->
-                    State#state.callback ! {incoming_message, IncomingMessage, From}
+                    State#state.callback ! {incoming_message, IncomingMessage, {user, From}}
             end,
             % return
             {noreply, State#state{socket = Socket}};
@@ -228,12 +228,12 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal functions
 
 irc_connect(Socket, State) ->
-    do_connect(State#state.socket_mod, Socket, State#state.password, State#state.login, State#state.irc_channel, State#state.irc_channel_key).
+    do_connect(State#state.socket_mod, Socket, State#state.password, State#state.login, State#state.channels).
 
-do_connect(Mod, Socket, Pass, Name, Chan, ChanKey) ->
+do_connect(Mod, Socket, Pass, Name, ChanList) ->
     ok = pass_maybe(Mod, Socket, Pass),
     ok = sign_in(Mod, Socket, Name),
-    ok = join_channel(Mod, Socket, Chan, ChanKey).
+    [ join_channel(Mod, Socket, Chan, ChanKey) || {Chan, ChanKey} <- ChanList ].
 
 pass_maybe(_, _, <<>>) -> ok;
 pass_maybe(M, Socket, Pass) when is_binary(Pass) -> 

@@ -18,8 +18,8 @@ For using Ybot with irc, you must to configure it in configuration file ybot.con
                     {irc, 
                           % Irc nick
                           <<"ybot">>,
-                          % Irc channel / key
-                          {<<"#linknet">>, <<>>},
+                          % Irc channels list with keys
+                          [{<<"#linknet">>, <<>>}, {<<"#help">>, <<>>}],
                           % Irc server host / pass
                           {<<"irc.freenode.net">>, <<>>},
                           % Options
