@@ -21,14 +21,14 @@ ARGV.each do |arg|
     expr += arg
 end
 
-uri = URI('http://www.google.com/ig/calculator?hl=en&q=' + CGI.escape(expr))
+uri = URI('http://www.calcatraz.com/calculator/api?c=' + CGI.escape(expr))
 res = Net::HTTP.get_response(uri)
 
-result = res.body.split('rhs:')[1].split(",")[0]
+result = res.body.strip!
 
-if result == " \"\""
+if result == "answer" || result.nil?
     puts 'Wrong expression'
 else
     # print result
-    puts 'Answer:' + result.gsub(/\"+/, "")
+    puts 'Answer: ' + result
 end
