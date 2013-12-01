@@ -4,7 +4,7 @@ Ybot
 Ybot is a customizable bot which was inspired by GitHub's [Hubot](http://hubot.github.com/). What can you do with `Ybot`:
 
   * Chat bot with many different [plugins](https://github.com/0xAX/ybot-contrib).
-  * Bridge between `http` and differnt chat systems like `irc`, `xmpp` and etc...
+  * Bridge between `http` and different chat systems like `irc`, `xmpp` and etc...
   * Notification chat bot. See [@erlnews](https://twitter.com/erlnews) twitter bot.
   * Email bot.
   * Logging (see [lager_ybot_backend](https://github.com/0xAX/lager_ybot_backend)).
@@ -88,7 +88,7 @@ Dependencies
   * [cowboy](https://github.com/extend/cowboy) - Small, fast, modular HTTP server written in Erlang.
   * [mimetypes](https://github.com/spawngrid/mimetypes) - Erlang MIME types library.
   * [erlang-oauth](https://github.com/tim/erlang-oauth) - An Erlang OAuth 1.0 implementation.
-  * [Skype4Py](https://github.com/awahlig/skype4py) - Platform indepeneant Python wrapper for the Skype API.
+  * [Skype4Py](https://github.com/awahlig/skype4py) - Platform independent Python wrapper for the Skype API.
   * [gen_smtpc](https://github.com/0xAX/gen_smtpc) - Simple erlang smtp client.
 
 Transport
