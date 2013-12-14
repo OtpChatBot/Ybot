@@ -93,7 +93,7 @@ message(Room, Message) ->
 
 %% @doc Join to muc
 -spec muc(Room :: string()) -> string().
-muc(Room) -> 
+muc(Room) ->
     % xml structure data
     XmlData = [{'presence', [{'to', Room}],
                 [{'x', [{'xmlns', 'http://jabber.org/protocol/muc'}],

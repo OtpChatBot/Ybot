@@ -11,7 +11,7 @@
 -include("xmpp.hrl").
 -include_lib("xmerl/include/xmerl.hrl").
 
--export([start_link/9]).
+-export([start_link/10]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -37,6 +37,8 @@
         host,
         % Jabber room
         room,
+        % Nick in jabber room
+        nick,
         % Client resource
         resource,
         % Xmpp server port
@@ -53,14 +55,14 @@
 %%% API
 %%%=============================================================================
 
-start_link(CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout) ->
-    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout], []).
+start_link(CallbackModule, Login, Password, Server, Port, Room, Nick, Resource, SocketMode, ReconnectTimeout) ->
+    gen_server:start_link(?MODULE, [CallbackModule, Login, Password, Server, Port, Room, Nick, Resource, SocketMode, ReconnectTimeout], []).
 
 %%%=============================================================================
 %%% xmpp_client callbacks
 %%%=============================================================================
 
-init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode, ReconnectTimeout ]) ->
+init([CallbackModule, Login, Password, Server, Port, Room, Nick, Resource, SocketMode, ReconnectTimeout ]) ->
     % try to connect
     gen_server:cast(self(), {connect, Server, Port}),
     % init process internal state
@@ -69,6 +71,7 @@ init([CallbackModule, Login, Password, Server, Port, Room, Resource, SocketMode,
                 password = Password,
                 host = Server,
                 room = Room,
+                nick = Nick,
                 resource = Resource,
                 port = Port,
                 socket_mod = SocketMode,

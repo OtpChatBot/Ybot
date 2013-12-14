@@ -14,10 +14,11 @@ For using Ybot with `jabber`, you must to configure it in configuration file ybo
         [
             % list of transport
             {transports, [                    
-                    % Xmpp Multi-user chat Login Password Room Host Resource
+                    % Xmpp Multi-user chat Login Password Room Nick Host Resource
                     {xmpp, <<"ybot2@jabber.org">>,
                            <<"password">>,
                            <<"ybot_test@conference.jabber.org">>,
+                           <<"YbotNick">>,
                            <<"jabber.org">>,
                            <<"home">>,
                            [{port, 5222}, {use_ssl, false}, {reconnect_timeout, 5000}]

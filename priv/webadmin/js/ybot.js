@@ -89,10 +89,10 @@ function YbotController ($scope, $location, $http) {
             $http({'method' : 'POST', 'url' : '/admin', 'data' : data}).success(function (data) {});
         }
 
-        $scope.start_xmpp = function(jabber_nick, jabber_password, jabber_room, jabber_server, jabber_resource, jabber_port,
+        $scope.start_xmpp = function(jabber_login, jabber_password, jabber_room, jabber_nick, jabber_server, jabber_resource, jabber_port,
                                      jabber_ssl, jabber_reconnect_timeout){
-            var data = {'method' : 'start_xmpp', params : {'xmpp_login' : jabber_nick, 'xmpp_password': jabber_password,
-                                                           'xmpp_room':jabber_room, 'xmpp_server': jabber_server,
+            var data = {'method' : 'start_xmpp', params : {'xmpp_login' : jabber_login, 'xmpp_password': jabber_password,
+                                                           'xmpp_room':jabber_room, 'xmpp_nick':jabber_nick, 'xmpp_server': jabber_server,
                                                            'xmpp_resource':jabber_resource, 'xmpp_port':jabber_port,
                                                            'xmpp_ssl':jabber_ssl, 'xmpp_reconnect_timeout':jabber_reconnect_timeout}};
             $http({'method' : 'POST', 'url' : '/admin', 'data' : data}).success(function (data) {});

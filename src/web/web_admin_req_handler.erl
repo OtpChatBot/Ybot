@@ -143,10 +143,10 @@ handle_request(Body, Req, State) ->
             cowboy_req:reply(200, [], <<"ok">>, Req);
         <<"start_xmpp">> ->
             {[{<<"xmpp_login">>, Login}, {<<"xmpp_password">>, Password},
-              {<<"xmpp_room">>, Room}, {<<"xmpp_server">>, Host}, {<<"xmpp_resource">>, Resource},
+              {<<"xmpp_room">>, Room}, {<<"xmpp_nick">>, Nick}, {<<"xmpp_server">>, Host}, {<<"xmpp_resource">>, Resource},
               {<<"xmpp_port">>, Port}, {<<"xmpp_ssl">>, Ssl}, {<<"xmpp_reconnect_timeout">>, RecTimeout}]} = Params,
             Options = [{port, ybot_utils:to_int(Port)}, {use_ssl, Ssl}, {reconnect_timeout, ybot_utils:to_int(RecTimeout)}],
-            ybot_manager:run_transport({xmpp, Login, Password, Room, Host, Resource, Options}),
+            ybot_manager:run_transport({xmpp, Login, Password, Room, Nick, Host, Resource, Options}),
             cowboy_req:reply(200, [], <<"ok">>, Req);
         <<"start_campfire">> ->
             {[{<<"login">>, Login}, {<<"token">>, Token},

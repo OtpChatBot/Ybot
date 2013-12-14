@@ -233,7 +233,7 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
     end;
 
 %% @doc start xmpp client
-load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
+load_transport({xmpp, Login, Password, Room, Nick, Host, Resource, Options}) ->
     % Start parser process
     {ok, ParserPid} = ybot_parser:start_link(),
     % Validate transport options
@@ -248,15 +248,15 @@ load_transport({xmpp, Login, Password, Room, Host, Resource, Options}) ->
             % Start xmpp handler
             {ok, HandlerPid} = xmpp_handler:start_link(),
             % Make room
-            XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Login)),
+            XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(Nick)),
             % Log
-            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Resource]),
+            lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Nick]),
             % Start new xmpp transport
-            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Nick, Resource, UseSsl, ReconnectTimeout),
             % Send client pid to handler
-            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, Login}),
+            ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, Nick}),
             % return correct transport
-            {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+            {xmpp, ClientPid, HandlerPid, Login, Password, Host, Room, Nick, Resource};
         % wrong options
         _ ->
             []
