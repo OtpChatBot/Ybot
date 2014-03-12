@@ -57,10 +57,16 @@ After getting source you need to download dependencies and build the source:
 ./rebar get-deps && ./rebar compile
 ```
 
-Then edit the `ybot.config` configuration file and you can run your Ybot copy:
+Rename configration template `ybot.config.template` to `ybot.config` and edit configuration file and you can run your Ybot copy:
 
+Start Ybot node:
 ```
-./start.sh
+./bin/start.sh
+```
+
+Connect to Ybot node console:
+```
+./bin/console.sh
 ```
 
 Run on heroku
