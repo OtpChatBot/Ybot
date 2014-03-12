@@ -5,7 +5,13 @@ if [ -n "$SKYPE_PID" ]; then
    kill $SKYPE_PID
 fi
 
-cp ybot.config ebin/
+if [ -f "ybot.config" ]
+then
+    cp ybot.config ebin/
+else
+    echo "Unable to find ybot.config file!"
+    exit 1
+fi
 
 erl -pa deps/*/ebin ebin \
     -boot start_sasl +P 2000000 \
