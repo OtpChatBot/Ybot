@@ -1,8 +1,11 @@
-# 
+#!/usr/bin/sh
+
+#
 # Ybot today plugin. Show curent day of the week.
 #
 
-if [ "$(uname -s)" == "Darwin" ]
+PLATFORM=$(uname -s)
+if [ "$PLATFORM" == "Darwin" ]
 then
     echo `date "+%A"`
 else
