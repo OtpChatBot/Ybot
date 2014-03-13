@@ -5,11 +5,11 @@
 %%% @end
 %%%-----------------------------------------------------------------------------
 -module(ybot_parser).
- 
+
 -behaviour(gen_server).
- 
+
 -export([start_link/0]).
- 
+
 %% gen_server callbacks
 -export([init/1,
          handle_call/3,
@@ -18,8 +18,9 @@
          terminate/2,
          code_change/3]).
 
-%% Internal state 
+%% Internal state
 -record(state, {}).
+
 
 %%%=============================================================================
 %%% API
@@ -28,15 +29,17 @@
 start_link() ->
     gen_server:start_link(?MODULE, [], []).
 
+
 %%%=============================================================================
 %%% ybot_parser callbacks
 %%%=============================================================================
- 
+
 init([]) ->
     {ok, #state{}}.
- 
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
+
 
 %%-----------------------------------------------------------------------------
 %% @doc parse incoming message and execute plugin if command is successful
@@ -46,105 +49,82 @@ handle_call(_Request, _From, State) ->
 %% @param From :: string()
 %% @param IncomingMessage :: string()
 %%-----------------------------------------------------------------------------
-handle_cast({incoming_message, TrasportPid, Nick, From, IncomingMessage}, State) ->
-    % Check this is message for Ybot or not
-    case string:tokens(IncomingMessage, " \r\n") of
-        [Nick] ->    
-            gen_server:cast(TrasportPid, {send_message, From, "What?"});
-        ["name?"] ->
-            gen_server:cast(TrasportPid, {send_message, From, "My name is: " ++ Nick});
-        [Nick, "announce" | _] ->
-            % Get announce content
-            Announce = string:tokens(ybot_utils:split_at_end(IncomingMessage, "announce"), "\r\n"),
-            % send announce to all chat
-            ybot_utils:broadcast(Announce);
-        [Nick1, "hi"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "Hello"})
-        end);
-        [Nick1, "hello"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "Hi!"})
-        end);
-        [Nick1, "bye"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "Good bue"}) 
-        end);
-        [Nick1, "history"] -> maybe_respond({Nick1, Nick}, fun() ->
-            % Check ybot_history process
-            case whereis(ybot_history) of
-                undefined ->
-                    gen_server:cast(TrasportPid, {send_message, From, "History is disabled"});
-                _ ->
-                    % Get history
-                    History = gen_server:call(ybot_history, {get_history, TrasportPid}),
-                    % Check history
-                    case History of
-                        [] ->
-                            gen_server:cast(TrasportPid, {send_message, From, "The history is empty"});
-                        _ ->
-                            % Send history
-                            gen_server:cast(TrasportPid, {send_message, From, History})
-                    end
-            end
-        end);
-        [Nick1, "thanks"] -> maybe_respond({Nick1, Nick}, fun() ->
-            gen_server:cast(TrasportPid, {send_message, From, "by all means"})
-        end);
-        [Nick1, "plugins?"] -> maybe_respond({Nick1, Nick}, fun() ->
-            % Get plugins
-            Plugins = gen_server:call(ybot_manager, get_plugins),
-            % Format plugins
-            PluginNames = lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins),
-            % Send plugins
-            gen_server:cast(TrasportPid, {send_message, From, "Plugins: " ++ string:join(PluginNames, ", ")}),
-            % That's all :)
-            gen_server:cast(TrasportPid, {send_message, From, "That's all :)"}) 
-        end);
-        [Nick1, Command | _] -> maybe_respond({Nick1, Nick}, fun() ->
-                % Get command arguments
-                Args = string:strip(
-                         lists:flatten(
-                           string:tokens(
-                             ybot_utils:split_at_end(IncomingMessage, Command), 
-                             "\r\n"))),
-                % Start process with supervisor which will be execute plugin and send to pid
-                ybot_actor:start_link(TrasportPid, From, Command, Args) 
-        end);
-        _ ->
-            % this is not our command
-            pass
-    end,
-    % return
+handle_cast({incoming_message, TransportPid, BotNick, From, Input}, State) ->
+    [FirstWord | Rest] = string:tokens(Input, " \r\n"),
+    handle_message(TransportPid, From, BotNick, [parse_nick(FirstWord) | Rest]),
     {noreply, State};
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
- 
+
 handle_info(_Info, State) ->
     {noreply, State}.
- 
+
 terminate(_Reason, _State) ->
     ok.
- 
+
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
- 
+
+
 %%%=============================================================================
 %%% Internal functions
 %%%=============================================================================
 
-%% @doc parser helper
-maybe_respond({FirstWord, YNick}, F) when is_list(YNick) and is_list(FirstWord) and is_function(F) ->
-    if
-        YNick == FirstWord ->
-            F();
-        true ->
-            [LastLetter | DrowTsrif] = lists:reverse(FirstWord),
-            % Check last permissible symbol
-            CheckLastLEtter = lists:member(LastLetter, [$,, $:, 32]),
-            % Validate
-            case ((DrowTsrif == lists:reverse(YNick)) or (YNick == FirstWord)) and (CheckLastLEtter == true) of
-                true -> 
-                    F();
-                _ -> 
-                    pass
+handle_message(TransportPid, From, BotNick, [BotNick]) ->
+    send_message(TransportPid, From, "What?");
+handle_message(TransportPid, From, BotNick, [BotNick, "name?"]) ->
+    send_message(TransportPid, From, "My name is: " ++ BotNick);
+handle_message(_TransportPid, _From, _BotNick, [_BotNick, "announce" | _]
+               = Input) ->
+    ybot_utils:broadcast(
+      string:tokens(ybot_utils:split_at_end(Input, "announce"), "\r\n"));
+handle_message(TransportPid, From, _BotNick, [_Nick, "hi"]) ->
+    send_message(TransportPid, From, "Hello");
+handle_message(TransportPid, From, _BotNick, [_Nick, "hello"]) ->
+    send_message(TransportPid, From, "Hi!");
+handle_message(TransportPid, From, _BotNick, [_Nick, "bye"]) ->
+    send_message(TransportPid, From, "Good bye");
+handle_message(TransportPid, From, _BotNick, [_Nick, "thanks"]) ->
+    send_message(TransportPid, From, "by all means");
+handle_message(TransportPid, From, _BotNick, [_Nick, "history"]) ->
+    %% Check ybot_history process
+    case whereis(ybot_history) of
+        undefined ->
+            send_message(TransportPid, From, "History is disabled");
+        _ ->
+            %% Get history and send its content
+            case gen_server:call(ybot_history, {get_history, TransportPid}) of
+                [] -> send_message(TransportPid, From, "The history is empty");
+                History -> send_message(TransportPid, From, History)
             end
+    end;
+handle_message(TransportPid, From, _BotNick, [_Nick, "plugins?"]) ->
+    %% Get plugins and format output
+    Plugins = gen_server:call(ybot_manager, get_plugins),
+    PluginNames = string:join(
+                    lists:map(fun({_, _, Pl, _}) -> Pl end, Plugins), ", "),
+
+    %% Send plugins
+    send_message(TransportPid, From, "Plugins: " ++ PluginNames),
+    send_message(TransportPid, From, "That's all :)");
+handle_message(TransportPid, From, _BotNick, [_Nick, Command | _] = Input) ->
+    %% Get command arguments
+    Args =string:strip(
+            lists:flatten(
+              string:tokens(ybot_utils:split_at_end(Input, Command),"\r\n"))),
+    %% Start plugin process and send command
+    ybot_actor:start_link(TransportPid, From, Command, Args);
+handle_message(_TransportPid, _From, _BotNick, _Message) ->
+    pass.
+
+send_message(TransportPid, From, Message) ->
+    gen_server:cast(TransportPid, {send_message, From, Message}).
+
+%% @doc Strip last permissible symbol from tail of nick
+parse_nick(FirstWord) ->
+    [LastLetter | Rest] = lists:reverse(FirstWord),
+    case lists:member(LastLetter, [$,, $:, 32]) of
+        true  -> lists:reverse(Rest);
+        false -> FirstWord
     end.
