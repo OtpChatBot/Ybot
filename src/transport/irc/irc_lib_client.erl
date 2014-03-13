@@ -104,7 +104,9 @@ handle_cast({send_message, From, Message}, State) ->
                               % Send private message to irc
                               (State#state.socket_mod):send(State#state.socket, "PRIVMSG " ++ UserName ++ " :" ++ Mes ++ "\r\n")
                           end, 
-                          MessagesList)
+                          MessagesList);
+        [] ->
+            ignore
     end,
     % return
     {noreply, State};
