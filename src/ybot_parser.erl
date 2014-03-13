@@ -75,10 +75,8 @@ handle_message(TransportPid, From, BotNick, [BotNick]) ->
     send_message(TransportPid, From, "What?");
 handle_message(TransportPid, From, BotNick, [BotNick, "name?"]) ->
     send_message(TransportPid, From, "My name is: " ++ BotNick);
-handle_message(_TransportPid, _From, _BotNick, [_BotNick, "announce" | _]
-               = Input) ->
-    ybot_utils:broadcast(
-      string:tokens(ybot_utils:split_at_end(Input, "announce"), "\r\n"));
+handle_message(_TransportPid, _From, _BotNick, [_BotNick, "announce" | Args]) ->
+    ybot_utils:broadcast(string:tokens(Args, "\r\n"));
 handle_message(TransportPid, From, _BotNick, [_Nick, "hi"]) ->
     send_message(TransportPid, From, "Hello");
 handle_message(TransportPid, From, _BotNick, [_Nick, "hello"]) ->
@@ -108,11 +106,7 @@ handle_message(TransportPid, From, _BotNick, [_Nick, "plugins?"]) ->
     %% Send plugins
     send_message(TransportPid, From, "Plugins: " ++ PluginNames),
     send_message(TransportPid, From, "That's all :)");
-handle_message(TransportPid, From, _BotNick, [_Nick, Command | _] = Input) ->
-    %% Get command arguments
-    Args =string:strip(
-            lists:flatten(
-              string:tokens(ybot_utils:split_at_end(Input, Command),"\r\n"))),
+handle_message(TransportPid, From, _BotNick, [_Nick, Command | Args]) ->
     %% Start plugin process and send command
     ybot_actor:start_link(TransportPid, From, Command, Args);
 handle_message(_TransportPid, _From, _BotNick, _Message) ->

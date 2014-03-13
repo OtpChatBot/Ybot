@@ -36,6 +36,7 @@ init([]) ->
 
     % Get notifications
     {ok, Notifications} = application:get_env(ybot, notification),
+
     % notification plugins directory
     NotificationsDir = PluginsDirectory ++ "notifications/",
 
@@ -88,7 +89,7 @@ init([]) ->
             {talker_app_sup, start_link, []},
             permanent, brutal_kill, supervisor, []
         },
-        
+
         % start notification handlers supervisor
         {ybot_notification_sup,
             {ybot_notification_sup, start_link, []},
@@ -125,6 +126,6 @@ init([]) ->
             permanent, brutal_kill, worker, []
         }
     ],
-    
+
     % init
     {ok, { {one_for_one, 1, 60}, Childrens} }.

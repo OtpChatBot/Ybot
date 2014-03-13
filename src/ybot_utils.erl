@@ -91,7 +91,7 @@ broadcast(Body) ->
     lists:foreach(fun(TransportPid) ->
                     % Send message
                     gen_server:cast(TransportPid,
-                                    {send_message, "", binary_to_list(Body)}
+                                    {send_message, "", to_list(Body)}
                                    )
                   end,
                   Transports).
