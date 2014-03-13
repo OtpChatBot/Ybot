@@ -218,7 +218,10 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             % Start irc handler
             {ok, HandlerPid} = irc_handler:start_link(),
             % Run new irc client
-            {ok, ClientPid} = irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel, Nick, UseSsl, ReconnectTimeout),
+            {ok, ClientPid} =
+                ensure_started(
+                  irc_lib_sup:start_irc_client(HandlerPid, Host, Port, Channel,
+                                               Nick, UseSsl, ReconnectTimeout)),
             % Start parser process
             {ok, ParserPid} = ybot_parser:start_link(),
             % Log
@@ -252,7 +255,11 @@ load_transport({xmpp, Login, Password, Room, Nick, Host, Resource, Options}) ->
             % Log
             lager:info("Starting XMPP transport: ~s, ~s, ~s", [Host, Room, Nick]),
             % Start new xmpp transport
-            {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Nick, Resource, UseSsl, ReconnectTimeout),
+            {ok, ClientPid} =
+                ensure_started(
+                  xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host,
+                                             Port, XmppRoom, Nick, Resource,
+                                             UseSsl, ReconnectTimeout)),
             % Send client pid to handler
             ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid, Nick}),
             % return correct transport
@@ -277,7 +284,11 @@ load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick, Opt
     % Make room
     XmppRoom = list_to_binary(binary_to_list(Room) ++ "/" ++ binary_to_list(HipChatNick)), 
     % Run new xmpp client
-    {ok, ClientPid} = xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port, XmppRoom, Resource, UseSsl, ReconnectTimeout),
+    {ok, ClientPid} =
+        ensure_started(
+          xmpp_sup:start_xmpp_client(HandlerPid, Login, Password, Host, Port,
+                                     XmppRoom, Resource, UseSsl,
+                                     ReconnectTimeout)),
     % Log
     lager:info("Starting HipChat transport: ~s, ~s, ~s", [Host, Room, Resource]),
     % Send client pid to handler
@@ -292,7 +303,11 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     % Start campfire handler
     {ok, HandlerPid} = campfire_handler:start_link(),
     % Run new campfire client
-    {ok, ClientPid} = campfire_sup:start_campfire_client(HandlerPid, RoomId, Token, CampfireSubDomain, ReconnectTimeout),
+    {ok, ClientPid} =
+        ensure_started(
+          campfire_sup:start_campfire_client(HandlerPid, RoomId, Token,
+                                             CampfireSubDomain,
+                                             ReconnectTimeout)),
     % Log
     lager:info("Starting Campfire transport: ~p, ~s", [RoomId, CampfireSubDomain]),
     % Start parser process
@@ -305,7 +320,7 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
 %% @doc Ybot http interface
 load_transport({http, Host, Port, BotNick}) ->
     % Start http server
-    {ok, HttpPid} = http_sup:start_http(Host, Port),
+    {ok, HttpPid} = ensure_started(http_sup:start_http(Host, Port)),
     % Log
     lager:info("Starting http transport ~p:~p", [Host, Port]),
     % Send bot nick to http server
@@ -325,7 +340,10 @@ load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow, Option
                         0
                     end,
     % Start flowdock client
-    {ok, ClientPid} = flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow, Login, Password, RecTimeout),
+    {ok, ClientPid} =
+        ensure_started(
+          flowdock_sup:start_flowdock_client(HandlerPid, FlowdockOrg, Flow,
+                                             Login, Password, RecTimeout)),
     % Log
     lager:info("Starting flowdock transport ~p:~p", [FlowdockOrg, Flow]),
     % Start parser process
@@ -367,7 +385,10 @@ load_transport({talkerapp, Nick, Room, Token, Options}) ->
                         0
                     end,
     % Start talker app client
-    {ok, ClientPid} = talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token, RecTimeout),
+    {ok, ClientPid} =
+        ensure_started(
+          talker_app_sup:start_talkerapp_client(HandlerPid, Nick, Room, Token,
+                                                RecTimeout)),
     % Start parser process
     {ok, ParserPid} = ybot_parser:start_link(),
     % Send client pid to handler
@@ -458,3 +479,10 @@ load_channel({smtp, From, FromPassword, To, Options}) ->
 
 load_channel(_) ->
     [].
+
+ensure_started({ok, Pid}) ->
+    {ok, Pid};
+ensure_started({error,{already_started, Pid}}) ->
+    {ok, Pid};
+ensure_started(Other) ->
+    Other.
