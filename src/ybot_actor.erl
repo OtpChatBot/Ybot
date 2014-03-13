@@ -114,7 +114,7 @@ handle_command(From, Command, Args, TransportPid) ->
     end.
 
 send_message(TransportPid, From, Message) ->
-    gen_server:cast(TransportPid, {send_message, From, Mesage}).
+    gen_server:cast(TransportPid, {send_message, From, Message}).
 
 create_message(Name, Args) ->
     "Ybot " ++ Name ++ " " ++ Args ++ "\n".
