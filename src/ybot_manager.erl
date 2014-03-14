@@ -159,7 +159,7 @@ handle_cast({start_channels, Channels}, State) ->
 %% @doc Run transports from `Transports` list
 handle_cast({start_transports, Transports}, State) ->
     %% Review supported mode of transportation
-    TransportList = lists:flatmap(fun load_transport/1, Transports),
+    TransportList = lists:zf(fun load_transport/1, Transports),
 
     %% Get runned transports pid list
     RunnedTransport = lists:zf(fun(Transport) ->
@@ -227,10 +227,10 @@ load_transport({irc, Nick, Channel, Host, Options}) ->
             ok = gen_server:cast(HandlerPid, {irc_client, ClientPid,
                                               ParserPid, Nick}),
 
-            {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port};
+            {true, {irc, ClientPid, HandlerPid, Nick, Channel, Host, Port}};
         _ ->
             %% wrong transport
-            []
+            false
     end;
 
 %% @doc start xmpp client
@@ -266,11 +266,11 @@ load_transport({xmpp, Login, Password, Room, Nick, Host, Resource, Options}) ->
             ok = gen_server:cast(HandlerPid, {xmpp_client, ClientPid, ParserPid,
                                               Nick}),
 
-            {xmpp,
-             ClientPid, HandlerPid, Login, Password, Host, Room, Nick, Resource};
+            {true, {xmpp,
+             ClientPid, HandlerPid, Login, Password, Host, Room, Nick, Resource}};
         _ ->
             %% wrong options
-            []
+            false
     end;
 
 %% @doc start hipchat client
@@ -304,7 +304,8 @@ load_transport({hipchat, Login, Password, Room, Host, Resource, HipChatNick,
                          {xmpp_client, ClientPid, ParserPid,
                           list_to_binary("@" ++ lists:concat(string:tokens(binary_to_list(HipChatNick), " ")))}),
 
-    {hipchat, ClientPid, HandlerPid, Login, Password, Host, Room, Resource};
+    {true,
+     {hipchat, ClientPid, HandlerPid, Login, Password, Host, Room, Resource}};
 
 %% @doc start campfire client
 load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
@@ -328,7 +329,7 @@ load_transport({campfire, Login, Token, RoomId, CampfireSubDomain, Options}) ->
     ok = gen_server:cast(HandlerPid, {campfire_client, ClientPid, ParserPid,
                                       Login}),
 
-    {campfire, ClientPid, HandlerPid, Login};
+    {true, {campfire, ClientPid, HandlerPid, Login}};
 
 %% @doc Ybot http interface
 load_transport({http, Host, Port, BotNick}) ->
@@ -363,7 +364,7 @@ load_transport({flowdock, NickInChat, Login, Password, FlowdockOrg, Flow,
     ok = gen_server:cast(HandlerPid, {flowdock_client, ClientPid, ParserPid,
                                       NickInChat}),
 
-    {flowdock, ClientPid, HandlerPid, Login};
+    {true, {flowdock, ClientPid, HandlerPid, Login}};
 
 %% @doc Use skype or not
 load_transport({skype, UseSkype, Host, Port}) ->
@@ -381,10 +382,10 @@ load_transport({skype, UseSkype, Host, Port}) ->
             skype:start_link(Command),
 
             lager:info("Starting skype ..."),
-            {skype, UseSkype, Host, Port};
+            {true, {skype, UseSkype, Host, Port}};
         _ ->
             %% do nothing
-            []
+            false
     end;
 
 %% @doc start talkerapp client
@@ -405,10 +406,10 @@ load_transport({talkerapp, Nick, Room, Token, Options}) ->
                                       Nick}),
 
     lager:info("Starting talkerapp transport ~p:~p", [Room, Nick]),
-    {talkerapp, ClientPid, HandlerPid, Nick};
+    {true, {talkerapp, ClientPid, HandlerPid, Nick}};
 
 load_transport(_) ->
-    [].
+    false.
 
 load_plugin(Plugin) ->
     %% Get plugin extension
@@ -488,7 +489,7 @@ load_channel({smtp, From, FromPassword, To, Options}) ->
     {smtp};
 
 load_channel(_) ->
-    [].
+    false.
 
 ensure_started({ok, Pid}) ->
     {ok, Pid};
@@ -504,7 +505,7 @@ get_reconnect_timeout(Options) ->
     end.
 
 get_option(Key, Options) ->
-    case lists:keyfind(reconnect_timeout, 1, Options) of
+    case lists:keyfind(Key, 1, Options) of
         {Key, Value} -> Value;
         false        -> false
     end.

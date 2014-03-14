@@ -27,7 +27,6 @@ execute([]) ->
     handle_command(list, [], []);
 
 execute(Input) ->
-    io:format("Start to execute ~n"),
     case re:split(Input, " ", [{return, list}]) of
         [] ->
             "No input";
