@@ -100,7 +100,8 @@ handle_command(From, Command, Args, TransportPid) ->
 
         {plugin, "erlang", PluginName, AppModule} ->
             %% execute Erlang/OTP plugin
-            Result = AppModule:execute(Args),
+            Module = list_to_atom(AppModule),
+            Result = Module:execute(Args),
             ok = store_history(TransportPid, create_message(PluginName, Args)),
             send_message(TransportPid, From, Result);
 
