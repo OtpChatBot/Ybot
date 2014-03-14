@@ -106,7 +106,7 @@ handle_message(TransportPid, From, _BotNick, [_Nick, "plugins?"]) ->
     %% Send plugins
     send_message(TransportPid, From, "Plugins: " ++ PluginNames),
     send_message(TransportPid, From, "That's all :)");
-handle_message(TransportPid, From, _BotNick, [_Nick, Command | Args]) ->
+handle_message(TransportPid, From, _BotNick, [_BotNick, Command | Args]) ->
     %% Start plugin process and send command
     ybot_actor:start_link(TransportPid, From, Command, Args);
 handle_message(_TransportPid, _From, _BotNick, _Message) ->
