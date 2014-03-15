@@ -110,7 +110,7 @@ handle_command(From, Command, Args, TransportPid) ->
             CmdArgs = join(os_escape(Args), " "),
             Cmd = Lang ++ " " ++ PluginPath ++ CmdArgs,
             %%lager:info("Exec: ~p", [Cmd]),
-            Result = os:cmd(Cmd),
+            Result = binary_to_list(unicode:characters_to_binary(os:cmd(Cmd))),
             ok = store_history(TransportPid, create_message(Command, CmdArgs)),
             send_message(TransportPid, From, Result)
     end.
