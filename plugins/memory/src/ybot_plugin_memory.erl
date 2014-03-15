@@ -25,25 +25,18 @@ stop() ->
 %% @doc execute plugin action
 execute([]) ->
     handle_command(list, [], []);
-
-execute(Input) ->
-    case re:split(Input, " ", [{return, list}]) of
-        [] ->
-            "No input";
-        [[], "help"] ->
-            handle_command(help, [], []);
-        [[], "list"] ->
-            io:format("Is list ~n"),
-            handle_command(list, [], []);
-        [[], Key] ->
-            handle_command(list, Key, []);
-        [[], Cmd, Key] ->
-            handle_command(list_to_atom(Cmd), Key, []);
-        [[], Cmd, Key | Value] ->
-            handle_command(list_to_atom(Cmd), Key, string:join(Value, " "));
-        [[], Key | Value] ->
-            handle_command(add, Key, string:join(Value, " "))
-    end.
+execute(["list"]) ->
+    handle_command(list, [], []);
+execute(["help"]) ->
+    handle_command(help, [], []);
+execute(["add"]) ->
+    handle_command(help, [], []);
+execute(["delete"]) ->
+    handle_command(help, [], []);
+execute([Key]) ->
+    handle_command(list, Key, []);
+execute([Cmd, Key | Value]) ->
+    handle_command(list_to_atom(Cmd), Key, string:join(Value, " ")).
 
 %%%=============================================================================
 %%% Internal functionality
