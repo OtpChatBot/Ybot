@@ -10,7 +10,7 @@ require 'net/http'
 
 # check argument
 if ARGV.length != 1
-    puts 'Wrong usage.\nUsage =>Ybot translate en/gb some text'
+    puts 'Wrong usage. Usage => ybot: translate en/de some text'
     exit
 end
 
