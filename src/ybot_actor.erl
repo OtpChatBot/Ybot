@@ -107,10 +107,11 @@ handle_command(From, Command, Args, TransportPid) ->
 
         {plugin, Lang, _PluginName, PluginPath} ->
             %% execute plugins using command
-            Cmd = Lang ++ " " ++ PluginPath ++ os_escape(Args),
+            CmdArgs = join(os_escape(Args), " "),
+            Cmd = Lang ++ " " ++ PluginPath ++ CmdArgs,
             %%lager:info("Exec: ~p", [Cmd]),
             Result = os:cmd(Cmd),
-            ok = store_history(TransportPid, create_message(Command, Args)),
+            ok = store_history(TransportPid, create_message(Command, CmdArgs)),
             send_message(TransportPid, From, Result)
     end.
 
@@ -122,6 +123,10 @@ create_message(Name, Args) ->
 
 store_history(TransportPid, Message) ->
     gen_server:cast(ybot_history, {update_history, TransportPid, Message}).
+
+join([], _Sep) -> "";
+join([H | T], Sep) ->
+    lists:flatten([H | [[Sep, X] || X <- T]]).
 
 os_escape([]) ->
     [];
