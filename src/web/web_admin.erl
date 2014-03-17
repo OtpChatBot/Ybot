@@ -5,11 +5,11 @@
 %%% @end
 %%%-----------------------------------------------------------------------------
 -module(web_admin).
- 
+
 -behaviour(gen_server).
- 
+
 -export([start_link/0]).
- 
+
 %% gen_server callbacks
 -export([init/1,
          handle_call/3,
@@ -17,9 +17,9 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
- 
+
 -record(state, {}).
- 
+
 %% ===================================================================
 %% API functions
 %% ===================================================================
@@ -30,21 +30,23 @@ start_link() ->
 %% ===================================================================
 %% web admin process callbacks
 %% ===================================================================
- 
+
 init([]) ->
     % start server
     ok = gen_server:cast(self(), start_serve),
     % init internal state
     {ok, #state{}}.
- 
+
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
 handle_cast(start_serve, State) ->
     % Get web admin config
     {ok, WebAdmin} = application:get_env(ybot, web_admin),
+
     % Get Host
     {webadmin_host, Host} = lists:keyfind(webadmin_host, 1, WebAdmin),
+
     % Get Port
     {webadmin_port, Port} = lists:keyfind(webadmin_port, 1, WebAdmin),
 
@@ -56,11 +58,9 @@ handle_cast(start_serve, State) ->
            {dir, docroot("css"), [{mimetypes, cow_mimetypes, all}]}},
           {"/js/[...]", cowboy_static,
            {dir, docroot("js"), [{mimetypes, cow_mimetypes, all}]}},
-          {"/", cowboy_static,
-           {file, docroot("index.html"), [{mimetypes, cow_mimetypes, all}]}},
           {"/views/[...]", cowboy_static,
            {dir, docroot("views"), [{mimetypes, cow_mimetypes, all}]}},
-          {"/admin", web_admin_req_handler, []}
+          {"/", web_admin_req_handler, []}
         ]}
     ]),
     % start serving
@@ -70,13 +70,13 @@ handle_cast(start_serve, State) ->
 
 handle_cast(_Msg, State) ->
     {noreply, State}.
- 
+
 handle_info(_Info, State) ->
     {noreply, State}.
- 
+
 terminate(_Reason, _State) ->
     ok.
- 
+
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 

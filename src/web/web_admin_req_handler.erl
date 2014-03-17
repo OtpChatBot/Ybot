@@ -18,19 +18,23 @@ init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
 handle(Req, State) ->
-    
-    Username = "",
-    Password = "",
+    {ok, WebAdmin} = application:get_env(ybot, web_admin),
 
-    % check login credentials
-    {Username1, Password1, Req1} = credentials(Req),
-    {ok, Req2} = case {Username, Password} of
-                    {?USERNAME, ?PASSWORD} ->
-                        authorized(Req1, State);
-                    _ ->
-                        unauthorized(Req)
-                end,
-    {ok, Req2, State}.
+    %% check access credentials if auth is enabled
+    case config_option(webadmin_auth, WebAdmin) of
+        true ->
+            %% get configured credentials
+            AuthUser = list_to_binary(
+                         config_option(webadmin_auth_user, WebAdmin)),
+            AuthPasswd = list_to_binary(
+                           config_option(webadmin_auth_passwd, WebAdmin)),
+            case is_authorized(Req, AuthUser, AuthPasswd) of
+                {true, Req1}  -> authorized(Req1, State);
+                {false, Req1} -> unauthorized(Req1, State)
+            end;
+        _ ->
+            authorized(Req, State)
+    end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
@@ -39,18 +43,29 @@ terminate(_Reason, _Req, _State) ->
 %% Internal functions
 %%=============================================================================
 authorized(Req, State) ->
-    % check body
-    case cowboy_req:has_body(Req) of
-        true ->
-            % get body
-            case cowboy_req:body(Req) of
-                {ok, Body, Req2} ->
-                    handle_request(Body, Req2, State);
-                _ ->
-                    {ok, Req, State}
-            end;
-        false ->
-            {ok, Req, State}
+    {Path, Req1} = cowboy_req:path(Req),
+    case Path of
+        <<"/">> ->
+            {ok, Bin} = file:read_file(docroot("index.html")),
+            {ok, Req2} = cowboy_req:reply(200,
+                                          [
+                                           {<<"content-type">>, <<"text/html">>}
+                                          ], Bin, Req1),
+            {ok, Req2, State};
+        <<"/admin">> ->
+            %% check body
+            case cowboy_req:has_body(Req1) of
+                true ->
+                    %% get body
+                    case cowboy_req:body(Req1) of
+                        {ok, Body, Req2} ->
+                            handle_request(Body, Req2, State);
+                        _ ->
+                            {ok, Req1, State}
+                    end;
+                false ->
+                    {ok, Req1, State}
+            end
     end.
 
 handle_request(Body, Req, State) ->
@@ -205,47 +220,48 @@ format_plugins_helper(Plugins) ->
     list_to_binary([Lang ++ " " ++ Name ++ " " ++ Path ++ "\n" || {plugin, Lang, Name, Path} <- Plugins]).
 
 %% Authorization helpers
-credentials(Req) ->
-    {AuthorizationHeader, Req} = cowboy_http_req:header('Authorization', Req),
-    case AuthorizationHeader of
-        undefined ->
-            {undefined, undefined, Req};
+is_authorized(Req, User, Passwd) ->
+    {ok, Auth, Req1} = cowboy_req:parse_header(<<"authorization">>, Req),
+    case Auth of
+        {<<"basic">>, {User, Passwd}} ->
+            {true, Req1};
         _ ->
-            {Username, Password} = credentials_from_header(AuthorizationHeader),
-            {Username, Password, Req}
+            {false, Req1}
     end.
 
-credentials_from_header(AuthorizationHeader) ->
-    case binary:split(AuthorizationHeader, <<$ >>) of
-        [<<"Basic">>, EncodedCredentials] ->
-            decoded_credentials(EncodedCredentials);
-        _ ->
-            {undefined, undefined}
-    end.
-
-decoded_credentials(EncodedCredentials) ->
-    case binary:split(base64:decode(EncodedCredentials), <<$:>>) of
-        [Username, Password] ->
-            {Username, Password};
-        _ ->
-            {undefined, undefined}
-    end.
-
-unauthorized(Req) ->
-    {ok, Req} =
-        cowboy_http_req:set_resp_header(<<"Www-Authenticate">>,
-                                        <<"Basic realm=\"Secure Area\"">>, Req),
-    {ok, Req} = cowboy_http_req:set_resp_body(unauthorized_body(), Req),
-    cowboy_http_req:reply(401, Req).
+unauthorized(Req, State) ->
+    Req1 = cowboy_req:set_resp_header(<<"Www-Authenticate">>,
+                                      <<"Basic realm=\"Secure Area\"">>, Req),
+    Req2 = cowboy_req:set_resp_body(unauthorized_body(), Req1),
+    {ok, Req3} = cowboy_req:reply(401, Req2),
+    {ok, Req3, State}.
 
 unauthorized_body() ->
     <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"
      \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dt\">
-    <HTML>
-      <HEAD>
-        <TITLE>Error</TITLE>
-        <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\">
-      </HEAD>
-      <BODY><H1>401 Unauthorized.</H1></BODY>
-    </HTML>
+    <html>
+      <head>
+        <title>Error</title>
+        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">
+      </head>
+      <body><h1>401 Unauthorized.</h1></body>
+    </html>
     ">>.
+
+docroot(Append) ->
+    priv_dir() ++ "webadmin/" ++ Append.
+
+priv_dir() ->
+    case code:priv_dir(ybot) of
+        {error, bad_name} ->
+            {ok, Cwd} = file:get_cwd(),
+            Cwd ++ "/" ++ "priv/";
+        Priv ->
+            Priv ++ "/"
+    end.
+
+config_option(Key, Options) ->
+    case lists:keyfind(Key, 1, Options) of
+        {Key, Value} -> Value;
+        false -> false
+    end.
