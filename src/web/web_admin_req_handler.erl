@@ -18,6 +18,27 @@ init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
 handle(Req, State) ->
+    
+    Username = "",
+    Password = "",
+
+    % check login credentials
+    {Username1, Password1, Req1} = credentials(Req),
+    {ok, Req2} = case {Username, Password} of
+                    {?USERNAME, ?PASSWORD} ->
+                        authorized(Req1, State);
+                    _ ->
+                        unauthorized(Req)
+                end,
+    {ok, Req2, State}.
+
+terminate(_Reason, _Req, _State) ->
+    ok.
+
+%%=============================================================================
+%% Internal functions
+%%=============================================================================
+authorized(Req, State) ->
     % check body
     case cowboy_req:has_body(Req) of
         true ->
@@ -32,12 +53,6 @@ handle(Req, State) ->
             {ok, Req, State}
     end.
 
-terminate(_Reason, _Req, _State) ->
-    ok.
-
-%%=============================================================================
-%% Internal functions
-%%=============================================================================
 handle_request(Body, Req, State) ->
     % get method and params
     {[{<<"method">>, Method},{<<"params">>, Params}]} = jiffy:decode(Body),
@@ -188,3 +203,49 @@ handle_request(Body, Req, State) ->
 %% @doc Format plugins
 format_plugins_helper(Plugins) ->
     list_to_binary([Lang ++ " " ++ Name ++ " " ++ Path ++ "\n" || {plugin, Lang, Name, Path} <- Plugins]).
+
+%% Authorization helpers
+credentials(Req) ->
+    {AuthorizationHeader, Req} = cowboy_http_req:header('Authorization', Req),
+    case AuthorizationHeader of
+        undefined ->
+            {undefined, undefined, Req};
+        _ ->
+            {Username, Password} = credentials_from_header(AuthorizationHeader),
+            {Username, Password, Req}
+    end.
+
+credentials_from_header(AuthorizationHeader) ->
+    case binary:split(AuthorizationHeader, <<$ >>) of
+        [<<"Basic">>, EncodedCredentials] ->
+            decoded_credentials(EncodedCredentials);
+        _ ->
+            {undefined, undefined}
+    end.
+
+decoded_credentials(EncodedCredentials) ->
+    case binary:split(base64:decode(EncodedCredentials), <<$:>>) of
+        [Username, Password] ->
+            {Username, Password};
+        _ ->
+            {undefined, undefined}
+    end.
+
+unauthorized(Req) ->
+    {ok, Req} =
+        cowboy_http_req:set_resp_header(<<"Www-Authenticate">>,
+                                        <<"Basic realm=\"Secure Area\"">>, Req),
+    {ok, Req} = cowboy_http_req:set_resp_body(unauthorized_body(), Req),
+    cowboy_http_req:reply(401, Req).
+
+unauthorized_body() ->
+    <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"
+     \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dt\">
+    <HTML>
+      <HEAD>
+        <TITLE>Error</TITLE>
+        <META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=ISO-8859-1\">
+      </HEAD>
+      <BODY><H1>401 Unauthorized.</H1></BODY>
+    </HTML>
+    ">>.
