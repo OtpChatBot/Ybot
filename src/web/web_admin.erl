@@ -9,6 +9,7 @@
 -behaviour(gen_server).
 
 -export([start_link/0]).
+-export([docroot/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -20,12 +21,17 @@
 
 -record(state, {}).
 
+
 %% ===================================================================
 %% API functions
 %% ===================================================================
 
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+docroot(Append) ->
+    priv_dir() ++ "webadmin/" ++ Append.
+
 
 %% ===================================================================
 %% web admin process callbacks
@@ -80,11 +86,10 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+
 %% ===================================================================
 %% Internal functions
 %% ===================================================================
-docroot(Append) ->
-    priv_dir() ++ "webadmin/" ++ Append.
 
 priv_dir() ->
     case code:priv_dir(ybot) of

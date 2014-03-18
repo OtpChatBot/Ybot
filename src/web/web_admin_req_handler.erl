@@ -10,6 +10,7 @@
 -export([handle/2]).
 -export([terminate/3]).
 
+
 %%=============================================================================
 %% Cowboy handler callback
 %%=============================================================================
@@ -39,14 +40,16 @@ handle(Req, State) ->
 terminate(_Reason, _Req, _State) ->
     ok.
 
+
 %%=============================================================================
 %% Internal functions
 %%=============================================================================
+
 authorized(Req, State) ->
     {Path, Req1} = cowboy_req:path(Req),
     case Path of
         <<"/">> ->
-            {ok, Bin} = file:read_file(docroot("index.html")),
+            {ok, Bin} = file:read_file(web_admin:docroot("index.html")),
             {ok, Req2} = cowboy_req:reply(200,
                                           [
                                            {<<"content-type">>, <<"text/html">>}
@@ -247,18 +250,6 @@ unauthorized_body() ->
       <body><h1>401 Unauthorized.</h1></body>
     </html>
     ">>.
-
-docroot(Append) ->
-    priv_dir() ++ "webadmin/" ++ Append.
-
-priv_dir() ->
-    case code:priv_dir(ybot) of
-        {error, bad_name} ->
-            {ok, Cwd} = file:get_cwd(),
-            Cwd ++ "/" ++ "priv/";
-        Priv ->
-            Priv ++ "/"
-    end.
 
 config_option(Key, Options) ->
     case lists:keyfind(Key, 1, Options) of
