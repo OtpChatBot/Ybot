@@ -25,6 +25,7 @@
 
 -record(state, {}).
 
+
 %%=============================================================================
 %% API functions
 %%=============================================================================
@@ -35,6 +36,7 @@ start_link(TransportPid, From, Command, Args) ->
 stop() ->
     gen_server:cast(?MODULE, stop).
 
+
 %%=============================================================================
 %% ybot_actor callbacks
 %%=============================================================================
@@ -42,6 +44,7 @@ stop() ->
 init([TransportPid, From, Command, Args]) ->
     % execute plugin
     gen_server:cast(self(), {execute, TransportPid, From, Command, Args}),
+
     % init
     {ok, #state{}}.
 
@@ -53,8 +56,10 @@ handle_cast({execute, TransportPid, From, Command, Args}, State) ->
     try
         % Log
         lager:info("Command: ~s, ~p", [Command, Args]),
+
         % Handle received command
         handle_command(From, Command, Args, TransportPid),
+
         % stop actor
         stop()
     catch
@@ -79,6 +84,7 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
+
 %%=============================================================================
 %% Internal functions
 %%=============================================================================
@@ -86,31 +92,41 @@ code_change(_OldVsn, State, _Extra) ->
 %% @doc Try to find plugin and execute it
 -spec handle_command(string(), cmd(), cmd_args(), transport()) -> ok | pass.
 handle_command(From, Command, Args, TransportPid) ->
-    % Get plugin metadata
-    TryToFindPlugin = gen_server:call(ybot_manager, {get_plugin, Command}),
-    % Check plugin
-    case TryToFindPlugin of
+    %% Get plugin metadata
+    case gen_server:call(ybot_manager, {get_plugin, Command}) of
         wrong_plugin ->
-            % plugin not found
-            gen_server:cast(TransportPid, {send_message, From, "Sorry, but i don't know about this :("});
+            %% plugin not found
+            send_message(TransportPid, From, "Sorry, but i don't know about this :(");
+
         {plugin, "erlang", PluginName, AppModule} ->
-            % execute plugin
-            Result = AppModule:execute(Args),
-            % Save command to history
-            ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ PluginName ++ " " ++ Args ++ "\n"}),
-            % send result to chat
-            gen_server:cast(TransportPid, {send_message, From, Result});
+            %% execute Erlang/OTP plugin
+            Module = list_to_atom(AppModule),
+            Result = Module:execute(Args),
+            ok = store_history(TransportPid, create_message(PluginName, Args)),
+            send_message(TransportPid, From, Result);
+
         {plugin, Lang, _PluginName, PluginPath} ->
-            % execute plugin
-            Cmd = Lang ++ " " ++ PluginPath ++ os_escape(Args),
+            %% execute plugins using command
+            CmdArgs = join(os_escape(Args), " "),
+            Cmd = Lang ++ " " ++ PluginPath ++ CmdArgs,
             %%lager:info("Exec: ~p", [Cmd]),
-            Result = os:cmd(Cmd),
-            % Save command to history
-            ok = gen_server:cast(ybot_history, {update_history, TransportPid, "Ybot " ++ Command ++ " " ++ Args ++ "\n"}),
-            % send result to chat
-            gen_server:cast(TransportPid, {send_message, From, Result})
+            Result = binary_to_list(unicode:characters_to_binary(os:cmd(Cmd))),
+            ok = store_history(TransportPid, create_message(Command, CmdArgs)),
+            send_message(TransportPid, From, Result)
     end.
 
+send_message(TransportPid, From, Message) ->
+    gen_server:cast(TransportPid, {send_message, From, Message}).
+
+create_message(Name, Args) ->
+    "Ybot " ++ Name ++ " " ++ Args ++ "\n".
+
+store_history(TransportPid, Message) ->
+    gen_server:cast(ybot_history, {update_history, TransportPid, Message}).
+
+join([], _Sep) -> "";
+join([H | T], Sep) ->
+    lists:flatten([H | [[Sep, X] || X <- T]]).
 
 os_escape([]) ->
     [];

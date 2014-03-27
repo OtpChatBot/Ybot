@@ -5,11 +5,14 @@
 # Usage: Ybot github_status
 #
 
-require 'net/http'
+require 'net/https'
 require 'json'
 
 uri = URI('https://status.github.com/api/status.json')
-res = Net::HTTP.start(uri.host, use_ssl: true) do |http|
+http = Net::HTTP.new(uri.host, 443)
+http.use_ssl = true
+http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+res = http.start do |http|
         request = Net::HTTP::Get.new(uri.request_uri)
         http.request(request)
       end

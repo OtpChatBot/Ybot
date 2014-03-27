@@ -82,6 +82,9 @@ to_int(X) when is_atom(X) -> list_to_integer(atom_to_list(X));
 to_int(X) when is_list(X) -> list_to_integer(X);
 to_int(_) -> 0.
 
+join([H|T], Sep) ->
+    lists:flatten([H | [[Sep, X] || X <- T]]).
+
 %% @doc Send Body to all chats
 -spec broadcast(any()) -> ok.
 broadcast(Body) ->
@@ -91,7 +94,7 @@ broadcast(Body) ->
     lists:foreach(fun(TransportPid) ->
                     % Send message
                     gen_server:cast(TransportPid,
-                                    {send_message, "", binary_to_list(Body)}
+                                    {send_message, "", join(to_list(Body), "")}
                                    )
                   end,
                   Transports).

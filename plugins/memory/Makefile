@@ -1,7 +1,7 @@
 .PHONY: all clean test eunit deps doc dialyzer
 
 PROJECT=$(basename $(CURDIR))
-REBAR=rebar
+REBAR=../../rebar
 DIALYZER=dialyzer
 
 DIALYZER_OPTS =
