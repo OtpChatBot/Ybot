@@ -1,6 +1,16 @@
 # Ybot news & changelog
 
-## Ybot-0.4.0 --> In development.
+## Ybot-0.5.0 --> In progress
+
+## Ybot-0.4.0 --> released
+
+  * compatibility with R16B1
+  * compilation fails on R16B02 #80
+  * Latest cowboy
+  * multiply irc channel support (thank you @Mendor)
+  * nickname in xmpp muc
+  * many fixes for plugins (thank you @tgrk)
+  * Basic auth in web admin.
 
 ## Ybot-0.3.5 --> released.
 
