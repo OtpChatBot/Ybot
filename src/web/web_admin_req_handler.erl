@@ -10,6 +10,7 @@
 -export([handle/2]).
 -export([terminate/3]).
 
+
 %%=============================================================================
 %% Cowboy handler callback
 %%=============================================================================
@@ -18,26 +19,58 @@ init(_Transport, Req, []) ->
     {ok, Req, undefined}.
 
 handle(Req, State) ->
-    % check body
-    case cowboy_req:has_body(Req) of
+    {ok, WebAdmin} = application:get_env(ybot, web_admin),
+
+    %% check access credentials if auth is enabled
+    case config_option(webadmin_auth, WebAdmin) of
         true ->
-            % get body
-            case cowboy_req:body(Req) of
-                {ok, Body, Req2} ->
-                    handle_request(Body, Req2, State);
-                _ ->
-                    {ok, Req, State}
+            %% get configured credentials
+            AuthUser = list_to_binary(
+                         config_option(webadmin_auth_user, WebAdmin)),
+            AuthPasswd = list_to_binary(
+                           config_option(webadmin_auth_passwd, WebAdmin)),
+            case is_authorized(Req, AuthUser, AuthPasswd) of
+                {true, Req1}  -> authorized(Req1, State);
+                {false, Req1} -> unauthorized(Req1, State)
             end;
-        false ->
-            {ok, Req, State}
+        _ ->
+            authorized(Req, State)
     end.
 
 terminate(_Reason, _Req, _State) ->
     ok.
 
+
 %%=============================================================================
 %% Internal functions
 %%=============================================================================
+
+authorized(Req, State) ->
+    {Path, Req1} = cowboy_req:path(Req),
+    case Path of
+        <<"/">> ->
+            {ok, Bin} = file:read_file(web_admin:docroot("index.html")),
+            {ok, Req2} = cowboy_req:reply(200,
+                                          [
+                                           {<<"content-type">>, <<"text/html">>}
+                                          ], Bin, Req1),
+            {ok, Req2, State};
+        <<"/admin">> ->
+            %% check body
+            case cowboy_req:has_body(Req1) of
+                true ->
+                    %% get body
+                    case cowboy_req:body(Req1) of
+                        {ok, Body, Req2} ->
+                            handle_request(Body, Req2, State);
+                        _ ->
+                            {ok, Req1, State}
+                    end;
+                false ->
+                    {ok, Req1, State}
+            end
+    end.
+
 handle_request(Body, Req, State) ->
     % get method and params
     {[{<<"method">>, Method},{<<"params">>, Params}]} = jiffy:decode(Body),
@@ -188,3 +221,38 @@ handle_request(Body, Req, State) ->
 %% @doc Format plugins
 format_plugins_helper(Plugins) ->
     list_to_binary([Lang ++ " " ++ Name ++ " " ++ Path ++ "\n" || {plugin, Lang, Name, Path} <- Plugins]).
+
+%% Authorization helpers
+is_authorized(Req, User, Passwd) ->
+    {ok, Auth, Req1} = cowboy_req:parse_header(<<"authorization">>, Req),
+    case Auth of
+        {<<"basic">>, {User, Passwd}} ->
+            {true, Req1};
+        _ ->
+            {false, Req1}
+    end.
+
+unauthorized(Req, State) ->
+    Req1 = cowboy_req:set_resp_header(<<"Www-Authenticate">>,
+                                      <<"Basic realm=\"Secure Area\"">>, Req),
+    Req2 = cowboy_req:set_resp_body(unauthorized_body(), Req1),
+    {ok, Req3} = cowboy_req:reply(401, Req2),
+    {ok, Req3, State}.
+
+unauthorized_body() ->
+    <<"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"
+     \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dt\">
+    <html>
+      <head>
+        <title>Error</title>
+        <meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">
+      </head>
+      <body><h1>401 Unauthorized.</h1></body>
+    </html>
+    ">>.
+
+config_option(Key, Options) ->
+    case lists:keyfind(Key, 1, Options) of
+        {Key, Value} -> Value;
+        false -> false
+    end.

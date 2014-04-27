@@ -21,7 +21,7 @@
 
 start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
-    
+
 %% @doc Start http server
 %% @end
 -spec start_web_admin() -> {ok, Pid :: pid()} | {error, Reason :: term()}.
@@ -43,7 +43,6 @@ init([]) ->
 
     % http server child process
     ChildSpec = [
-
         {web_admin,
             {web_admin, start_link, []},
              temporary, 2000, worker, []
